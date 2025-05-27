@@ -1,0 +1,2 @@
+C:/Users/Udayan/Themes/theme_desiree/android/app/.cxx/RelWithDebInfo/2y216p4g/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/Udayan/Themes/theme_desiree/android/app/.cxx/RelWithDebInfo/2y216p4g/x86_64/CMakeFiles/rebuild_cache.dir

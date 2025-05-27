@@ -1,0 +1,218 @@
+import 'package:collection/equality.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:forui/forui.dart';
+import 'package:get/get.dart';
+import 'package:theme_desiree/a/controllers/cart.dart';
+import 'package:theme_desiree/currency/currency_controller.dart';
+import 'package:theme_desiree/showcase/product_model.dart';
+import 'package:theme_desiree/showcase/showcase_controller.dart';
+
+class ActionView extends StatelessWidget {
+  final bool available;
+  final List<VariantModel> variants;
+  final List<String> options;
+  final int price;
+  final int compareAtPrice;
+
+  const ActionView(
+      {super.key,
+      required this.available,
+      required this.variants,
+      required this.options,
+      required this.price,
+      required this.compareAtPrice});
+
+  @override
+  Widget build(BuildContext context) {
+    final currencyController = Get.find<CurrencyController>();
+    final showcaseController = Get.find<ShowcaseController>();
+    final cartController = Get.find<CartController>();
+    return FCard(
+      style: FTheme.of(context).cardStyle.copyWith(
+            contentStyle: FTheme.of(context).cardStyle.contentStyle.copyWith(
+                  padding: EdgeInsets.zero,
+                ),
+          ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Obx(() {
+              final selectedVariant = showcaseController.selectedVariant.value;
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  FButton(
+                    onPress: () {},
+                    style: FButtonStyle.outline,
+                    label: Text(
+                      selectedVariant!.available
+                          ? 'In stock'.tr
+                          : 'Limited stock'.tr,
+                      style: FTheme.of(context).typography.base.copyWith(
+                            fontStyle: FontStyle.italic,
+                            height: 1,
+                          ),
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        currencyController.formatCurrency(
+                            showcaseController.product.value!.price.toDouble()),
+                        style: FTheme.of(context).typography.xl.copyWith(
+                              color: FTheme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                              height: 1.2,
+                            ),
+                      ),
+                      Text(
+                        currencyController.formatCurrency(showcaseController
+                            .product.value!.compareAtPrice
+                            .toDouble()),
+                        style: FTheme.of(context).typography.sm.copyWith(
+                              color: FTheme.of(context)
+                                  .colorScheme
+                                  .mutedForeground,
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                      ),
+                    ],
+                  )
+                ],
+              );
+            }),
+          ),
+          FDivider(
+            style: FTheme.of(context)
+                .dividerStyles
+                .horizontalStyle
+                .copyWith(padding: EdgeInsets.zero),
+          ),
+          Obx(() {
+            final selectedVariant = showcaseController.selectedVariant.value;
+
+            return Padding(
+              padding: const EdgeInsets.all(10),
+              child: ListView.builder(
+                itemCount: options.length,
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  Set<String> seenOptions = {};
+                  List<VariantModel> matchedVariants = variants.where((item) {
+                    if (index == 0) {
+                      if (!seenOptions.contains(item.options[0])) {
+                        seenOptions.add(item.options[index]);
+                        return ListEquality().equals(
+                            item.options.sublist(0, index),
+                            selectedVariant!.options.sublist(0, index));
+                      } else {
+                        return false;
+                      }
+                    } else {
+                      return ListEquality().equals(
+                          item.options.sublist(0, index),
+                          selectedVariant!.options.sublist(0, index));
+                    }
+                  }).toList();
+
+                  return Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Flex(
+                        direction: Axis.horizontal,
+                        spacing: 8,
+                        children: List.generate(matchedVariants.length, (i) {
+                          return GestureDetector(
+                            onTap: () {
+                              showcaseController.selectedVariant.value =
+                                  matchedVariants[i];
+                            },
+                            child: FBadge(
+                              style: selectedVariant!.options[index] ==
+                                      matchedVariants[i].options[index]
+                                  ? FBadgeStyle.primary
+                                  : FBadgeStyle.outline,
+                              label: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  matchedVariants[i].options[index].toString(),
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          }),
+          FDivider(
+            style: FTheme.of(context)
+                .dividerStyles
+                .horizontalStyle
+                .copyWith(padding: EdgeInsets.zero),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Flex(
+              direction: Axis.horizontal,
+              spacing: 8,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: FButton(
+                    onPress: () {
+                      cartController.addProduct(
+                        productId:
+                            showcaseController.product.value!.id.toString(),
+                        variantId: showcaseController.selectedVariant.value!.id
+                            .toString(),
+                        title: showcaseController.product.value!.title,
+                        variant: showcaseController
+                            .selectedVariant.value?.options
+                            .join(" > "),
+                        image: showcaseController.product.value!.featuredImage,
+                        stock: 10,
+                        price:
+                            showcaseController.selectedVariant.value?.price ??
+                                showcaseController.product.value!.price,
+                        isAvailable: showcaseController
+                                .selectedVariant.value?.available ??
+                            showcaseController.product.value!.available,
+                      );
+                      Fluttertoast.showToast(
+                        msg: 'Added to cart'.tr,
+                        backgroundColor: FTheme.of(context).colorScheme.primary,
+                      );
+                      HapticFeedback.vibrate();
+                    },
+                    style: FButtonStyle.outline,
+                    label: Text('Add to cart'.tr),
+                  ),
+                ),
+                Expanded(
+                  child: FButton(
+                    onPress: () => null,
+                    style: FButtonStyle.primary,
+                    label: Text('Buy now'.tr),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
