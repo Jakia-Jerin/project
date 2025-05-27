@@ -1,22 +1,27 @@
 version: 2.1
 
-orbs:
-  flutter: circleci/flutter@3.6.0
-
 jobs:
   build:
     docker:
-      - image: cirrusci/flutter:latest
+      - image: ghcr.io/cirruslabs/flutter:3.22
     steps:
       - checkout
 
       - run:
-          name: Install Flutter dependencies
+          name: Flutter Version
+          command: flutter --version
+
+      - run:
+          name: Get dependencies
           command: flutter pub get
 
       - run:
-          name: Build APK
+          name: Build release APK
           command: flutter build apk --release
+
+      - store_artifacts:
+          path: build/app/outputs/flutter-apk/app-release.apk
+          destination: app-release.apk
 
       - persist_to_workspace:
           root: .
