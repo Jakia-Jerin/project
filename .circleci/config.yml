@@ -3,20 +3,20 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cirrusci/flutter:3.22.0
+      - image: cirrusci/flutter:latest
     steps:
       - checkout
 
       - run:
-          name: Flutter Version
+          name: Check Flutter Version
           command: flutter --version
 
       - run:
-          name: Get dependencies
+          name: Get Dependencies
           command: flutter pub get
 
       - run:
-          name: Build release APK
+          name: Build Release APK
           command: flutter build apk --release
 
       - store_artifacts:
