@@ -1,18 +1,19 @@
 version: 2.1
 
 jobs:
-  build:
+  build_apk:
     docker:
-      - image: ghcr.io/cirruslabs/flutter:main
+      - image: ghcr.io/cirruslabs/flutter:3.29.3
+    resource_class: large
     steps:
       - checkout
 
       - run:
-          name: Flutter Version
+          name: Check Flutter Version
           command: flutter --version
 
       - run:
-          name: Get Dependencies
+          name: Install dependencies
           command: flutter pub get
 
       - run:
@@ -24,6 +25,6 @@ jobs:
           destination: app-release.apk
 
 workflows:
-  build_apk:
+  build:
     jobs:
-      - build
+      - build_apk
