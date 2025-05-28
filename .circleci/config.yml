@@ -19,7 +19,7 @@
         - 
           run: 
             name: "Rename Package Name"
-            command: "dart run change_app_package_name:main com.new.package.name"
+            command: "dart run change_app_package_name:main com.jci.bangladesh"
         - 
           run: 
             name: "Rename App Nickname"
