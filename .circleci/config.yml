@@ -34,6 +34,10 @@
             command: "dart run flutter_launcher_icons:generate"
         - 
           run: 
+            name: "Generate Version Code"
+            command: "dart run cider version 2.0.0"
+        - 
+          run: 
             name: "Build APK"
             command: "flutter build apk --release"
         - 
