@@ -27,7 +27,7 @@
         - 
           run: 
             name: "Generate Splash Screen"
-            command: "dart run flutter_native_splash:create --path=nativeSplash.yaml"
+            command: "dart run flutter_native_splash:create --path=native_splash.yaml"
         - 
           run: 
             name: "Generate App Icon"
