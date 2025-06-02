@@ -55,7 +55,5 @@
   workflows: 
     build: 
       jobs: 
-        - 
-          build_apk: 
-            builderId: "<< pipeline.parameters.builderId >>"
+        - "build_apk"
 
