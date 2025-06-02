@@ -106,7 +106,7 @@ flutter:
     - assets/branding.png
     - assets/icon.png
     - assets/splash_logo.png
-    - .env
+    - assets/.env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
