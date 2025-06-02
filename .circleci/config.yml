@@ -15,7 +15,7 @@
         - 
           run: 
             name: "Timestamp"
-            command: "echo '1748874324209'"
+            command: "echo '1748875001577'"
         - 
           run: 
             name: "Check Flutter Version"
@@ -52,6 +52,10 @@
           store_artifacts: 
             path: "build/app/outputs/flutter-apk/app-release.apk"
             destination: "app-release.apk"
+        - 
+          run: 
+            name: "Upload APK to Cloud"
+            command: "\n                APK_PATH=\"build/app/outputs/flutter-apk/app-release.apk\" &&\n                if [ -f \"$APK_PATH\" ]; then\n                  FORM_DATA=\"$(echo -n 'file=@'$APK_PATH'&bucketName=apks')\" &&\n                  RESPONSE=$(curl -X POST https://cloud.apidoxy.com/file/upload                     -H \"Authorization: Bearer 30ULIvI2wsyXsL1e7gcTvdbdvMn5XuxN8sjHeMW0\"                     -F \"file=@$APK_PATH\"                     -F \"bucketName=apks\") &&\n                  if [ $? -eq 0 ]; then\n                    DOWNLOAD_URL=$(echo $RESPONSE | jq -r '.downloadableUrl') &&\n                    curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\"                       -H 'Content-Type: application/json'                       -d \"{\n                        \\\"builderId\\\": \\\"<< pipeline.parameters.builderId >>\\\",\n                        \\\"buildStatus\\\": 1,\n                        \\\"buildMessageType\\\": \\\"success\\\",\n                        \\\"buildMessage\\\": \\\"APK uploaded successfully\\\",\n                        \\\"downloadUrl\\\": \\\"$DOWNLOAD_URL\\\"\n                      }\"\n                  else\n                    curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\"                       -H 'Content-Type: application/json'                       -d '{\n                        \"builderId\": \"<< pipeline.parameters.builderId >>\",\n                        \"buildStatus\": -1,\n                        \"buildMessageType\": \"error\",\n                        \"buildMessage\": \"Failed to upload APK\"\n                      }'\n                  fi\n                else\n                  curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\"                     -H 'Content-Type: application/json'                     -d '{\n                      \"builderId\": \"<< pipeline.parameters.builderId >>\",\n                      \"buildStatus\": -1,\n                      \"buildMessageType\": \"error\",\n                      \"buildMessage\": \"APK file not found\"\n                    }'\n                fi\n              "
         - 
           run: 
             name: "Final Status Update"
