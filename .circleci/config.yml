@@ -3,6 +3,7 @@
   parameters: 
     builderId: 
       type: "string"
+      default: "default-builder-id"
   jobs: 
     build_apk: 
       docker: 
@@ -56,6 +57,5 @@
       jobs: 
         - 
           build_apk: 
-            parameters: 
-              builderId: "<< pipeline.parameters.builderId >>"
+            builderId: "<< pipeline.parameters.builderId >>"
 
