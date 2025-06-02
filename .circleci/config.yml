@@ -19,11 +19,11 @@
         - 
           run: 
             name: "Rename Package Name"
-            command: "dart run change_app_package_name:main com.jci.bangladesh"
+            command: "dart run change_app_package_name:main com.mycoolapp.app"
         - 
           run: 
             name: "Rename App Nickname"
-            command: "dart run rename_app:main all='My App Name'"
+            command: "dart run rename_app:main all='My Cool App'"
         - 
           run: 
             name: "Generate Splash Screen"
@@ -35,7 +35,7 @@
         - 
           run: 
             name: "Generate Version Code"
-            command: "dart run cider version 2.0.0"
+            command: "dart run cider version 1.0.0"
         - 
           run: 
             name: "Build APK"
