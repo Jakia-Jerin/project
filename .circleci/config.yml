@@ -19,11 +19,11 @@
         - 
           run: 
             name: "Rename Package Name"
-            command: "dart run change_app_package_name:main com.mycoolapp.app2"
+            command: "dart run change_app_package_name:main com.mycoolapp.app3"
         - 
           run: 
             name: "Rename App Nickname"
-            command: "dart run rename_app:main all='My Cool App 2'"
+            command: "dart run rename_app:main all='My Cool App 3'"
         - 
           run: 
             name: "Generate Splash Screen"
