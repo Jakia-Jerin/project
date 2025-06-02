@@ -10,40 +10,36 @@
         - "checkout"
         - 
           run: 
-            name: "Setup Webhook URL"
-            command: "echo 'export WEBHOOK_URL=\"https://sdk.apidoxy.com/api/android-build-status-hook\"' >> $BASH_ENV"
-        - 
-          run: 
             name: "Check Flutter Version"
-            command: "flutter --version && curl -X POST $WEBHOOK_URL -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"Flutter version checked\"}'"
+            command: "flutter --version && curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\" -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"Flutter version checked\"}'"
         - 
           run: 
             name: "Install dependencies"
-            command: "flutter pub get && curl -X POST $WEBHOOK_URL -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"Dependencies installed\"}'"
+            command: "flutter pub get && curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\" -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"Dependencies installed\"}'"
         - 
           run: 
             name: "Rename Package Name"
-            command: "dart run change_app_package_name:main com.mycoolapp.app3 && curl -X POST $WEBHOOK_URL -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"Package name updated\"}'"
+            command: "dart run change_app_package_name:main com.mycoolapp.app3 && curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\" -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"Package name updated\"}'"
         - 
           run: 
             name: "Rename App Nickname"
-            command: "dart run rename_app:main all='My Cool App 3' && curl -X POST $WEBHOOK_URL -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"App name updated\"}'"
+            command: "dart run rename_app:main all='My Cool App 3' && curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\" -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"App name updated\"}'"
         - 
           run: 
             name: "Generate Splash Screen"
-            command: "dart run flutter_native_splash:create --path=native_splash.yaml && curl -X POST $WEBHOOK_URL -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"Splash screen generated\"}'"
+            command: "dart run flutter_native_splash:create --path=native_splash.yaml && curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\" -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"Splash screen generated\"}'"
         - 
           run: 
             name: "Generate App Icon"
-            command: "dart run flutter_launcher_icons:generate && curl -X POST $WEBHOOK_URL -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"App icon generated\"}'"
+            command: "dart run flutter_launcher_icons:generate && curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\" -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"App icon generated\"}'"
         - 
           run: 
             name: "Generate Version Code"
-            command: "dart run cider version 1.0.1 && curl -X POST $WEBHOOK_URL -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"Version code updated\"}'"
+            command: "dart run cider version 1.0.1 && curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\" -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"Version code updated\"}'"
         - 
           run: 
             name: "Build APK"
-            command: "flutter build apk --release && curl -X POST $WEBHOOK_URL -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 1, \"buildMessageType\": \"success\", \"buildMessage\": \"APK built successfully\"}'"
+            command: "flutter build apk --release && curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\" -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 1, \"buildMessageType\": \"success\", \"buildMessage\": \"APK built successfully\"}'"
         - 
           store_artifacts: 
             path: "build/app/outputs/flutter-apk/app-release.apk"
@@ -51,7 +47,7 @@
         - 
           run: 
             name: "Final Status Update"
-            command: "curl -X POST $WEBHOOK_URL -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 1, \"buildMessageType\": \"success\", \"buildMessage\": \"Build completed successfully\"}'"
+            command: "curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\" -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 1, \"buildMessageType\": \"success\", \"buildMessage\": \"Build completed successfully\"}'"
   workflows: 
     build: 
       jobs: 
