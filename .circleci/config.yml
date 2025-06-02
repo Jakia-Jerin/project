@@ -11,7 +11,7 @@
         - 
           run: 
             name: "Setup Webhook URL"
-            command: "echo 'export WEBHOOK_URL=\"http://localhost:3000/api/android-build-status-hook\"' >> $BASH_ENV"
+            command: "echo 'export WEBHOOK_URL=\"https://sdk.apidoxy.com/api/android-build-status-hook\"' >> $BASH_ENV"
         - 
           run: 
             name: "Check Flutter Version"
