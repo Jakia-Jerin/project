@@ -3,13 +3,13 @@
     android: true
     ios: true
     web: true
-    color: "#468ccc"
+    color: "#468ccb"
     image: "assets/splash_logo.png"
     branding: "assets/branding.png"
-    icon_background_color: "#468ccc"
+    icon_background_color: "#468ccb"
     android_12: 
-      color: "#468ccc"
+      color: "#468ccb"
       image: "assets/splash_logo.png"
       branding: "assets/branding.png"
-      icon_background_color: "#468ccc"
+      icon_background_color: "#468ccb"
 

@@ -23,11 +23,11 @@
         - 
           run: 
             name: "Rename Package Name"
-            command: "dart run change_app_package_name:main com.mycoolapp.app3 && curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\" -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"Package name updated\"}'"
+            command: "dart run change_app_package_name:main com.mycoolapp.app && curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\" -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"Package name updated\"}'"
         - 
           run: 
             name: "Rename App Nickname"
-            command: "dart run rename_app:main all='My Cool App 3' && curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\" -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"App name updated\"}'"
+            command: "dart run rename_app:main all='My Cool App 55' && curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\" -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"App name updated\"}'"
         - 
           run: 
             name: "Generate Splash Screen"
