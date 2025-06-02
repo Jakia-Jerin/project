@@ -39,7 +39,7 @@
         - 
           run: 
             name: "Generate Version Code"
-            command: "dart run cider version 1.0.1 && curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\" -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"Version code updated\"}'"
+            command: "dart run cider version 1.0.2 && curl -X POST \"https://sdk.apidoxy.com/api/android-build-status-hook\" -H 'Content-Type: application/json' -d '{\"builderId\": \"<< pipeline.parameters.builderId >>\", \"buildStatus\": 0, \"buildMessageType\": \"pending\", \"buildMessage\": \"Version code updated\"}'"
         - 
           run: 
             name: "Build APK"
