@@ -6,6 +6,9 @@
         - 
           image: "ghcr.io/cirruslabs/flutter:3.29.3"
       resource_class: "large"
+      parameters: 
+        builderId: 
+          type: "string"
       steps: 
         - "checkout"
         - 
@@ -53,7 +56,5 @@
       jobs: 
         - 
           build_apk: 
-            parameters: 
-              builderId: 
-                type: "string"
+            builderId: "<< pipeline.parameters.builderId >>"
 
