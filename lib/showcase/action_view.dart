@@ -203,7 +203,7 @@ class ActionView extends StatelessWidget {
                 ),
                 Expanded(
                   child: FButton(
-                    onPress: () => null,
+                    onPress: () {},
                     style: FButtonStyle.primary,
                     label: Text('Buy now'.tr),
                   ),

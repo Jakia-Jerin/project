@@ -1,4 +1,3 @@
-import 'package:theme_desiree/appbar/appbar_model.dart';
 
 class OffersModel {
   final String id;
