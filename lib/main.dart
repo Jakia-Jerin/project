@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -9,28 +10,46 @@ import 'package:theme_desiree/a/controllers/home.dart';
 import 'package:theme_desiree/a/controllers/notification.dart';
 import 'package:theme_desiree/a/controllers/search_result.dart';
 import 'package:theme_desiree/a/controllers/cart.dart';
-import 'package:theme_desiree/a/services/background.dart';
-import 'package:theme_desiree/a/services/notification.dart';
 import 'package:theme_desiree/currency/currency_controller.dart';
 import 'package:theme_desiree/language/language_contoller.dart';
 import 'package:theme_desiree/navigation/routes.dart';
 import 'package:theme_desiree/a/controllers/theme.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp();
+
+  await dotenv.load(fileName: '.env');
+
   await GetStorage.init();
-  NotificationService().initNotification();
-  initializeService();
+//  NotificationService().initNotification();
+//  initializeService();
   usePathUrlStrategy();
   Get.put(CartController());
-  Get.put(NotificationService());
+  // Get.put(NotificationService());
   Get.put(NotificationController());
   Get.lazyPut(() => CurrencyController());
   Get.lazyPut(() => ThemeController());
   Get.lazyPut(() => HomeController());
   Get.lazyPut(() => CategoriesController());
   Get.lazyPut(() => SearchResultController());
-  runApp(Application());
+ 
+
+
+
+  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  // Initialize with OneSignal App ID
+  OneSignal.initialize(
+    dotenv.env['ONESIGNAL_API_KEY']!,
+   
+  );
+
+  OneSignal.Notifications.requestPermission(true);
+   runApp(Application());
 }
 
 class Application extends StatelessWidget {
@@ -39,6 +58,8 @@ class Application extends StatelessWidget {
   final cartController = Get.find<CartController>();
   @override
   Widget build(BuildContext context) {
+    print('\x1b[32m this is onesignal api key \x1b[0m');
+    print(dotenv.env['ONESIGNAL_API_KEY']);
     return GetMaterialApp(
       builder: (context, child) {
         return GetX<ThemeController>(

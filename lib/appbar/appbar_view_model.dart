@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:theme_desiree/appbar/appbar_model.dart';
-import 'package:theme_desiree/offers/offers_model.dart';
 
 class AppbarViewModel extends ChangeNotifier {
   late AppbarModel _appbar;

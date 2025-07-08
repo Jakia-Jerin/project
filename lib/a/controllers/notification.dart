@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:theme_desiree/a/models/notification.dart';
-import 'package:theme_desiree/a/services/socket.dart';
 
 class NotificationController extends GetxController {
   final GetStorage box = GetStorage();
@@ -33,7 +32,7 @@ class NotificationController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    SocketManager().initSocket();
+    //  SocketManager().initSocket();
     final savedSettings = box.read("notifications");
     if (savedSettings != null) {
       notifications.assignAll(
