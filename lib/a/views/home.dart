@@ -41,7 +41,7 @@ class HomeView extends StatelessWidget {
               }
               return ListView.separated(
                 itemCount: controller.sections.length,
-                padding: EdgeInsets.symmetric(horizontal: 8),
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 separatorBuilder: (context, index) => SizedBox(height: 8),
                 itemBuilder: (context, index) {
                   final sortedSections =
@@ -65,7 +65,7 @@ class HomeView extends StatelessWidget {
               );
             }),
           ),
-          SizedBox(height: 10),
+          //   SizedBox(height: 10),
         ],
       ),
     );

@@ -34,4 +34,18 @@ class CartModel {
       isAvailable: json['isAvailable'],
     );
   }
+
+  CartModel copy() {
+    return CartModel(
+      productId: productId,
+      variantId: variantId,
+      title: title,
+      variant: variant,
+      image: image,
+      quantity: quantity,
+      stock: stock,
+      price: price,
+      isAvailable: isAvailable,
+    );
+  }
 }

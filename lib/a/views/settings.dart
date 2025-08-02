@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
 import 'package:theme_desiree/a/controllers/settings.dart';
+import 'package:theme_desiree/signin_opt/authcontroller.dart';
 
 class Settings extends StatelessWidget {
   Settings({super.key});
 
   final accountController = Get.put(SettingsController());
+  final authController = Get.put(AuthController());
   @override
   Widget build(BuildContext context) {
     final contextTheme = FTheme.of(context);
@@ -63,7 +65,68 @@ class Settings extends StatelessWidget {
                     SizedBox(height: 20),
                     FTile(
                       onPress: () {
-                        null;
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                                title: Text('Log out'),
+                                content: const Text(
+                                  'Are you sure you want to log out?',
+                                ),
+                                //   actionsAlignment: MainAxisAlignment.end,
+                                actions: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      SizedBox(width: 10),
+                                      FButton(
+                                        style: contextTheme.buttonStyles.primary
+                                            .copyWith(
+                                          contentStyle: contextTheme
+                                              .buttonStyles.primary.contentStyle
+                                              .copyWith(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 6, vertical: 8),
+                                          ),
+                                        ),
+                                        onPress: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        label: Text('CANCEL',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: contextTheme
+                                                    .typography.lg.color,
+                                                fontSize: 15)),
+                                      ),
+                                      SizedBox(width: 16),
+                                      FButton(
+                                        style: contextTheme.buttonStyles.primary
+                                            .copyWith(
+                                          contentStyle: contextTheme
+                                              .buttonStyles.primary.contentStyle
+                                              .copyWith(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 6, vertical: 8),
+                                          ),
+                                        ),
+                                        onPress: () {
+                                          authController.logout();
+                                        },
+                                        label: Text(
+                                          'LOG OUT',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: contextTheme
+                                                  .typography.lg.color,
+                                              fontSize: 15),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ]);
+                          },
+                        );
                       },
                       title: Text(
                         "Logout".tr,

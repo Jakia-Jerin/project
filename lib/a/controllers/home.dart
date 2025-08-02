@@ -21,7 +21,8 @@ class HomeController extends GetConnect implements GetxService {
         } else {
           hasError.value = true;
         }
-      } else {
+      } 
+      else {
         hasError.value = true;
       }
     } catch (e) {

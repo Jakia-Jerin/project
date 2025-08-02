@@ -16,7 +16,10 @@ import 'package:theme_desiree/navigation/routes.dart';
 import 'package:theme_desiree/a/controllers/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
-
+import 'package:theme_desiree/checkout/checkout_controller.dart';
+import 'package:theme_desiree/signin_opt/authcontroller.dart';
+//import 'package:flutter/rendering.dart';
+//import 'package:theme_desiree/signin_opt/phonecontroller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +33,9 @@ void main() async {
 //  initializeService();
   usePathUrlStrategy();
   Get.put(CartController());
+  Get.put(CheckoutController());
+
+  Get.put(AuthController());
   // Get.put(NotificationService());
   Get.put(NotificationController());
   Get.lazyPut(() => CurrencyController());
@@ -37,29 +43,31 @@ void main() async {
   Get.lazyPut(() => HomeController());
   Get.lazyPut(() => CategoriesController());
   Get.lazyPut(() => SearchResultController());
- 
-
-
 
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   // Initialize with OneSignal App ID
   OneSignal.initialize(
-    dotenv.env['ONESIGNAL_API_KEY']!,
-   
+    dotenv.env['ONESIGNAL_APP_ID']!,
   );
 
   OneSignal.Notifications.requestPermission(true);
-   runApp(Application());
+  await GetStorage.init();
+  // debugPaintSizeEnabled = true;
+  runApp(Application());
 }
 
 class Application extends StatelessWidget {
   Application({super.key});
+  final checkoutController = Get.put(CheckoutController());
+  final cartController = Get.put(CartController());
 
-  final cartController = Get.find<CartController>();
+  // final cartController = Get.find<CartController>();
+  // final checkoutController = Get.find<CheckoutController>();
+
   @override
   Widget build(BuildContext context) {
     print('\x1b[32m this is onesignal api key \x1b[0m');
-    print(dotenv.env['ONESIGNAL_API_KEY']);
+    print(dotenv.env['ONESIGNAL_APP_ID']);
     return GetMaterialApp(
       builder: (context, child) {
         return GetX<ThemeController>(
@@ -69,7 +77,7 @@ class Application extends StatelessWidget {
                 statusBarColor:
                     controller.currentTheme.value.colorScheme.primary,
                 systemNavigationBarColor: controller
-                    .currentTheme.value.colorScheme.background
+                    .currentTheme.value.colorScheme.primary
                     .withAlpha(235),
                 systemNavigationBarIconBrightness: controller.isDarkMode.value
                     ? Brightness.dark
@@ -103,6 +111,7 @@ class Application extends StatelessWidget {
                         case 3:
                           Get.toNamed('/cart');
                           break;
+
                         case 4:
                           Get.toNamed('/settings');
                           break;

@@ -9,6 +9,12 @@ class SettingsController extends GetxController {
         subtitle: 'Change general information',
         icon: FIcon(FAssets.icons.user),
         route: '/settings/profile'),
+
+     SettingsModel(
+        title: 'Address',
+        subtitle: 'Change general information',
+        icon: FIcon(FAssets.icons.mapPinHouse),
+        route: '/settings/address'),
     SettingsModel(
         title: 'Orders',
         subtitle: 'Order history and reviews',
