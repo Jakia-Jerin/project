@@ -17,7 +17,7 @@ class CartView extends StatelessWidget {
     final currencyController = Get.find<CurrencyController>();
     final cartController = Get.find<CartController>();
     final contextTheme = FTheme.of(context);
-    final homeController = Get.put(HomeController());
+    //   final homeController = Get.put(HomeController());
     return Scaffold(
       backgroundColor: contextTheme.colorScheme.background,
       body: Container(
