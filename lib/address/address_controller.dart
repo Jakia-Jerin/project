@@ -105,7 +105,7 @@ class AddressController extends GetConnect implements GetxService {
     Map<String, dynamic>? selectedData = storage.read('selectedAddress');
     selectedAddress.value = FullAddress.fromJson(selectedData!);
     print("Loaded saved selected address: ${selectedAddress.value}");
-    }
+  }
 
   @override
   void onInit() {
