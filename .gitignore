@@ -47,3 +47,5 @@ app.*.map.json
 # Ignore keystore files and secrets
 key.properties
 *.jks
+
+keystore.txt
