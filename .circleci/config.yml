@@ -6,8 +6,8 @@ jobs:
       - image: ghcr.io/cirruslabs/flutter:3.29.3
     working_directory: ~/app
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: checkout
+        
       
 
       
