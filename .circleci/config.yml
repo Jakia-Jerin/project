@@ -3,11 +3,14 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cirrusci/flutter:3.29.4
+      - image: cirrusci/flutter:stable
     working_directory: ~/app
     steps:
       - checkout
-
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+        flutter-version: '3.29.3'
       - run:
           name: Install dependencies
           command: flutter pub get
