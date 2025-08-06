@@ -6,11 +6,15 @@ jobs:
       - image: cirrusci/flutter:stable
     working_directory: ~/app
     steps:
-      - checkout
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      
+
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
         flutter-version: '3.29.3'
+  
       - run:
           name: Install dependencies
           command: flutter pub get
