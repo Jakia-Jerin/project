@@ -53,8 +53,7 @@ jobs:
           destination: app-release.aab
 
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: Install jq for JSON parsing
           name: Upload APK & AAB to Cloudinary
           command: |
             # Upload APK
