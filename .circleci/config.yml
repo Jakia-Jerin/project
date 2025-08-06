@@ -54,6 +54,7 @@ jobs:
 
       - run:
           name: Install jq for JSON parsing
+          command: apt-get update && apt-get install -y jq
           name: Upload APK & AAB to Cloudinary
           command: |
             # Upload APK
