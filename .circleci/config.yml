@@ -3,17 +3,14 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cirrusci/flutter:stable
+      - image: ghcr.io/cirruslabs/flutter:3.29.3
     working_directory: ~/app
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
       
 
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-        flutter-version: '3.29.3'
+      
   
       - run:
           name: Install dependencies
