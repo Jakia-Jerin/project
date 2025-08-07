@@ -54,7 +54,7 @@ jobs:
           name: Upload APK & AAB to Cloudinary
           command: |
             # Upload APK
-            RESPONSE_APK=$(curl -s -X POST https://api.cloudinary.com/v1_1/<your-cloud-name>/raw/upload \
+            RESPONSE_APK=$(curl -s -X POST https://api.cloudinary.com/v1_1/<dvwxbfzhi>/raw/upload \
               -F file=@build/app/outputs/flutter-apk/app-release.apk \
               -F upload_preset=unsigned_upload)
 
@@ -62,7 +62,7 @@ jobs:
             echo "APK URL: $APK_URL"
 
             # Upload AAB
-            RESPONSE_AAB=$(curl -s -X POST https://api.cloudinary.com/v1_1/<your-cloud-name>/raw/upload \
+            RESPONSE_AAB=$(curl -s -X POST https://api.cloudinary.com/v1_1/<dvwxbfzhi>/raw/upload \
               -F file=@build/app/outputs/bundle/release/app-release.aab \
               -F upload_preset=unsigned_upload)
 
