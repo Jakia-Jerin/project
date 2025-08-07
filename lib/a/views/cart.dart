@@ -4,7 +4,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
 import 'package:theme_desiree/a/controllers/cart.dart';
-import 'package:theme_desiree/a/controllers/home.dart';
 import 'package:theme_desiree/currency/currency_controller.dart';
 import 'package:theme_desiree/a/ui/loader_view.dart';
 
