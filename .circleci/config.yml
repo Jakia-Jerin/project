@@ -18,15 +18,16 @@ jobs:
 
       - run:
           name: Decode Keystore
-          command: echo $KEYSTORE_BASE64 | base64 --decode > my-release-key.jks
+          command: echo $KEYSTORE_BASE64 | base64 --decode > android/app/my-release-key.jks
 
       - run:
           name: Create key.properties
           command: |
-            echo "storePassword=$KEYSTORE_PASSWORD" > key.properties
-            echo "keyPassword=$KEY_PASSWORD" >> key.properties
-            echo "keyAlias=$KEY_ALIAS" >> key.properties
-            echo "storeFile=my-release-key.jks" >> key.properties
+            echo "storeFile=android/app/my-release-key.jks" > android/key.properties
+            echo "storePassword=$KEYSTORE_PASSWORD" > android/key.properties
+            echo "keyAlias=$KEY_ALIAS" >> android/key.properties
+            echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
+            
 
       - run:
           name: Build Signed APK
