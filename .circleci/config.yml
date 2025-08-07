@@ -23,10 +23,12 @@ jobs:
       - run:
           name: Create key.properties
           command: |
-            echo "storeFile=android/app/my-release-key.jks" > key.properties
-            echo "storePassword=$KEYSTORE_PASSWORD" > key.properties
-            echo "keyAlias=$KEY_ALIAS" >> key.properties
-            echo "keyPassword=$KEY_PASSWORD" >> key.properties
+            cat \<<EOF > android/key.properties
+            storeFile=my-release-key.jks
+            storePassword=$KEYSTORE_PASSWORD
+            keyAlias=$KEY_ALIAS
+            keyPassword=$KEY_PASSWORD
+            EOF
             
 
       - run:
@@ -54,7 +56,7 @@ jobs:
           name: Upload APK & AAB to Cloudinary
           command: |
             # Upload APK
-            RESPONSE_APK=$(curl -s -X POST https://api.cloudinary.com/v1_1/<dvwxbfzhi>/raw/upload \
+            RESPONSE_APK=$(curl -s -X POST https://api.cloudinary.com/v1_1/dvwxbfzhi/raw/upload \
               -F file=@build/app/outputs/flutter-apk/app-release.apk \
               -F upload_preset=unsigned_upload)
 
