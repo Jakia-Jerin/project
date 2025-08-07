@@ -5,6 +5,16 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("android/key.properties")
+
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+
+
+
 android {
     namespace = "com.example.theme_desiree"
     compileSdk = flutter.compileSdkVersion
@@ -30,12 +40,33 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+       release {
+        try {
+            def storeFilePath = keystoreProperties['STORE_FILE']
+            if (storeFilePath != null) {
+                storeFile file("android/app/" + storeFilePath)
+                storePassword keystoreProperties['STORE_PASSWORD']
+                keyAlias keystoreProperties['KEY_ALIAS']
+                keyPassword keystoreProperties['KEY_PASSWORD']
+            } else {
+                println("❌ STORE_FILE is null!")
+               
+            }
+             println("👉 STORE_FILE = " + keystoreProperties['STORE_FILE'])
+        } catch(Exception e) {
+            println("❌ Error loading keystore: " + e.message)
+        }
+    }
+}
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
-        }
+        signingConfig signingConfigs.release
+        minifyEnabled false
+        shrinkResources false
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
     }
 }
 
