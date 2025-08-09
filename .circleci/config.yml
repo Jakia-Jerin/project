@@ -23,53 +23,73 @@ jobs:
       - run:
           name: Create key.properties
           command: |
-            cat \<<EOF > android/key.properties
-            storeFile=my-release-key.jks
-            storePassword=$KEYSTORE_PASSWORD
-            keyAlias=$KEY_ALIAS
-            keyPassword=$KEY_PASSWORD
-            EOF
+            echo "storeFile=android/app/my-release-key.jks" > key.properties
+            echo "storePassword=$KEYSTORE_PASSWORD" > key.properties
+            echo "keyAlias=$KEY_ALIAS" >> key.properties
+            echo "keyPassword=$KEY_PASSWORD" >> key.properties
             
 
       - run:
           name: Build Signed APK
-          command: flutter build apk --release
+          command: |
+            flutter build apk --release
+            mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/myapp-release.apk
 
       - run:
           name: Build Signed AAB
-          command: flutter build appbundle --release
+          command: |
+            flutter build appbundle --release
+            mv build/app/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/project-release.aab
 
       - store_artifacts:
-          path: build/app/outputs/flutter-apk/app-release.apk
-          destination: app-release.apk
+          path: build/app/outputs/flutter-apk/myapp-release.apk
+          destination: myapp-release.apk
+          
 
       - store_artifacts:
-          path: build/app/outputs/bundle/release/app-release.aab
-          destination: app-release.aab
+          path: build/app/outputs/bundle/release/project-release.aab
+          destination: project-release.aab
 
       - run:
           name: Install jq for JSON parsing
           command: |
             apt-get update && apt-get install -y jq
+      # - run:
+      #     name: Upload APK & AAB to Cloudinary
+      #     command: |
+      #       # Upload APK
+      #       RESPONSE_APK=$(curl -s -X POST https://api.cloudinary.com/v1_1/dvwxbfzhi/raw/upload \
+      #         -F file=@build/app/outputs/flutter-apk/app-release.apk \
+      #         -F upload_preset=unsigned_upload)
 
-      - run:
-          name: Upload APK & AAB to Cloudinary
-          command: |
-            # Upload APK
-            RESPONSE_APK=$(curl -s -X POST https://api.cloudinary.com/v1_1/dvwxbfzhi/raw/upload \
-              -F file=@build/app/outputs/flutter-apk/app-release.apk \
-              -F upload_preset=unsigned_upload)
+      #       APK_URL=$(echo $RESPONSE_APK | jq -r '.secure_url')
+      #       echo "APK URL: $APK_URL"
 
-            APK_URL=$(echo $RESPONSE_APK | jq -r '.secure_url')
-            echo "APK URL: $APK_URL"
+      #       # Upload AAB
+      #       RESPONSE_AAB=$(curl -s -X POST https://api.cloudinary.com/v1_1/dvwxbfzhi/raw/upload \
+      #         -F file=@build/app/outputs/bundle/release/app-release.aab \
+      #         -F upload_preset=unsigned_upload)
 
-            # Upload AAB
-            RESPONSE_AAB=$(curl -s -X POST https://api.cloudinary.com/v1_1/<dvwxbfzhi>/raw/upload \
-              -F file=@build/app/outputs/bundle/release/app-release.aab \
-              -F upload_preset=unsigned_upload)
+      #       AAB_URL=$(echo $RESPONSE_AAB | jq -r '.secure_url')
+      #       echo "AAB URL: $AAB_URL"
+      # - run:
+      #     name: Upload APK & AAB to Cloudinary
+      #     command: |
+      #       # Upload APK
+      #       RESPONSE_APK=$(curl -s -X POST https://api.cloudinary.com/v1_1/<your-cloud-name>/raw/upload \
+      #         -F file=@build/app/outputs/flutter-apk/app-release.apk \
+      #         -F upload_preset=unsigned_upload)
 
-            AAB_URL=$(echo $RESPONSE_AAB | jq -r '.secure_url')
-            echo "AAB URL: $AAB_URL"
+      #       APK_URL=$(echo $RESPONSE_APK | jq -r '.secure_url')
+      #       echo "APK URL: $APK_URL"
+
+      #       # Upload AAB
+      #       RESPONSE_AAB=$(curl -s -X POST https://api.cloudinary.com/v1_1/dvwxbfzhi/raw/upload \
+      #         -F file=@build/app/outputs/bundle/release/app-release.aab \
+      #         -F upload_preset=unsigned_upload)
+
+      #       AAB_URL=$(echo $RESPONSE_AAB | jq -r '.secure_url')
+      #       echo "AAB URL: $AAB_URL"
 
             # Optional: Notify server
             # curl -X POST https://yourserver.com/api/build-complete \
