@@ -52,10 +52,7 @@ jobs:
           path: build/app/outputs/bundle/release/project-release.aab
           destination: project-release.aab
 
-      - run:
-          name: Install jq for JSON parsing
-          command: |
-            apt-get update && apt-get install -y jq
+     
       - run:
           name: Upload APK & AAB to Cloudinary
           command: |
@@ -67,7 +64,7 @@ jobs:
               -F releaseNotes="Initial release" \
               -F upload_preset=unsigned_upload)
 
-            APK_URL=$(echo $RESPONSE_APK | jq -r '.secure_url')
+            APK_URL=$(echo $RESPONSE_APK)
             echo "APK URL: $APK_URL"
             # Optional: Notify server
             # curl -X POST https://yourserver.com/api/build-complete \
