@@ -60,7 +60,7 @@ jobs:
       - run:
           name: Upload APK & AAB 
           command: |
-            RESPONSE_APK=$(curl -s -X POST https://app2.apidoxy.com/api/v1/apps/android/upload-apk \
+            RESPONSE_APK=$(curl -s --max-time 4000 -X POST https://app2.apidoxy.com/api/v1/apps/android/upload-apk \
             -F file=@build/app/outputs/flutter-apk/myapp-release.apk \
             -F shop="cmdodf60l000028vh5otnn9fg" \
             -F version="1.0.0" \
