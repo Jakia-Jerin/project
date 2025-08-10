@@ -23,10 +23,12 @@ jobs:
       - run:
           name: Create key.properties
           command: |
-            echo "storeFile=android/app/my-release-key.jks" > key.properties
-            echo "storePassword=$KEYSTORE_PASSWORD" > key.properties
-            echo "keyAlias=$KEY_ALIAS" >> key.properties
-            echo "keyPassword=$KEY_PASSWORD" >> key.properties
+            cat \<<EOF > android/key.properties
+            storeFile=my-release-key.jks
+            storePassword=$KEYSTORE_PASSWORD
+            keyAlias=$KEY_ALIAS
+            keyPassword=$KEY_PASSWORD
+            EOF
             
 
       - run:
