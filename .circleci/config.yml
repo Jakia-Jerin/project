@@ -54,7 +54,27 @@ jobs:
           name: Install jq for JSON parsing
           command: |
             apt-get update && apt-get install -y jq
-<<<<<<< HEAD
+
+      - run:
+          name: Upload APK & AAB 
+    command: |
+      RESPONSE_APK=$(curl -s -X POST https://app2.apidoxy.com/api/v1/apps/android/upload-apk \
+        -F file=@build/app/outputs/flutter-apk/myapp-release.apk \
+        -F shop="cmdodf60l000028vh5otnn9fg" \
+        -F version="1.0.0" \
+        -F releaseNotes="Initial release" \
+        -F upload_preset=unsigned_upload)
+
+      echo "Full API Response: $RESPONSE_APK"
+
+      if echo "$RESPONSE_APK" | jq empty >/dev/null 2>&1; then
+        APK_URL=$(echo "$RESPONSE_APK" | jq -r '.secure_url')
+        echo "APK URL: $APK_URL"
+      else
+        echo "❌ API did not return valid JSON."
+      fi
+      
+
       # - run:
       #     name: Upload APK & AAB to Cloudinary
       #     command: |
@@ -92,21 +112,6 @@ jobs:
       #       AAB_URL=$(echo $RESPONSE_AAB | jq -r '.secure_url')
       #       echo "AAB URL: $AAB_URL"
 
-=======
-      - run:
-          name: Upload APK & AAB 
-          command: |
-            # Upload APK
-            RESPONSE_APK=$(curl -s -X POST https://app2.apidoxy.com/api/v1/apps/android/upload-apk \
-              -F file=@build/app/outputs/flutter-apk/myapp-release.apk \
-              -F shop="cmdodf60l000028vh5otnn9fg" \
-              -F version="1.0.0" \
-              -F releaseNotes="Initial release" \
-              -F upload_preset=unsigned_upload)
-
-            APK_URL=$(echo $RESPONSE_APK | jq -r '.secure_url')
-            echo "APK URL: $APK_URL"
->>>>>>> 6d6f9b4b6df2d9d1012bca2aeec7c7a6804d7c53
             # Optional: Notify server
             # curl -X POST https://yourserver.com/api/build-complete \
             #  -H "Content-Type: application/json" \
