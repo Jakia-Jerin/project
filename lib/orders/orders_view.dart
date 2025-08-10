@@ -105,7 +105,13 @@ class OrdersView extends StatelessWidget {
                               onPress: () {
                                 Get.toNamed("/");
                               },
-                              label: Text("Continue Shopping")),
+                              label: Text(
+                                "Continue Shopping",
+                                style: contextTheme.typography.sm.copyWith(
+                                  fontSize: 17,
+                                  color: contextTheme.typography.sm.color,
+                                ),
+                              )),
                         )
                       ],
                     ),
