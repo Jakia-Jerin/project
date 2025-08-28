@@ -16,8 +16,10 @@ class BannerCarouselController extends GetConnect implements GetxService {
       }
     } catch (e) {
       hasError.value = true;
-    } finally {
+    } 
+    finally {
       isLoading.value = false;
     }
   }
 }
+

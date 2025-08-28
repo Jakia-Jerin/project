@@ -76,7 +76,8 @@ class ThemeController extends GetxController {
     _updateTheme(colorScheme.value, isDark: isDark);
   }
 
-  void changeColorScheme(int index) {
+  void changeColorScheme(int index)
+   {
     _updateTheme(index, isDark: isDarkMode.value);
   }
 

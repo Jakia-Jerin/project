@@ -27,9 +27,10 @@ class ProductMiniCard extends StatelessWidget {
           ),
         ),
         child: GestureDetector(
-          onTap: () => Get.toNamed("/item", parameters: {"id": data.id}),
+          onTap: () => Get.toNamed("/item", parameters: {"productId": data.id}),
           child: Container(
             constraints: BoxConstraints(maxWidth: 360),
+            
             child: Column(
               children: [
                 AspectRatio(

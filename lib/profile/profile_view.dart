@@ -264,18 +264,19 @@ class ProfileView extends StatelessWidget {
                         ConstrainedBox(
                           constraints: BoxConstraints(maxWidth: 360),
                           child: FButton(
-                            onPress: (controller.editedProfile.value?.name !=
-                                        controller.profile.value?.name ||
-                                    controller.editedProfile.value?.gender !=
-                                        controller.profile.value?.gender ||
-                                    controller
-                                            .editedProfile.value?.email.data !=
-                                        controller.profile.value?.email.data ||
-                                    controller
-                                            .editedProfile.value?.phone.data !=
-                                        controller.profile.value?.phone.data)
-                                ? () => controller.updateProfile
-                                : null,
+                            onPress: () {},
+                            // onPress: (controller.editedProfile.value?.name !=
+                            //             controller.profile.value?.name ||
+                            //         controller.editedProfile.value?.gender !=
+                            //             controller.profile.value?.gender ||
+                            //         controller
+                            //                 .editedProfile.value?.email.data !=
+                            //             controller.profile.value?.email.data ||
+                            //         controller
+                            //                 .editedProfile.value?.phone.data !=
+                            //             controller.profile.value?.phone.data)
+                            //     ? () => controller.updateProfile
+                            //     : null,
                             label: Text('Update'),
                           ),
                         )

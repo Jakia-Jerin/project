@@ -2,6 +2,12 @@ import 'package:theme_desiree/profile/contacts.dart';
 
 enum Gender { male, female, other, none }
 
+ 
+   const male = Gender.male;
+  const female = Gender.female;
+   const other = Gender.other;
+   const none = Gender.none;
+
 class ProfileModel {
   final String id;
   final String avatar;
@@ -75,4 +81,7 @@ class ProfileModel {
         return Gender.none;
     }
   }
+
+  
+ 
 }

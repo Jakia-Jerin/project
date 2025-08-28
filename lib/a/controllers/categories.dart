@@ -1,6 +1,9 @@
+import 'dart:convert';
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:theme_desiree/a/models/caregories.dart';
-import 'package:theme_desiree/constants.dart';
 
 class CategoriesController extends GetConnect implements GetxService {
   var categories = <CategoryModel>[].obs;
@@ -10,40 +13,92 @@ class CategoriesController extends GetConnect implements GetxService {
   var hasError = false.obs;
   var isGrid = false.obs;
   var screenWidth = Get.width.obs;
+  var currentPage = 1;
+  var totalPages = 1;
 
   @override
   void onInit() {
     super.onInit();
     Future.delayed(Duration.zero, () {
-      fetchCategories(null);
+      fetchCategories();
     });
   }
 
-  Future<void> fetchCategories(String? handle) async {
+  Future<void> fetchCategories() async {
     isLoading.value = true;
+    hasError.value = false;
+
     try {
-      final response = await get("${Constants.host}db4b90596a406d6a2c2f");
+      final response = await http.get(
+        Uri.parse("https://app2.apidoxy.com/api/v1/categories"),
+        headers: {
+          "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print("Status code: ${response.statusCode}");
+      print("Full response: ${response.body}");
+
       if (response.statusCode == 200) {
-        final data = response.body;
-        if (data is Map && data['collections'] is List) {
-          final List<CategoryModel> respCategories =
-              (data['collections'] as List)
-                  .map((item) => CategoryModel.fromJson(item))
-                  .toList();
+        final Map<String, dynamic> data = jsonDecode(response.body);
+
+        if (data['success'] == true && data['data'] is List) {
+          final List<CategoryModel> respCategories = (data['data'] as List)
+              .map((item) => CategoryModel.fromJson(item))
+              .toList();
+
           categories.assignAll(respCategories);
+          print("Categories fetched: ${categories.length}");
+          print("Categories data: ${data['data']}");
+
+          // Pagination info (null-safe)
+          if (data['pagination'] != null && data['pagination'] is Map) {
+            currentPage = data['pagination']['currentPage'] ?? 1;
+            totalPages = data['pagination']['totalPages'] ?? 1;
+          }
+
+          print("Fetched ${categories.length} categories.");
         } else {
           hasError.value = true;
+          print("Error: 'data' is null or not a List");
         }
       } else {
         hasError.value = true;
+        print("Error: Status code ${response.statusCode}");
       }
     } catch (e) {
       hasError.value = true;
+      print("Exception fetching categories: $e");
     } finally {
-      selectCategoryItems(handle);
       isLoading.value = false;
     }
   }
+  // Future<void> fetchCategories(String? handle) async {
+  //   isLoading.value = true;
+  //   try {
+  //     final response = await get("${Constants.host}db4b90596a406d6a2c2f");
+  //     if (response.statusCode == 200) {
+  //       final data = response.body;
+  //       if (data is Map && data['collections'] is List) {
+  //         final List<CategoryModel> respCategories =
+  //             (data['collections'] as List)
+  //                 .map((item) => CategoryModel.fromJson(item))
+  //                 .toList();
+  //         categories.assignAll(respCategories);
+  //       } else {
+  //         hasError.value = true;
+  //       }
+  //     } else {
+  //       hasError.value = true;
+  //     }
+  //   } catch (e) {
+  //     hasError.value = true;
+  //   } finally {
+  //     selectCategoryItems(handle);
+  //     isLoading.value = false;
+  //   }
+  // }
 
   bool selectCategoryItems(String? handle) {
     if (handle == null) {

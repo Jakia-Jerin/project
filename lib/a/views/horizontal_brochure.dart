@@ -14,7 +14,8 @@ class HorizontalBrochure extends StatelessWidget {
     final horizontalBrochureController =
         Get.put(HorizontalBrochureController(), tag: tag);
 
-    horizontalBrochureController.fromJson(data);
+    //horizontalBrochureController.fromJson(data);
+    horizontalBrochureController.fetchBrochure();
 
     final contextTheme = FTheme.of(context);
 

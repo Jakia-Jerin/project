@@ -16,13 +16,13 @@ class ReviewView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    item.name,
+                    item.name ?? '',
                     overflow: TextOverflow.ellipsis,
                   ),
                   Spacer(),
                   Row(
                     children: List.generate(
-                      item.star,
+                      item.star ?? 0,
                       (index) => FIcon(
                         FAssets.icons.star,
                         size: 18,
@@ -50,7 +50,7 @@ class ReviewView extends StatelessWidget {
                     ),
                   Expanded(
                     child: Text(
-                      item.body,
+                      item.body ?? '',
                       maxLines: 4,
                       overflow: TextOverflow.ellipsis,
                     ),

@@ -121,6 +121,7 @@ flutter:
     - assets/1713918-removebg-preview.png
     - assets/images.jpg
     - assets/imagecart-removebg-preview.png
+    
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

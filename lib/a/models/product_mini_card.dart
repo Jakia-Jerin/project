@@ -16,12 +16,15 @@ class ProductMiniCardModel {
   });
 
   factory ProductMiniCardModel.fromJson(Map<String, dynamic> json) {
+    final priceMap = json['price'] as Map<String, dynamic>? ?? {};
     return ProductMiniCardModel(
       id: json['id'] ?? '',
       title: json['title'] ?? '',
       tag: (json['tag'] as List?)?.cast<String>() ?? [],
-      price: (json['price'] as num?)?.toDouble() ?? 0.0,
-      compareAtPrice: (json['compare_at_price'] as num?)?.toDouble() ?? 0.0,
+      price: (priceMap['base'] as num?)?.toDouble() ?? 0.0,
+      compareAtPrice: (priceMap['compareAt'] as num?)?.toDouble() ?? 0.0,
+      //   price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      //  compareAtPrice: (json['compare_at_price'] as num?)?.toDouble() ?? 0.0,
       featuredImage: json['featured_image'] ?? '',
     );
   }

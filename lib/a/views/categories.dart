@@ -74,7 +74,7 @@ class Categories extends StatelessWidget {
                 return Expanded(
                   child: Center(
                     child: ErrorView(
-                      retry: () => categoriesController.fetchCategories(null),
+                      retry: () => categoriesController.fetchCategories(),
                     ),
                   ),
                 );

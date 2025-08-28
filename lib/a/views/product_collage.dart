@@ -19,7 +19,7 @@ class ProductCollage extends StatelessWidget {
     final contextTheme = FTheme.of(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      productCollageController.fromJson(data);
+      productCollageController.fetchProducts();
     });
 
     return GetX<ProductCollageController>(
@@ -31,7 +31,7 @@ class ProductCollage extends StatelessWidget {
           );
         } else if (controller.hasError.value) {
           return ErrorView(
-            retry: () => controller.fromJson(data),
+            retry: () => controller.fetchProducts(),
           );
         }
         return FCard(

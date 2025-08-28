@@ -15,10 +15,15 @@ import 'package:theme_desiree/language/language_view.dart';
 import 'package:theme_desiree/a/views/notification.dart';
 import 'package:theme_desiree/orders/orders_view.dart';
 import 'package:theme_desiree/a/views/search.dart';
+
+import 'package:theme_desiree/profile/profile_info.dart';
+import 'package:theme_desiree/profile/profile_view.dart';
 import 'package:theme_desiree/showcase/showcase_view.dart';
 import 'package:theme_desiree/a/views/theme.dart';
 import 'package:theme_desiree/signin_opt/otp.dart';
+import 'package:theme_desiree/signin_opt/resetpass.dart';
 import 'package:theme_desiree/signin_opt/signin_signup.dart';
+import 'package:theme_desiree/signin_opt/verifyemailphone.dart';
 
 class AppRoutes {
   static final routes = [
@@ -75,6 +80,40 @@ class AppRoutes {
               GetPage(
                 name: '/profile',
                 page: () => SigninPage(),
+
+                //     page: () => ProfileView(),
+                transition: Transition.rightToLeft,
+                curve: Curves.easeInOut,
+                transitionDuration: Duration(milliseconds: 300),
+              ),
+              GetPage(
+                name: '/editprofile',
+                page: () => ProfileView(),
+                transition: Transition.rightToLeft,
+                curve: Curves.easeInOut,
+                transitionDuration: Duration(milliseconds: 300),
+              ),
+              GetPage(
+                name: '/resetpass',
+                page: () => ResetPasswordPage(),
+
+                //     page: () => ProfileView(),
+                transition: Transition.rightToLeft,
+                curve: Curves.easeInOut,
+                transitionDuration: Duration(milliseconds: 300),
+              ),
+              GetPage(
+                name: '/profile-info',
+                page: () => AccountInfoPage(),
+
+                //     page: () => ProfileView(),
+                transition: Transition.rightToLeft,
+                curve: Curves.easeInOut,
+                transitionDuration: Duration(milliseconds: 300),
+              ),
+              GetPage(
+                name: '/verify',
+                page: () => VerificationMethodPage(account: ''),
 
                 //     page: () => ProfileView(),
                 transition: Transition.rightToLeft,

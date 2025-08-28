@@ -46,13 +46,19 @@ class CartController extends GetConnect implements GetxService {
   //             .map((item) => CartModel.fromJson(item))
   //             .toList();
   //         products.assignAll(dataResults);
-  //       } else {
+  //       } 
+  //       else {
   //         hasError.value = true;
   //       }
-  //     } else {
+  //     } 
+  //        
+  //       else {
   //       hasError.value = true;
   //     }
-  //   } catch (e) {
+  //   } 
+  //
+  //
+  //    catch (e) {
   //     hasError.value = true;
   //   } finally {
   //     isLoading.value = false;

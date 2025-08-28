@@ -8,9 +8,14 @@ class SettingsController extends GetxController {
         title: 'Profile',
         subtitle: 'Change general information',
         icon: FIcon(FAssets.icons.user),
-        route: '/settings/profile'),
+        route: '/settings/profile-info'),
 
-     SettingsModel(
+    //  SettingsModel(
+    //     title: 'Profile',
+    //     subtitle: 'Change general information',
+    //     icon: FIcon(FAssets.icons.user),
+    //     route: '/settings/profile'),
+    SettingsModel(
         title: 'Address',
         subtitle: 'Change general information',
         icon: FIcon(FAssets.icons.mapPinHouse),

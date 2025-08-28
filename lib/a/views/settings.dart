@@ -36,6 +36,73 @@ class Settings extends StatelessWidget {
                 .verticalStyle
                 .copyWith(width: 1, padding: EdgeInsets.zero),
           ),
+          SizedBox(
+            height: 10,
+          ),
+          Obx(() {
+            if (authController.isLoggedIn.value) {
+              return Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Text(
+                    //   "Logged in as",
+                    //   style: contextTheme.typography.sm.copyWith(
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    // ),
+                    // SizedBox(height: 6),
+                    Text(
+                      authController.userEmailOrPhone.value,
+                      style: contextTheme.typography.sm
+                          .copyWith(fontWeight: FontWeight.bold, fontSize: 20),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Get.toNamed('');
+                      },
+                      child: FIcon(
+                        FAssets.icons.circleUser,
+                        size: 25,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 17),
+                child: FButton(
+                  onPress: () => Get.toNamed('settings/profile'),
+                  style: contextTheme.buttonStyles.primary.copyWith(
+                    contentStyle:
+                        contextTheme.buttonStyles.primary.contentStyle.copyWith(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                    ),
+                  ),
+                  label: Text(
+                    'Sign up or Log in'.tr,
+                    style: contextTheme.typography.sm.copyWith(
+                      color: contextTheme.typography.sm.color,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              );
+            }
+          }),
+          SizedBox(height: 10),
+          FDivider(
+            style: FTheme.of(context)
+                .dividerStyles
+                .verticalStyle
+                .copyWith(width: 1, padding: EdgeInsets.zero),
+          ),
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
