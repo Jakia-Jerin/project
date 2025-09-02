@@ -30,7 +30,6 @@ class ProductMiniCard extends StatelessWidget {
           onTap: () => Get.toNamed("/item", parameters: {"productId": data.id}),
           child: Container(
             constraints: BoxConstraints(maxWidth: 360),
-            
             child: Column(
               children: [
                 AspectRatio(

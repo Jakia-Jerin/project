@@ -1,9 +1,11 @@
+import 'package:theme_desiree/a/models/caregories.dart';
 import 'package:theme_desiree/a/models/product_mini_card.dart';
 
 class HorizontalBrochureModel {
   final String title;
   final String subtitle;
-  final String? image;
+   final CategoryImage? image; 
+  //final String? image;
   final String handle;
   final List<ProductMiniCardModel> products;
 
@@ -19,7 +21,7 @@ class HorizontalBrochureModel {
     return HorizontalBrochureModel(
       title: json['title'] ?? '',
       subtitle: json['subtitle'] ?? '',
-      image: json['image'],
+      image: json['image'] ?? '',
       handle: json['handle'] ?? '/',
       products: (json['products'] as List?)
               ?.map((item) => ProductMiniCardModel.fromJson(item))

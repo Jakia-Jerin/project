@@ -1,4 +1,3 @@
-// otp_page.dart
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
@@ -6,11 +5,11 @@ import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
 import 'package:theme_desiree/signin_opt/authcontroller.dart';
 
-class OtpPage extends StatelessWidget {
+class OtpResetPage extends StatelessWidget {
   final String contact;
   final TextEditingController otpController = TextEditingController();
 
-  OtpPage({super.key, required this.contact});
+  OtpResetPage({super.key, required this.contact});
 
   final authController = Get.find<AuthController>();
 
@@ -182,20 +181,44 @@ class OtpPage extends StatelessWidget {
                           return;
                         }
 
-                        if (contact.contains('@')) {
-                          verified =
-                              await authController.verifyEmail(contact, otp);
+                        final result =
+                            await authController.verifyForgotToken(otp);
+                        if (result != null) {
+                          // Token verified successfully
+                          final contact = result['phone'] ??
+                              result['email']; // phone or email
+
+                          final resetToken = otp;
+                          print(" Reset Token: $resetToken");
+                          print(
+                              "Contact: $contact"); // Phone verification uses OTP as token
+                          //   final resetToken = result['token'];
+
+                          Get.toNamed('settings/resetpassword', arguments: {
+                            'resetToken': resetToken,
+                            'contact': contact
+                          });
+
+                        
+
+                          print(" Reset Token: $resetToken");
                         } else {
-                          verified =
-                              await authController.verifyPhone(contact, otp);
+                          Get.snackbar('Error', 'Invalid OTP or token expired');
                         }
-                        if (verified) {
-                          Get.snackbar('Success', 'OTP Verified');
-                          // Get.toNamed('/settings/resetpassword');
-                        } else {
-                          Get.snackbar('Error', 'Invalid OTP');
-                        }
-                        Get.toNamed("settings/profile");
+                        // if (contact.contains('@')) {
+                        //   verified =
+                        //       await authController.verifyEmail(contact, otp);
+                        // } else {
+                        //   verified =
+                        //       await authController.verifyPhone(contact, otp);
+                        // }
+                        // if (verified) {
+                        //   Get.snackbar('Success', 'OTP Verified');
+                        //   // Get.toNamed('/settings/resetpassword');
+                        // } else {
+                        //   Get.snackbar('Error', 'Invalid OTP');
+                        // }
+                        // Get.toNamed("settings/profile");
 
                         //    await authController.verifyEmail(email, otp);
                         print(" Verify button clicked");
@@ -238,47 +261,3 @@ class OtpPage extends StatelessWidget {
     );
   }
 }
-// class OtpPage extends StatelessWidget {
-//   final String contact;
-//   final TextEditingController otpController = TextEditingController();
-
-//   OtpPage({super.key, required this.contact});
-
-//   final authController = Get.find<AuthController>();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text('Verify OTP')),
-//       body: Padding(
-//         padding: const EdgeInsets.all(20.0),
-//         child: Column(
-//           children: [
-//             Text('Enter the OTP sent to $contact'),
-//             SizedBox(height: 20),
-//             TextField(
-//               controller: otpController,
-//               keyboardType: TextInputType.number,
-//               decoration: InputDecoration(
-//                 labelText: '6-digit OTP',
-//                 border: OutlineInputBorder(),
-//               ),
-//             ),
-//             SizedBox(height: 20),
-//             ElevatedButton(
-//               child: Text('Verify'),
-//               onPressed: () {
-//                 if (authController.verifyOtp(otpController.text.trim())) {
-//                   Get.snackbar('Success', 'OTP Verified');
-//                   Get.offAllNamed('/OtpPage'); // Or wherever you want
-//                 } else {
-//                   Get.snackbar('Error', 'Invalid OTP');
-//                 }
-//               },
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

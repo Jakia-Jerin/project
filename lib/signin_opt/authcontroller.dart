@@ -31,11 +31,17 @@ class AuthController extends GetxController {
   final accountController = TextEditingController();
   var newPasswordController = TextEditingController();
   var confirmPasswordController = TextEditingController();
+  var resetPasswordController = TextEditingController();
+  var confirmresetPasswordController = TextEditingController();
+  var isresetPasswordHidden = true.obs;
 
   final resetController = TextEditingController();
 
   // Use FSelectGroupController for Gender instead of ValueNotifier
   final genderController = FRadioSelectGroupController(value: Gender.none);
+  // Verification flags
+  var isEmailVerified = false.obs;
+  var isPhoneVerified = false.obs;
   final otpController = TextEditingController();
   var generatedOtp = ''.obs;
   var isOtpSent = false.obs;
@@ -59,14 +65,14 @@ class AuthController extends GetxController {
   var isForgotPasswordVisible = false.obs;
   var selectedMethod = "".obs; // email / phone
 
-   @override
+  @override
   void onInit() {
     super.onInit();
 
     passwordFocusNode.addListener(() {
       if (!passwordFocusNode.hasFocus) {
         // Focus lost, validate password
-      
+
         showPasswordWarning.value = false;
       }
     });
@@ -91,7 +97,7 @@ class AuthController extends GetxController {
       Get.snackbar('', 'Please,Enter the OTP');
     }
     if (inputOtp == generatedOtp.value) {
-      Get.snackbar('Wow!!', 'Signup Successful');
+//      Get.snackbar('Wow!!', 'Signup Successful');
       Get.toNamed('/profile');
       return true;
     } else {
@@ -151,6 +157,116 @@ class AuthController extends GetxController {
   void toggleLoginSignUp() {
     isLogin.value = !isLogin.value;
   }
+  //............verify email.............
+
+  // API-based Email verification
+  Future<bool> verifyEmail(String email, String otp) async {
+    final url = Uri.parse('https://app2.apidoxy.com/api/v1/user/verify-email');
+    final headers = {
+      "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+      "Content-Type": "application/json",
+    };
+    final body = jsonEncode({'email': email, 'otp': otp});
+
+    try {
+      print("Sending Email Verification Request...");
+      print(" Email: $email");
+      print(" OTP: $otp");
+
+      final response = await http.post(url, headers: headers, body: body);
+
+      print(" Status Code: ${response.statusCode}");
+      print(" Response Body: ${response.body}");
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        isEmailVerified.value = true;
+        Get.snackbar('Success', 'Email verified successfully');
+        return true;
+      } else {
+        Get.snackbar('Error', data['message'] ?? 'Failed to verify email');
+        return false;
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Email verification failed');
+      print("❌ Exception during email verification: $e");
+      return false; //
+    }
+  }
+
+  Future<bool> verifyPhone(String phone, String otp) async {
+    final url = Uri.parse('https://app2.apidoxy.com/api/v1/user/verify-phone');
+    final headers = {
+      "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+      "Content-Type": "application/json",
+    };
+
+    // Backend expects +880 format
+    String formattedPhone = phone.startsWith('+') ? phone : '+88$phone';
+
+    final body = jsonEncode({
+      "phone": formattedPhone, // Required
+      "otp": otp, // Required
+    });
+
+    try {
+      print("🔹 Sending Phone Verification Request...");
+      print("📱 Phone: $formattedPhone");
+      print("🔑 OTP: $otp");
+
+      final response = await http.post(url, headers: headers, body: body);
+
+      print(" Status Code: ${response.statusCode}");
+      print(" Response Body: ${response.body}");
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        Get.snackbar('Success', 'Phone number verified successfully');
+        return true;
+      } else {
+        Get.snackbar('Error', data['message'] ?? 'Failed to verify phone');
+        return false;
+      }
+    } catch (e) {
+      print(" Exception during phone verification: $e");
+      Get.snackbar('Error', 'Phone verification failed');
+      return false;
+    }
+  }
+
+  // Future<bool> verifyEmail(String email, String otp) async {
+  //   final url = Uri.parse('https://app2.apidoxy.com/api/v1/user/verify-email');
+  //   final headers = {
+  //     "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+  //     "Content-Type": "application/json",
+  //   };
+  //   final body = jsonEncode({'email': email, 'otp': otp});
+
+  //   try {
+  //     print("🔹 Sending Email Verification Request...");
+  //     print("📧 Email: $email");
+  //     print("🔑 OTP: $otp");
+
+  //     final response = await http.post(url, headers: headers, body: body);
+
+  //     print("📡 Status Code: ${response.statusCode}");
+  //     print("📡 Response Body: ${response.body}");
+
+  //     final data = jsonDecode(response.body);
+
+  //     if (response.statusCode == 200 && data['success'] == true) {
+  //       isEmailVerified.value = true;
+  //       Get.snackbar('Success', 'Email verified successfully');
+  //     } else {
+  //       Get.snackbar('Error', data['message'] ?? 'Failed to verify email');
+  //     }
+  //   } catch (e) {
+  //     Get.snackbar('Error', 'Email verification failed');
+  //     print("❌ Exception during email verification: $e");
+  //   }
+  // }
 
 //............Sign Up Function............
 
@@ -231,6 +347,7 @@ class AuthController extends GetxController {
 
         clearInputs();
         toggleLoginSignUp();
+        Get.toNamed("settings/OtpPage");
         // Save to local storage if needed
         final box = GetStorage();
         box.write('name', name);
@@ -311,6 +428,7 @@ class AuthController extends GetxController {
         box.write("user", user);
 
         clearInputs();
+        Get.toNamed('/');
 
         // Profile page
         //   Get.offAllNamed("/profile");
@@ -469,10 +587,12 @@ class AuthController extends GetxController {
       print("Send OTP to phone: $account");
       Get.snackbar("Success", "OTP sent to your phone");
       isOtpSent.value = true;
-      //    Get.to(() => OtpPage(account: account));
+      Get.toNamed("settings/OtpPage");
+      //   Get.to(() => OtpPage(account: account));
     }
   }
 
+//.............Forget Password Function............
   Future<void> forgotPassword(String account) async {
     final url =
         Uri.parse('https://app2.apidoxy.com/api/v1/user/forget-password');
@@ -505,7 +625,7 @@ class AuthController extends GetxController {
       if (response.statusCode == 200 && data['success'] == true) {
         Get.snackbar('Success', data['message']);
         print("Forgot password request successful: $data");
-        Get.toNamed("settings/verify");
+        //  Get.toNamed("settings/verify");
         // navigate to OTPPage or Verification page
       } else {
         Get.snackbar('Error', 'Something went wrong');
@@ -514,6 +634,84 @@ class AuthController extends GetxController {
     } catch (e) {
       Get.snackbar('Error', e.toString());
       print("Exception during forgot password request: $e");
+    }
+  }
+
+  Future<Map<String, dynamic>?> verifyForgotToken(String token) async {
+    final url =
+        Uri.parse('https://app2.apidoxy.com/api/v1/user/verify-forget-token');
+    final headers = {
+      "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+      "Content-Type": "application/json",
+    };
+    final body = jsonEncode({
+      "token": token,
+    });
+
+    try {
+      print("🔹 Verifying Forgot Password Token...");
+      print("🔑 Token: $token");
+
+      final response = await http.post(url, headers: headers, body: body);
+      final data = jsonDecode(response.body);
+
+      print("📡 Status Code: ${response.statusCode}");
+      print("📡 Response Body: ${response.body}");
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        Get.snackbar('Success', 'Token verified successfully');
+        // Return token info (email/phone and reset token)
+        return data;
+      } else {
+        Get.snackbar('Error', data['message'] ?? 'Failed to verify token');
+        return null;
+      }
+    } catch (e) {
+      print("❌ Exception during token verification: $e");
+      Get.snackbar('Error', 'Token verification failed');
+      return null;
+    }
+  }
+
+  Future<bool> resetPassword({
+    required String contact,
+    required String token,
+    required String newPassword,
+  }) async {
+    final isEmail = contact.contains('@');
+    final url =
+        Uri.parse('https://app2.apidoxy.com/api/v1/user/reset-password');
+    final headers = {
+      "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+      "Content-Type": "application/json",
+    };
+
+    final body = isEmail
+        ? jsonEncode({
+            "email": contact,
+            "token": token,
+            "newPassword": newPassword,
+          })
+        : jsonEncode({
+            "phone": contact,
+            "token": token,
+            "newPassword": newPassword,
+          });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        print("status code: ${response.statusCode}");
+        print("response body: $data");
+        return true;
+      } else {
+        print("❌ Reset password failed: ${data['message']}");
+        return false;
+      }
+    } catch (e) {
+      print("❌ Exception: $e");
+      return false;
     }
   }
 

@@ -17,6 +17,8 @@ class CartView extends StatelessWidget {
     final cartController = Get.find<CartController>();
     final contextTheme = FTheme.of(context);
     //   final homeController = Get.put(HomeController());
+
+    //cartController.getUserCart();
     return Scaffold(
       backgroundColor: contextTheme.colorScheme.background,
       body: Container(
@@ -247,6 +249,21 @@ class CartView extends StatelessWidget {
                                 product.image ?? '',
                                 height: 50,
                                 width: 50,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                  width: 60,
+                                  height: 60,
+                                  color:
+                                      FTheme.of(context).colorScheme.background,
+                                  child: Center(
+                                    child: FIcon(
+                                      FAssets.icons.image,
+                                      size: 24,
+                                      color:
+                                          FTheme.of(context).colorScheme.border,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                             suffixIcon: Row(
@@ -298,12 +315,33 @@ class CartView extends StatelessWidget {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         FButton.icon(
-                                          onPress: () {
+                                          onPress: () async {
                                             if (product.quantity > 1) {
                                               product.quantity--;
+                                              await cartController
+                                                  .updateCartItem(
+                                                productId: product.productId,
+                                                variantId: product.variantId,
+                                                quantity: 1,
+                                                action: "dec",
+                                              );
                                             } else {
+                                              await cartController
+                                                  .removeCartItem(
+                                                productId: product.productId,
+                                                variantId: product.variantId,
+                                              );
+                                              cartController.products.refresh();
+
                                               cartController.products
                                                   .remove(product);
+                                              // await cartController
+                                              //     .updateCartItem(
+                                              //   productId: product.productId,
+                                              //   variantId: product.variantId,
+                                              //   quantity: 1,
+                                              //   action: "dec",
+                                              // );
                                               Fluttertoast.showToast(
                                                 msg: 'Item removed'.tr,
                                                 backgroundColor: contextTheme
@@ -324,10 +362,17 @@ class CartView extends StatelessWidget {
                                           ),
                                         ),
                                         FButton.icon(
-                                          onPress: () {
-                                            if (product.quantity <=
+                                          onPress: () async {
+                                            if (product.quantity <
                                                 product.stock!.toInt()) {
                                               product.quantity++;
+                                              await cartController
+                                                  .updateCartItem(
+                                                productId: product.productId,
+                                                variantId: product.variantId,
+                                                quantity: 1,
+                                                action: "inc",
+                                              );
                                               cartController.products.refresh();
                                             } else {
                                               HapticFeedback.vibrate();

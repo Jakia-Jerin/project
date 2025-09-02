@@ -93,11 +93,16 @@ class ResetPasswordPage extends StatelessWidget {
                               authController.accountController.text.trim();
                           if (account.isNotEmpty) {
                             authController.forgotPassword(account);
+                            // Get.toNamed(
+                            //   "settings/otpreset",
+                            //   arguments: {"contact": account},
+                            // );
                           } else {
                             Get.snackbar(
                                 "Error", "Please enter email or phone");
                           }
                           print("Sending request for account: $account");
+                          Get.toNamed("settings/Otpresetpage");
                           //   Get.toNamed("/settings/verify");
 
                           // Get.to(() => VerificationMethodPage(

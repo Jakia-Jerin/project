@@ -66,7 +66,7 @@ class VerificationMethodPage extends StatelessWidget {
                             suffixIcon: FIcon(FAssets.icons.chevronRight),
                             onPress: () {
                               authController.sendOtpOrEmail(account, "email");
-                               authController.forgotPassword(account);
+                              authController.forgotPassword(account);
                             }),
                         SizedBox(height: 20),
                         FTile(
@@ -76,9 +76,9 @@ class VerificationMethodPage extends StatelessWidget {
                             ),
                             suffixIcon: FIcon(FAssets.icons.chevronRight),
                             onPress: () {
-                              authController.sendOtpOrEmail(account, "phone");
-                              authController.forgotPassword(account);
-                             
+                              // authController.sendOtpOrEmail(account, "phone");
+                              //  authController.forgotPassword(account);
+                              //   Get.toNamed('settings/OtpPage');
                             }),
                       ]),
                 )

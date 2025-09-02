@@ -52,7 +52,9 @@ class ProductCollage extends StatelessWidget {
                 mainAxisSpacing: 8.0,
                 itemCount: controller.products.length,
                 itemBuilder: (context, index) {
-                  return ProductMiniCard(data: controller.products[index]);
+                  return ProductMiniCard(
+                    data: controller.products[index],
+                  );
                 },
               );
             },

@@ -5,9 +5,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
 import 'package:theme_desiree/a/controllers/cart.dart';
+import 'package:theme_desiree/a/models/cart.dart';
 import 'package:theme_desiree/currency/currency_controller.dart';
 import 'package:theme_desiree/showcase/product_model.dart';
 import 'package:theme_desiree/showcase/showcase_controller.dart';
+import 'package:theme_desiree/signin_opt/authcontroller.dart';
 
 class ActionView extends StatelessWidget {
   final bool available;
@@ -30,6 +32,7 @@ class ActionView extends StatelessWidget {
     final currencyController = Get.find<CurrencyController>();
     final showcaseController = Get.find<ShowcaseController>();
     final cartController = Get.find<CartController>();
+    final authController = Get.put(AuthController());
 
     return FCard(
       style: FTheme.of(context).cardStyle.copyWith(
@@ -133,10 +136,12 @@ class ActionView extends StatelessWidget {
                         b.options.length > index ? b.options[index] : '';
                     final selectedOption = selectedVariant.options[index];
 
-                    if (aOption == selectedOption && bOption != selectedOption) {
+                    if (aOption == selectedOption &&
+                        bOption != selectedOption) {
                       return -1;
                     }
-                    if (aOption != selectedOption && bOption == selectedOption) {
+                    if (aOption != selectedOption &&
+                        bOption == selectedOption) {
                       return 1;
                     }
                     return 0;
@@ -274,7 +279,8 @@ class ActionView extends StatelessWidget {
 
                       if (product == null) return;
 
-                      cartController.addProduct(
+                      // 1️⃣ Create CartModel
+                      final cartItem = CartModel(
                         productId: product.id,
                         variantId: currentVariant?.id ?? '',
                         title: product.title,
@@ -284,18 +290,70 @@ class ActionView extends StatelessWidget {
                         price: currentVariant?.price['base'] ?? product.price,
                         isAvailable:
                             currentVariant?.available ?? product.available,
+                        quantity: 1,
                       );
 
-                      Fluttertoast.showToast(
-                        msg: 'Added to cart'.tr,
-                        backgroundColor: FTheme.of(context).colorScheme.primary,
-                      );
-                      HapticFeedback.vibrate();
+                      //  Call centralized helper
+                      cartController.handleAddToCart(cartItem);
+                      if (authController.isLoggedIn.value) {
+                        Fluttertoast.showToast(
+                          msg: 'Added to cart'.tr,
+                          backgroundColor:
+                              FTheme.of(context).colorScheme.primary,
+                        );
+                        HapticFeedback.vibrate();
+                      }
                     },
                     style: FButtonStyle.outline,
                     label: Text('Add to cart'.tr),
                   ),
                 ),
+
+                // Expanded(
+                //   child: FButton(
+                //     onPress: () {
+                //       final currentVariant =
+                //           showcaseController.selectedVariant.value;
+                //       final product = showcaseController.product.value;
+
+                //       if (product == null) return;
+
+                //       cartController.addProductToServer(CartModel(
+                //         productId: product.id,
+                //         variantId: currentVariant?.id ?? '',
+                //         title: product.title,
+                //         variant: currentVariant?.options.join(" >") ?? '',
+                //         image: product.featuredImage,
+                //         stock: 10,
+                //         price: currentVariant?.price['base'] ?? product.price,
+                //         isAvailable:
+                //             currentVariant?.available ?? product.available,
+                //         quantity: 1,
+                //       ),
+
+                //           // productId: product.id,
+                //           // variantId: currentVariant?.id ?? '',
+                //           // title: product.title,
+                //           // variant: currentVariant?.options.join(" >") ?? '',
+                //           // image: product.featuredImage,
+                //           // stock: 10,
+                //           // price: currentVariant?.price['base'] ?? product.price,
+                //           // isAvailable:
+                //           //     currentVariant?.available ?? product.available,
+                //           );
+                //       if (authController.isLoggedIn.value) {
+                //         Fluttertoast.showToast(
+                //           msg: 'Added to cart'.tr,
+                //           backgroundColor:
+                //               FTheme.of(context).colorScheme.primary,
+                //         );
+                //         HapticFeedback.vibrate();
+                //       }
+                //     },
+                //     style: FButtonStyle.outline,
+                //     label: Text('Add to cart'.tr),
+                //   ),
+                // ),
                 Expanded(
                   child: FButton(
                     onPress: () {},

@@ -5,124 +5,277 @@ import 'package:theme_desiree/a/controllers/horizontal_brochure.dart';
 import 'package:theme_desiree/a/views/product_mini_card.dart';
 
 class HorizontalBrochure extends StatelessWidget {
-  final Map<String, dynamic> data;
-  const HorizontalBrochure({super.key, required this.data});
+  const HorizontalBrochure({super.key});
 
   @override
   Widget build(BuildContext context) {
     final String tag = UniqueKey().toString();
     final horizontalBrochureController =
         Get.put(HorizontalBrochureController(), tag: tag);
-
-    //horizontalBrochureController.fromJson(data);
-    horizontalBrochureController.fetchBrochure();
+    //  horizontalBrochureController.fetchCategoryWiseBrochures();
 
     final contextTheme = FTheme.of(context);
 
     return GetX<HorizontalBrochureController>(
       tag: tag,
       builder: (controller) {
-        if (controller.isLoading.value || controller.hasError.value) {
+        // if (controller.isLoading.value) {
+        //   return Center(child: CircularProgressIndicator());
+        // }
+        if (controller.hasError.value) {
+          return Center(child: Text("Failed to load brochures"));
+        }
+        if (controller.brochures.isEmpty) {
           return SizedBox.shrink();
         }
 
-        final brochure = controller.brochure.value;
-        if (brochure == null) {
-          return SizedBox.shrink();
-        }
-
-        return FCard.raw(
-          style: contextTheme.cardStyle.copyWith(
-            contentStyle: contextTheme.cardStyle.contentStyle.copyWith(
-              padding: EdgeInsets.all(1),
-            ),
-          ),
-          child: Column(
-            children: [
-              if (brochure.image != null)
-                ClipRRect(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      topRight: Radius.circular(8)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(1),
-                    child: Image.network(brochure.image!, fit: BoxFit.cover),
+        return Column(
+          children: controller.brochures.map((brochure) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: FCard.raw(
+                style: contextTheme.cardStyle.copyWith(
+                  contentStyle: contextTheme.cardStyle.contentStyle.copyWith(
+                    padding: EdgeInsets.all(1),
                   ),
                 ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  spacing: 8,
+                child: Column(
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    // // Image Section
+                    // if (brochure.image != null &&
+                    //     brochure.image!.imageName.isNotEmpty)
+                    //   ClipRRect(
+                    //     borderRadius: const BorderRadius.only(
+                    //       topLeft: Radius.circular(8),
+                    //       topRight: Radius.circular(8),
+                    //     ),
+                    //     child: Image.network(
+                    //       'https://app2.apidoxy.com/${brochure.image!.imageName}',
+                    //       fit: BoxFit.cover,
+                    //       height: 140,
+                    //       width: double.infinity,
+                    //       errorBuilder: (context, error, stackTrace) {
+                    //         return Container(
+                    //           height: 140,
+                    //           width: double.infinity,
+                    //           color: Colors.grey[300],
+                    //           child:
+                    //               Icon(Icons.broken_image, color: Colors.grey),
+                    //         );
+                    //       },
+                    //     ),
+                    //   )
+                    // else
+                    //   Container(
+                    //     height: 140,
+                    //     width: double.infinity,
+                    //     color: Colors.grey[300],
+                    //     child: Icon(Icons.image, color: Colors.grey),
+                    //   ),
+
+                    // Title & Subtitle
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            brochure.title,
-                            style: contextTheme.typography.base,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  brochure.title,
+                                  style: contextTheme.typography.base,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  brochure.subtitle,
+                                  style: contextTheme.typography.sm,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
                           ),
-                          Text(
-                            brochure.subtitle,
-                            style: contextTheme.typography.sm,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          FButton(
+                            style: contextTheme.buttonStyles.primary.copyWith(
+                              contentStyle: contextTheme
+                                  .buttonStyles.primary.contentStyle
+                                  .copyWith(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                              ),
+                            ),
+                            onPress: () => Get.toNamed(brochure.handle),
+                            label: Text(
+                              "View more",
+                              style: contextTheme.typography.sm.copyWith(
+                                  color: contextTheme.colorScheme.foreground),
+                            ),
+                            suffix: FIcon(
+                              FAssets.icons.chevronRight,
+                              size: 18,
+                              color: contextTheme.colorScheme.foreground,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    FButton(
-                      style: contextTheme.buttonStyles.primary.copyWith(
-                        contentStyle: contextTheme
-                            .buttonStyles.primary.contentStyle
-                            .copyWith(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                      onPress: () => Get.toNamed(brochure.handle),
-                      label: Text(
-                        "View more",
-                        style: contextTheme.typography.sm.copyWith(
-                            color: contextTheme.colorScheme.foreground),
-                      ),
-                      suffix: FIcon(
-                        FAssets.icons.chevronRight,
-                        size: 18,
-                        color: contextTheme.colorScheme.foreground,
+
+                    // Horizontal Products List
+                    SizedBox(
+                      height: 230,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 8),
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: brochure.products.length,
+                        itemBuilder: (context, index) {
+                          final product = brochure.products[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: SizedBox(
+                              width: 172,
+                              child: ProductMiniCard(data: product),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(
-                height: 230,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  physics: BouncingScrollPhysics(),
-                  itemCount: brochure.products.length,
-                  itemBuilder: (context, index) {
-                    final id = brochure.products[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: SizedBox(
-                        width: 172,
-                        child: ProductMiniCard(data: id),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            );
+          }).toList(),
         );
       },
     );
   }
 }
+
+// class HorizontalBrochure extends StatelessWidget {
+//   final Map<String, dynamic> data;
+//   const HorizontalBrochure({super.key, required this.data});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final String tag = UniqueKey().toString();
+//     final horizontalBrochureController =
+//         Get.put(HorizontalBrochureController(), tag: tag);
+
+//     //horizontalBrochureController.fromJson(data);
+//     horizontalBrochureController.fetchBrochure();
+
+//     final contextTheme = FTheme.of(context);
+
+//     return GetX<HorizontalBrochureController>(
+//       tag: tag,
+//       builder: (controller) {
+//         if (controller.isLoading.value || controller.hasError.value) {
+//           return SizedBox.shrink();
+//         }
+
+//         final brochure = controller.brochure.value;
+//         if (brochure == null) {
+//           return SizedBox.shrink();
+//         }
+
+//         return FCard.raw(
+//           style: contextTheme.cardStyle.copyWith(
+//             contentStyle: contextTheme.cardStyle.contentStyle.copyWith(
+//               padding: EdgeInsets.all(1),
+//             ),
+//           ),
+//           child: Column(
+//             children: [
+//               if (brochure.image != null)
+//                 ClipRRect(
+//                   borderRadius: BorderRadius.only(
+//                       topLeft: Radius.circular(8),
+//                       topRight: Radius.circular(8)),
+//                   child: Padding(
+//                     padding: const EdgeInsets.all(1),
+//                     child: Image.network(brochure.image!, fit: BoxFit.cover),
+//                   ),
+//                 ),
+//               Padding(
+//                 padding: const EdgeInsets.all(8.0),
+//                 child: Row(
+//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                   spacing: 8,
+//                   children: [
+//                     Expanded(
+//                       child: Column(
+//                         crossAxisAlignment: CrossAxisAlignment.start,
+//                         children: [
+//                           Text(
+//                             brochure.title,
+//                             style: contextTheme.typography.base,
+//                             maxLines: 1,
+//                             overflow: TextOverflow.ellipsis,
+//                           ),
+//                           Text(
+//                             brochure.subtitle,
+//                             style: contextTheme.typography.sm,
+//                             maxLines: 1,
+//                             overflow: TextOverflow.ellipsis,
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                     FButton(
+//                       style: contextTheme.buttonStyles.primary.copyWith(
+//                         contentStyle: contextTheme
+//                             .buttonStyles.primary.contentStyle
+//                             .copyWith(
+//                           padding: EdgeInsets.symmetric(
+//                             horizontal: 16,
+//                             vertical: 12,
+//                           ),
+//                         ),
+//                       ),
+//                       onPress: () => Get.toNamed(brochure.handle),
+//                       label: Text(
+//                         "View more",
+//                         style: contextTheme.typography.sm.copyWith(
+//                             color: contextTheme.colorScheme.foreground),
+//                       ),
+//                       suffix: FIcon(
+//                         FAssets.icons.chevronRight,
+//                         size: 18,
+//                         color: contextTheme.colorScheme.foreground,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//               SizedBox(
+//                 height: 230,
+//                 child: ListView.builder(
+//                   scrollDirection: Axis.horizontal,
+//                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+//                   physics: BouncingScrollPhysics(),
+//                   itemCount: brochure.products.length,
+//                   itemBuilder: (context, index) {
+//                     final id = brochure.products[index];
+//                     return Padding(
+//                       padding: const EdgeInsets.only(right: 8),
+//                       child: SizedBox(
+//                         width: 172,
+//                         child: ProductMiniCard(data: id),
+//                       ),
+//                     );
+//                   },
+//                 ),
+//               ),
+//             ],
+//           ),
+//         );
+//       },
+//     );
+//   }
+// }

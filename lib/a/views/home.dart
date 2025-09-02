@@ -53,7 +53,8 @@ class HomeView extends StatelessWidget {
                     case SectionType.bannerCarousal:
                       return BannerCarousel(data: section.data);
                     case SectionType.horizontalBrochure:
-                      return HorizontalBrochure(data: section.data);
+                      return HorizontalBrochure();
+                    //   return HorizontalBrochure(data: section.data);
                     case SectionType.collage:
                       return ProductCollage(data: section.data);
                     case SectionType.faq:

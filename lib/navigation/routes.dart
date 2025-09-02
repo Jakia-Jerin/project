@@ -21,6 +21,8 @@ import 'package:theme_desiree/profile/profile_view.dart';
 import 'package:theme_desiree/showcase/showcase_view.dart';
 import 'package:theme_desiree/a/views/theme.dart';
 import 'package:theme_desiree/signin_opt/otp.dart';
+import 'package:theme_desiree/signin_opt/otpreset.dart';
+import 'package:theme_desiree/signin_opt/passwordreset.dart';
 import 'package:theme_desiree/signin_opt/resetpass.dart';
 import 'package:theme_desiree/signin_opt/signin_signup.dart';
 import 'package:theme_desiree/signin_opt/verifyemailphone.dart';
@@ -29,7 +31,7 @@ class AppRoutes {
   static final routes = [
     GetPage(
         name: '/',
-        //  page: () => OtpPage(contact: ''),
+        //  page: () => ResetPassword(),
         page: () => HomeView(),
         transition: Transition.rightToLeft,
         curve: Curves.easeInOut,
@@ -103,6 +105,16 @@ class AppRoutes {
                 transitionDuration: Duration(milliseconds: 300),
               ),
               GetPage(
+                name: '/otpreset',
+                page: () => OtpResetPage(contact: ''),
+
+                //     page: () => ProfileView(),
+                transition: Transition.rightToLeft,
+                curve: Curves.easeInOut,
+                transitionDuration: Duration(milliseconds: 300),
+              ),
+
+              GetPage(
                 name: '/profile-info',
                 page: () => AccountInfoPage(),
 
@@ -114,6 +126,15 @@ class AppRoutes {
               GetPage(
                 name: '/verify',
                 page: () => VerificationMethodPage(account: ''),
+
+                //     page: () => ProfileView(),
+                transition: Transition.rightToLeft,
+                curve: Curves.easeInOut,
+                transitionDuration: Duration(milliseconds: 300),
+              ),
+              GetPage(
+                name: '/resetpassword',
+                page: () => ResetPassword(),
 
                 //     page: () => ProfileView(),
                 transition: Transition.rightToLeft,
@@ -148,9 +169,20 @@ class AppRoutes {
                 curve: Curves.easeInOut,
                 transitionDuration: Duration(milliseconds: 300),
               ),
+
               GetPage(
                 name: '/OtpPage',
                 page: () => OtpPage(contact: ''),
+
+                //     page: () => ProfileView(),
+                transition: Transition.rightToLeft,
+                curve: Curves.easeInOut,
+                transitionDuration: Duration(milliseconds: 300),
+              ),
+
+              GetPage(
+                name: '/Otpresetpage',
+                page: () => OtpResetPage(contact: ''),
 
                 //     page: () => ProfileView(),
                 transition: Transition.rightToLeft,

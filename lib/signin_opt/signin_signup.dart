@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
+import 'package:theme_desiree/signin_opt/otp.dart';
 import 'package:theme_desiree/signin_opt/profile_model.dart';
 import 'package:theme_desiree/signin_opt/authcontroller.dart';
 
@@ -201,16 +202,6 @@ class SigninPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            if (!authController.isLogin.value) ...[
-                              FButton(
-                                onPress: () {},
-                                label: Text(
-                                  'Verify',
-                                  style: TextStyle(
-                                      color: contextTheme.typography.sm.color),
-                                ),
-                              ),
-                            ],
                           ],
                         ),
                       ),
@@ -277,40 +268,6 @@ class SigninPage extends StatelessWidget {
                         ),
                       ),
 
-                      // ConstrainedBox(
-                      //   constraints: const BoxConstraints(maxWidth: 360),
-                      //   child: Obx(() => FTextField(
-                      //         obscureText:
-                      //             authController.isPasswordHidden.value,
-                      //         maxLines: 1,
-                      //         controller: authController.passwordController,
-                      //         hint: 'Enter password *',
-                      //         keyboardType: TextInputType.text,
-                      //         prefixBuilder: (context, value, child) => Padding(
-                      //           padding:
-                      //               const EdgeInsets.symmetric(horizontal: 14),
-                      //           child: FIcon(FAssets.icons.lock),
-                      //         ),
-                      //         suffixBuilder: (context, value, child) => Padding(
-                      //           padding:
-                      //               const EdgeInsets.symmetric(horizontal: 14),
-                      //           child: GestureDetector(
-                      //             onTap: () {
-                      //               authController.isPasswordHidden.value =
-                      //                   !authController.isPasswordHidden.value;
-                      //             },
-                      //             child: FIcon(
-                      //               authController.isPasswordHidden.value
-                      //                   ? FAssets.icons.eyeOff
-                      //                   : FAssets.icons.eye,
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       ),
-
-                      //       ),
-
-                      // ),
                       const SizedBox(height: 10),
 
                       // Phone
@@ -333,16 +290,6 @@ class SigninPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            if (!authController.isLogin.value) ...[
-                              FButton(
-                                onPress: () {},
-                                label: Text(
-                                  'Verify',
-                                  style: TextStyle(
-                                      color: contextTheme.typography.sm.color),
-                                ),
-                              ),
-                            ],
                           ],
                         ),
                       ),
@@ -378,11 +325,29 @@ class SigninPage extends StatelessWidget {
                                       horizontal: 12, vertical: 12),
                                 ),
                               ),
-                              onPress: () {
+                              onPress: () async {
                                 if (authController.isLogin.value) {
                                   authController.login();
                                 } else {
-                                  authController.signUp();
+                                  final email = authController
+                                      .emailController.text
+                                      .trim();
+                                  final phone = authController
+                                      .phoneController.text
+                                      .trim();
+
+                                  if (email.isEmpty && phone.isEmpty) {
+                                    Get.snackbar(
+                                        "Error", "Please enter email or phone");
+                                    return;
+                                  }
+                                  await authController.signUp();
+
+                                  final contact =
+                                      email.isNotEmpty ? email : phone;
+
+                                  // Navigate to OTP Page
+                                  Get.to(() => OtpPage(contact: contact));
                                 }
                               },
                               label: Text(
