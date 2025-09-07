@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -61,6 +60,7 @@ class CartController extends GetConnect implements GetxService {
 
       if (response.statusCode == 200 && data['success'] == true) {
         products.add(product);
+        await getUserCart(); // Refresh cart from server
         //  Get.snackbar("Success", data['message'] ?? "Item added to cart");
         print("Status code: ${response.statusCode}");
 
@@ -155,7 +155,6 @@ class CartController extends GetConnect implements GetxService {
   }
 
   ///delete item
-  ///
   Future<void> removeCartItem({
     required String productId,
     String? variantId,
@@ -167,7 +166,7 @@ class CartController extends GetConnect implements GetxService {
       return;
     }
 
-    // Check if item exists in local list before calling API
+    // Check if item exists in local list
     final existingItem = products.firstWhereOrNull(
       (p) => p.productId == productId && p.variantId == variantId,
     );
@@ -180,8 +179,9 @@ class CartController extends GetConnect implements GetxService {
       return;
     }
 
-    final url =
-        Uri.parse("https://app2.apidoxy.com/api/v1/cart/item/$productId");
+    // If API doesn't support body for DELETE, use query params
+    final query = variantId != null ? '?variantId=$variantId' : '';
+    final url = Uri.parse("$baseUrl/api/v1/cart/item/$productId$query");
 
     try {
       final response = await http.delete(
@@ -191,9 +191,6 @@ class CartController extends GetConnect implements GetxService {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json",
         },
-        body: jsonEncode({
-          if (variantId != null) "variantId": variantId,
-        }),
       );
 
       final data = jsonDecode(response.body);
@@ -204,8 +201,12 @@ class CartController extends GetConnect implements GetxService {
         products.removeWhere(
             (p) => p.productId == productId && p.variantId == variantId);
         products.refresh();
+        Fluttertoast.showToast(
+          msg: data['message'] ?? "Item removed from cart",
+          backgroundColor: Colors.green,
+        );
       } else if (response.statusCode == 404) {
-        // Safe handling of 404
+        // Item not in server, remove locally
         products.removeWhere(
             (p) => p.productId == productId && p.variantId == variantId);
         products.refresh();
@@ -227,6 +228,156 @@ class CartController extends GetConnect implements GetxService {
       print("Error removing cart item: $e");
     }
   }
+
+  Future<void> getUserCart() async {
+    final token = GetStorage().read("accessToken");
+
+    if (token == null) {
+      Get.toNamed('/settings/profile'); // redirect to login
+      return;
+    }
+
+    isLoading.value = true;
+
+    final url = Uri.parse('$baseUrl/api/v1/cart');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+      );
+
+      final data = jsonDecode(response.body);
+      print("Get Cart Response: $data");
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        // Extract items
+        final items = data['data']['items'] as List<dynamic>;
+
+        // Map items to CartModel
+        products.value = items.map((e) => CartModel.fromJson(e)).toList();
+        // Extract subtotal, tax, deliveryCharge, grandTotal
+        final totalsData = data['data']['totals'] as Map<String, dynamic>;
+        totals.value = Totals(
+          subtotal: (totalsData['subtotal'] ?? 0).toInt(),
+          vat: (totalsData['tax'] ?? 0).toInt(),
+          deliveryCharge: (totalsData['deliveryCharge'] ?? 0).toInt(),
+          total: (totalsData['grandTotal'] ?? 0).toInt(),
+
+          // subtotal: (totalsData['subtotal'] ?? 0).toDouble(),
+          // vat: (totalsData['tax'] ?? 0).toDouble(),
+          // deliveryCharge: (totalsData['deliveryCharge'] ?? 0).toDouble(),
+          // total: (totalsData['grandTotal'] ?? 0).toDouble(),
+        );
+
+        print(items);
+        print("${products.value}");
+        print(totalsData);
+        print("Totals from API: ${totalsData['subtotal']}");
+        print("Totals.value.subtotal: ${totals.value.subtotal}");
+        products.refresh();
+      } else {
+        // Fluttertoast.showToast(
+        //   msg: data['message'] ?? "Failed to fetch cart",
+        //   backgroundColor: Colors.red,
+        // );
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Error fetching cart: $e",
+        backgroundColor: Colors.red,
+      );
+      print("Error: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void updateDeliveryCharge(int charge) {
+    totals.value = Totals(
+      subtotal: totals.value.subtotal,
+      vat: totals.value.vat,
+      deliveryCharge: charge,
+      total: totals.value.subtotal + totals.value.vat + charge, // total recalc
+    );
+  }
+
+
+  // Future<void> removeCartItem({
+  //   required String productId,
+  //   String? variantId,
+  // }) async {
+  //   final token = GetStorage().read("accessToken");
+
+  //   if (token == null) {
+  //     Get.toNamed('/settings/profile'); // Login page
+  //     return;
+  //   }
+
+  //   // Check if item exists in local list before calling API
+  //   final existingItem = products.firstWhereOrNull(
+  //     (p) => p.productId == productId && p.variantId == variantId,
+  //   );
+
+  //   if (existingItem == null) {
+  //     Fluttertoast.showToast(
+  //       msg: "Item not found in cart",
+  //       backgroundColor: Colors.orange,
+  //     );
+  //     return;
+  //   }
+
+  //   final url =
+  //       Uri.parse("https://app2.apidoxy.com/api/v1/cart/item/$productId");
+
+  //   try {
+  //     final response = await http.delete(
+  //       url,
+  //       headers: {
+  //         "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+  //         "Authorization": "Bearer $token",
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: jsonEncode({
+  //         if (variantId != null) "variantId": variantId,
+  //       }),
+  //     );
+
+  //     final data = jsonDecode(response.body);
+  //     print("Remove Response: $data");
+
+  //     if (response.statusCode == 200 && data['success'] == true) {
+  //       // Remove from local list
+  //       products.removeWhere(
+  //           (p) => p.productId == productId && p.variantId == variantId);
+  //       products.refresh();
+  //     } else if (response.statusCode == 404) {
+  //       // Safe handling of 404
+  //       products.removeWhere(
+  //           (p) => p.productId == productId && p.variantId == variantId);
+  //       products.refresh();
+  //       Fluttertoast.showToast(
+  //         msg: "Item was not in server cart, removed locally",
+  //         backgroundColor: Colors.orange,
+  //       );
+  //     } else {
+  //       Fluttertoast.showToast(
+  //         msg: data['message'] ?? "Failed to remove item",
+  //         backgroundColor: Colors.red,
+  //       );
+  //     }
+  //   } catch (e) {
+  //     Fluttertoast.showToast(
+  //       msg: "Error: $e",
+  //       backgroundColor: Colors.red,
+  //     );
+  //     print("Error removing cart item: $e");
+  //   }
+  // }
 
   // Future<void> removeCartItem({
   //   required String productId,
@@ -279,55 +430,7 @@ class CartController extends GetConnect implements GetxService {
   // }
 
   /// Get user cart from server
-  Future<void> getUserCart() async {
-    final token = GetStorage().read("accessToken");
-
-    if (token == null) {
-      Get.toNamed('/settings/profile'); // redirect to login
-      return;
-    }
-
-    isLoading.value = true;
-
-    final url = Uri.parse('$baseUrl/api/v1/cart');
-
-    try {
-      final response = await http.get(
-        url,
-        headers: {
-          "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
-          "Authorization": "Bearer $token",
-          "Content-Type": "application/json",
-        },
-      );
-
-      final data = jsonDecode(response.body);
-      print("Get Cart Response: $data");
-
-      if (response.statusCode == 200 && data['success'] == true) {
-        // Extract items
-        final items = data['data']['items'] as List<dynamic>;
-
-        // Map items to CartModel
-        products.value = items.map((e) => CartModel.fromJson(e)).toList();
-        products.refresh();
-      } else {
-        // Fluttertoast.showToast(
-        //   msg: data['message'] ?? "Failed to fetch cart",
-        //   backgroundColor: Colors.red,
-        // );
-      }
-    } catch (e) {
-      Fluttertoast.showToast(
-        msg: "Error fetching cart: $e",
-        backgroundColor: Colors.red,
-      );
-      print("Error: $e");
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
+  
   // void addProduct({
   //   productId,
   //   variantId,
@@ -384,25 +487,25 @@ class CartController extends GetConnect implements GetxService {
   //   }
   // }
 
-  double calculateTotal() {
-    double total =
-        products.fold(0, (sum, item) => sum + (item.price! * item.quantity));
-    return total + vat + deliveryCharge;
-  }
+  // double calculateTotal() {
+  //   double total =
+  //       products.fold(0, (sum, item) => sum + (item.price! * item.quantity));
+  //   return total + vat + deliveryCharge;
+  // }
 
-  //Recipt
+  // //Recipt
 
-  double subtotal() {
-    double productotal =
-        products.fold(0, (sum, item) => sum + (item.price! * item.quantity));
-    return productotal;
-  }
+  // double subtotal() {
+  //   double productotal =
+  //       products.fold(0, (sum, item) => sum + (item.price! * item.quantity));
+  //   return productotal;
+  // }
 
-  double recipttotal() {
-    double productotal =
-        products.fold(0, (sum, item) => sum + (item.price! * item.quantity));
-    return productotal + vat + deliveryCharge;
-  }
+  // double recipttotal() {
+  //   double productotal =
+  //       products.fold(0, (sum, item) => sum + (item.price! * item.quantity));
+  //   return productotal + vat + deliveryCharge;
+  // }
 
   @override
   void onInit() {

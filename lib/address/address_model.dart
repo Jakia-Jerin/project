@@ -1,42 +1,164 @@
 class FullAddress {
-  final String addressType; // New field
   final String line1;
-  final String? line2;
-  final String region;
-  final String district;
+  final String? region;
+  final String? district;
   final String postcode;
+  final String country;
+  final String phone; //
 
   FullAddress({
-    required this.addressType,
     required this.line1,
-    this.line2,
-    required this.region,
-    required this.district,
+    this.region = '',
+    this.district = '',
     required this.postcode,
+    required this.country,
+    required this.phone, //
   });
 
   factory FullAddress.fromJson(Map<String, dynamic> json) {
     return FullAddress(
-      addressType: json['addressType'],
-      line1: json['line1'],
-      line2: json['line2'],
-      region: json['region'],
-      district: json['district'],
-      postcode: json['postcode'],
+      line1: json['line1'] ?? '',
+      region: json['region'] ?? '',
+      district: json['district'] ?? '',
+      postcode: json['postcode'] ?? '',
+      country: json['country'] ?? '',
+      phone: json['phone'] ?? '', //
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'addressType': addressType,
-      'line1': line1,
-      'line2': line2,
-      'region': region,
-      'district': district,
-      'postcode': postcode,
+      "line1": line1,
+      "region": region,
+      "district": district,
+      "postcode": postcode,
+      "country": country,
+      "phone": phone, // ✅ add in normal json
+    };
+  }
+
+  Map<String, dynamic> toApiJson({String? name}) {
+    return {
+      "street": line1,
+      "city": district,
+      "state": region,
+      "postalCode": postcode,
+      "country": country,
+      "phone": phone,
+      if (name != null) "name": name,
     };
   }
 }
+
+
+
+
+
+
+
+// class FullAddress {
+  
+//   final String line1;
+//   final String? region;
+//   final String? district;
+//   final String postcode;
+//   final String country; // ✅ country field add
+
+//   FullAddress({
+//     required this.line1,
+//     this.region = '',
+//     this.district = '',
+//     required this.postcode,
+//     required this.country,
+//   });
+
+//   factory FullAddress.fromJson(Map<String, dynamic> json) {
+//     return FullAddress(
+//       line1: json['line1'] ?? '',
+//       region: json['region'] ?? '',
+//       district: json['district'] ?? '',
+//       postcode: json['postcode'] ?? '',
+//       country: json['country'] ?? '',
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       "line1": line1,
+//       "region": region,
+//       "district": district,
+//       "postcode": postcode,
+//       "country": country,
+//     };
+//   }
+
+//   Map<String, dynamic> toApiJson() {
+//     return {
+//       "street": line1,
+//       "city": district,
+//       "state": region,
+//       "zip": postcode,
+//       "country": country,
+//     };
+//   }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// class FullAddress {
+//   final String addressType; // New field
+//   final String line1;
+//   final String? line2;
+//   final String region;
+//   final String district;
+//   final String postcode;
+
+//   FullAddress({
+//     required this.addressType,
+//     required this.line1,
+//     this.line2,
+//     required this.region,
+//     required this.district,
+//     required this.postcode,
+//   });
+
+//   factory FullAddress.fromJson(Map<String, dynamic> json) {
+//     return FullAddress(
+//       addressType: json['addressType'],
+//       line1: json['line1'],
+//       line2: json['line2'],
+//       region: json['region'],
+//       district: json['district'],
+//       postcode: json['postcode'],
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'addressType': addressType,
+//       'line1': line1,
+//       'line2': line2,
+//       'region': region,
+//       'district': district,
+//       'postcode': postcode,
+//     };
+//   }
+// }
 
 
 

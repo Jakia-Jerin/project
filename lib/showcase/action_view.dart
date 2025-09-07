@@ -288,6 +288,9 @@ class ActionView extends StatelessWidget {
                         image: product.featuredImage,
                         stock: 10,
                         price: currentVariant?.price['base'] ?? product.price,
+                        subtotal:
+                            (currentVariant?.price['base'] ?? product.price) *
+                                1,
                         isAvailable:
                             currentVariant?.available ?? product.available,
                         quantity: 1,

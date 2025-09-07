@@ -1,4 +1,9 @@
+import 'dart:convert';
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:theme_desiree/orders/orders_model.dart';
 
 class OrdersController extends GetConnect implements GetxService {
@@ -6,23 +11,63 @@ class OrdersController extends GetConnect implements GetxService {
   var isLoading = true.obs;
   var hasError = false.obs;
 
-  // Method to add a new order
-  void addOrder(OrdersModel order) {
-    orders.add(order);
-  }
+  // Fetch orders
+  Future<void> fetchOrders() async {
+    final url = Uri.parse("https://app2.apidoxy.com//api/v1/order");
+    final token = GetStorage().read("accessToken");
+    try {
+      isLoading.value = true;
 
-  void updateOrderStatus(String orderId, String newStatus) {
-    final index = orders.indexWhere((order) => order.id == orderId);
-    if (index != -1) {
-      orders[index].status = newStatus;
-      orders.refresh();
+      final response = await http.get(
+        url,
+        headers: {
+          "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonBody = jsonDecode(response.body);
+        final data = jsonBody['data'] as List<dynamic>? ?? [];
+        orders.value = data.map((json) => OrdersModel.fromJson(json)).toList();
+      } else {
+        orders.clear();
+        hasError.value = true;
+      }
+    } catch (e) {
+      print('Error fetching orders: $e');
+      orders.clear();
+      hasError.value = true;
+    } finally {
+      isLoading.value = false;
     }
   }
 
-  // Optional: Clear all orders
-  void clearOrders() {
-    orders.clear();
+  @override
+  void onInit() {
+    super.onInit();
+    fetchOrders(); // fetch orders when controller is initialized
   }
+}
+
+  // Method to add a new order
+  // void addOrder(OrdersModel order) {
+  //   orders.add(order);
+  // }
+
+  // void updateOrderStatus(String orderId, String newStatus) {
+  //   final index = orders.indexWhere((order) => order.id == orderId);
+  //   if (index != -1) {
+  //     orders[index].status = newStatus;
+  //     orders.refresh();
+  //   }
+  // }
+
+  // // Optional: Clear all orders
+  // void clearOrders() {
+  //   orders.clear();
+  // }
 
   // Future<void> fetchOrders() async {
   //   isLoading.value = true;
@@ -49,4 +94,4 @@ class OrdersController extends GetConnect implements GetxService {
   //     isLoading.value = false;
   //   }
   // }
-}
+

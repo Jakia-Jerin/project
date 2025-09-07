@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:theme_desiree/a/ui/loader_view.dart';
 import 'package:theme_desiree/profile/avatar_cropper.dart';
 import 'package:theme_desiree/profile/profile_controller.dart';
-import 'package:theme_desiree/profile/profile_model.dart';
+import 'package:theme_desiree/profile/userprofile_model.dart';
 
 class ProfileView extends StatelessWidget {
   ProfileView({super.key});

@@ -6,7 +6,7 @@ class ProfileModel {
   final String id;
   final String avatar;
   final String name;
-  final Gender gender;
+  final Gender? gender;
   final ContactInfo email;
   final ContactInfo phone;
 
@@ -41,10 +41,10 @@ class ProfileModel {
   /// Converts JSON to ProfileModel
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     return ProfileModel(
-      id: json['id'],
-      avatar: json['avatar'],
-      name: json['name'],
-      gender: _parseGender(json['gender']),
+      id: json['id'] ?? '',
+      avatar: json['avatar'] ?? '',
+      name: json['name'] ?? '',
+      gender: parseGender(json['gender']),
       email: ContactInfo.fromMap(json['email']),
       phone: ContactInfo.fromMap(json['phone']),
     );
@@ -63,7 +63,7 @@ class ProfileModel {
   }
 
   /// Converts gender string from JSON to Gender enum
-  static Gender _parseGender(String? gender) {
+  static Gender parseGender(String? gender) {
     switch (gender?.toLowerCase()) {
       case 'male':
         return Gender.male;
@@ -75,4 +75,16 @@ class ProfileModel {
         return Gender.none;
     }
   }
+  // static Gender _parseGender(String? gender) {
+  //   switch (gender?.toLowerCase()) {
+  //     case 'male':
+  //       return Gender.male;
+  //     case 'female':
+  //       return Gender.female;
+  //     case 'other':
+  //       return Gender.other;
+  //     default:
+  //       return Gender.none;
+  //   }
+  // }
 }

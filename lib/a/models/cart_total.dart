@@ -11,10 +11,18 @@ class Totals {
   });
   factory Totals.fromJson(Map<String, dynamic> json) {
     return Totals(
-      subtotal: json['subtotal'] ?? 0,
-      vat: json['tax'] ?? 0,
-      deliveryCharge: json['deliveryCharge'] ?? 0,
-      total: json['grandTotal'] ?? 0,
+      subtotal: (json['subtotal'] ?? 0).toDouble(),
+      vat: (json['tax'] ?? 0).toDouble(),
+      deliveryCharge: (json['deliveryCharge'] ?? 0).toDouble(),
+      total: (json['grandTotal'] ?? 0).toDouble(),
     );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'subtotal': subtotal,
+      'tax': vat,
+      'deliveryCharge': deliveryCharge,
+      'grandTotal': total,
+    };
   }
 }

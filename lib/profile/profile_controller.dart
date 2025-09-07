@@ -1,10 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:theme_desiree/profile/contacts.dart';
-import 'package:theme_desiree/profile/profile_model.dart';
+import 'package:theme_desiree/profile/userprofile_model.dart';
 
 class ProfileController extends GetConnect implements GetxService {
   var profile = Rxn<ProfileModel>();
@@ -56,6 +59,58 @@ class ProfileController extends GetConnect implements GetxService {
     }
   }
 
+// Fetch user session from API
+  Future<void> fetchUserProfile() async {
+    try {
+      isLoading.value = true;
+      hasError.value = false;
+
+      final token = GetStorage().read("accessToken");
+
+      final url = Uri.parse('https://app2.apidoxy.com/api/v1/user/session');
+      final response = await http.get(
+        url,
+        headers: {
+          "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> body = jsonDecode(response.body);
+        final userData = body['user'] ?? {};
+
+        profile.value = ProfileModel(
+          id: userData['id'] ?? '',
+          avatar: userData['avatar'] ?? '',
+          name: userData['name'] ?? '', // <--- make sure default ''
+          email: ContactInfo(
+            data: userData['email'] ?? '',
+            isVerified:
+                userData['isEmailVerified'] ?? userData['isVerified'] ?? false,
+          ),
+          phone: ContactInfo(
+            data: userData['phone'] ?? '',
+            isVerified:
+                userData['isPhoneVerified'] ?? userData['isVerified'] ?? false,
+          ),
+          gender: userData['gender'] != null
+              ? ProfileModel.parseGender(userData['gender'])
+              : Gender.none,
+        );
+      } else {
+        hasError.value = true;
+        print("Failed to fetch profile: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Profile fetch error: $e");
+      hasError.value = true;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<bool> updateAvatar(croppedImage) async {
     final String imageToUpload = base64Encode(croppedImage);
     try {
@@ -95,7 +150,7 @@ class ProfileController extends GetConnect implements GetxService {
         final Map<String, dynamic> data = response.body;
         profile.value = ProfileModel.fromJson(data);
         editedProfile.value = ProfileModel.fromJson(data);
-        genderController.value = {profile.value!.gender};
+        genderController.value = {profile.value!.gender!};
         hasError.value = false;
       } else {
         hasError.value = true;
@@ -105,5 +160,11 @@ class ProfileController extends GetConnect implements GetxService {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchUserProfile();
   }
 }

@@ -295,9 +295,11 @@ class CartView extends StatelessWidget {
                                     ),
                                     Text(
                                       currencyController.formatCurrency(
-                                        product.price!.toDouble() *
-                                            product.quantity,
-                                      ),
+                                          product.subtotal.toDouble()),
+                                      // currencyController.formatCurrency(
+                                      //   product.price!.toDouble() *
+                                      //       product.quantity,
+                                      // ),
                                       style:
                                           contextTheme.typography.lg.copyWith(
                                         height: 1,

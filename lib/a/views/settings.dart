@@ -60,7 +60,7 @@ class Settings extends StatelessWidget {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Get.toNamed('');
+                        Get.toNamed('settings/userme');
                       },
                       child: FIcon(
                         FAssets.icons.circleUser,

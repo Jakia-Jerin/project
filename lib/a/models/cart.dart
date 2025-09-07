@@ -7,6 +7,7 @@ class CartModel {
   late int quantity;
   final int? stock;
   final num? price;
+  final num subtotal;
   final bool? isAvailable;
 
   CartModel({
@@ -18,6 +19,7 @@ class CartModel {
     required this.quantity,
     required this.stock,
     required this.price,
+    required this.subtotal,
     required this.isAvailable,
   });
 
@@ -35,6 +37,7 @@ class CartModel {
       quantity: json['quantity'] ?? 1,
       stock: json['stock'] != null ? int.tryParse(json['stock'].toString()) : 0,
       price: json['price'] ?? 0,
+      subtotal: json['subtotal'] ?? 0,
       isAvailable: json['isAvailable'] ?? true,
     );
   }
@@ -49,6 +52,7 @@ class CartModel {
       quantity: quantity,
       stock: stock,
       price: price,
+      subtotal: subtotal,
       isAvailable: isAvailable,
     );
   }

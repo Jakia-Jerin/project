@@ -18,6 +18,7 @@ import 'package:theme_desiree/a/views/search.dart';
 
 import 'package:theme_desiree/profile/profile_info.dart';
 import 'package:theme_desiree/profile/profile_view.dart';
+import 'package:theme_desiree/profile/user_me.dart';
 import 'package:theme_desiree/showcase/showcase_view.dart';
 import 'package:theme_desiree/a/views/theme.dart';
 import 'package:theme_desiree/signin_opt/otp.dart';
@@ -79,6 +80,15 @@ class AppRoutes {
             curve: Curves.easeInOut,
             transitionDuration: Duration(milliseconds: 300),
             children: [
+              GetPage(
+                name: '/userme',
+                page: () => UserProfileScreen(),
+
+                //     page: () => ProfileView(),
+                transition: Transition.rightToLeft,
+                curve: Curves.easeInOut,
+                transitionDuration: Duration(milliseconds: 300),
+              ),
               GetPage(
                 name: '/profile',
                 page: () => SigninPage(),

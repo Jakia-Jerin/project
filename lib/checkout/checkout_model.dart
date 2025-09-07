@@ -23,3 +23,58 @@ class PaymentModel {
     );
   }
 }
+
+class DeliveryChargeModel {
+  final String id;
+  final bool isDefault;
+  final int charge;
+  final String name; // Display name
+
+  DeliveryChargeModel({
+    required this.id,
+    required this.isDefault,
+    required this.charge,
+    required this.name,
+  });
+
+  factory DeliveryChargeModel.fromJson(Map<String, dynamic> json) {
+    // Name = regionName / Default Delivery
+    String displayName = json['regionName'] ??
+        (json['isDefault'] == true ? 'Default Delivery' : 'Unnamed');
+
+    return DeliveryChargeModel(
+      id: json['_id'],
+      isDefault: json['isDefault'] ?? false,
+      charge: json['charge'] ?? 0,
+      name: displayName,
+    );
+  }
+}
+
+// class DeliveryChargeModel {
+//    final String id;
+//   final bool isDefault;
+//   final int charge;
+//   final String name;
+
+//   DeliveryChargeModel({
+//      required this.id,
+//     required this.isDefault,
+//     required this.charge,
+//     required this.name,
+   
+//   });
+
+//    factory DeliveryChargeModel.fromJson(Map<String, dynamic> json) {
+//     // Name = chargeBasedOn / regi removed text
+//     String displayName = json['regi'] ?? (json['isDefault'] == true ? 'Default' : 'Unnamed');
+//     return DeliveryChargeModel(
+//       id: json['_id'],
+//       isDefault: json['isDefault'] ?? false,
+//       charge: json['charge'] ?? 0,
+//       name: displayName,
+//     );
+//   }
+// }
+
+
