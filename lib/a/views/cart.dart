@@ -401,9 +401,8 @@ class CartView extends StatelessWidget {
                               (product.variant != null &&
                                       product.variant!.isNotEmpty)
                                   ? product.variant!
-                                  : (product.options != null &&
-                                          product.options!.isNotEmpty
-                                      ? product.options!
+                                  : (product.options.isNotEmpty
+                                      ? product.options
                                       : 'No options'),
                             ),
                             //  variant.options.join(', ')
