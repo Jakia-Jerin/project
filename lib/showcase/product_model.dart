@@ -85,7 +85,7 @@ class ProductModel {
               ?.map((v) => VariantModel.fromJson(v))
               .toList() ??
           [],
-          images: List<String>.from(json['gallery'] ?? []),
+      images: List<String>.from(json['gallery'] ?? []),
       // images:
       //     (json['images'] as List?)?.map((e) => e.toString()).toList() ?? [],
       featuredImage: json['featured_image']?.toString(),
@@ -173,7 +173,10 @@ class VariantModel {
       option1: json['option1']?.toString(),
       option2: json['option2']?.toString(),
       option3: json['option3']?.toString(),
-      price: json['price'],
+      price:
+          json['price'] != null ? Map<String, dynamic>.from(json['price']) : {},
+
+//      price: json['price'],
       weight: json['weight'],
       compareAtPrice: json['compare_at_price'] ?? 0,
       inventoryManagement: json['inventory_management']?.toString(),

@@ -8,6 +8,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:theme_desiree/a/models/cart.dart';
 import 'package:theme_desiree/a/models/cart_total.dart';
+import 'package:theme_desiree/showcase/showcase_controller.dart';
 import 'package:theme_desiree/signin_opt/authcontroller.dart';
 
 class CartController extends GetConnect implements GetxService {
@@ -22,82 +23,246 @@ class CartController extends GetConnect implements GetxService {
   @override
   final String baseUrl = "https://app2.apidoxy.com";
   final AuthController authController = Get.put(AuthController());
+  final vendorId = dotenv.env['SHOP_ID'] ?? "";
 
   /// Add product to server + local list
-  Future<void> addProductToServer(CartModel product, {String? coupon}) async {
-    // if (!authController.isLoggedIn.value) {
-    //   Get.toNamed('/settings/profile'); // login page
-    //   return;
-    // }
-
+  Future<void> addProductToServer(CartModel product,
+      {String? option, String? shop}) async {
     isLoading.value = true;
     try {
       final url = Uri.parse('$baseUrl/api/v1/cart/item');
       final box = GetStorage();
-      print("Sending Request to: $url");
 
-      // token read
       final accessToken = box.read("accessToken");
-      print(" Token from storage: $accessToken");
-      final refreshToken = box.read("refreshToken");
-      print('$accessToken');
+
+      final requestBody = {
+        "productId": product.productId,
+        if (product.variantId != null) "variantId": product.variantId,
+        "quantity": product.quantity,
+        if (option != null) "option": option,
+        "shop": vendorId,
+      };
+
       final response = await http.post(
         url,
         headers: {
-          "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
           "Authorization": "Bearer $accessToken",
+          "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
           "Content-Type": "application/json",
         },
-        body: jsonEncode({
-          "productId": product.productId,
-          "variantId": product.variantId,
-          "quantity": product.quantity,
-          if (coupon != null) "coupon": coupon,
-        }),
+        body: jsonEncode(requestBody),
       );
-      print("$response");
+
+      print("➡️ Request URL: $url");
+      print("➡️ Request Body: $requestBody");
+      print("⬅️ Response (${response.statusCode}): ${response.body}");
+
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200 && data['success'] == true) {
-        products.add(product);
-        await getUserCart(); // Refresh cart from server
-        //  Get.snackbar("Success", data['message'] ?? "Item added to cart");
-        print("Status code: ${response.statusCode}");
+        Get.snackbar("Success", data['message'] ?? "Item added to cart");
 
-        print("Response: $data");
+        await getUserCart();
       } else {
-        Get.snackbar("Error", data['message'] ?? "Something went wrong");
-        print("Response: $data");
+        Get.snackbar("Error",
+            data['error'] ?? data['message'] ?? "Something went wrong");
       }
     } catch (e) {
       Get.snackbar("Error", "Failed to add product: $e");
-      print("Response: $e");
     } finally {
       isLoading.value = false;
     }
   }
 
-  void handleAddToCart(CartModel product) async {
-    if (!authController.isLoggedIn.value) {
-      // User not logged in → redirect to login page
-      final result = await Get.toNamed('/settings/profile');
+  void handleAddToCart(CartModel product,
+      {String? option, String? shop}) async {
+    // Get selected variant based on color & size
+    final showcaseController = Get.find<ShowcaseController>();
+    // Combine selected options
+    final selectedOption =
+        "${showcaseController.selectedOptions['color'] ?? ''}, ${showcaseController.selectedOptions['size'] ?? ''}";
+    final selectedVariant =
+        showcaseController.product.value?.variants.firstWhereOrNull(
+      (v) =>
+          v.options.contains(showcaseController.selectedOptions['color']) &&
+          v.options.contains(showcaseController.selectedOptions['size']),
+    );
 
+    // Call existing logic
+    if (!authController.isLoggedIn.value) {
+      final result = await Get.toNamed('/settings/profile');
       if (authController.isLoggedIn.value) {
-        await addProductAfterLogin(product);
+        await addProductAfterLogin(product, option: selectedOption, shop: shop);
       }
     } else {
-      await addProductAfterLogin(product);
+      await addProductAfterLogin(product, option: selectedOption, shop: shop);
     }
   }
 
-  Future<void> addProductAfterLogin(CartModel product) async {
-    await addProductToServer(product);
+  // void handleAddToCart(CartModel product,
+  //     {String? option, String? shop}) async {
+  //   if (!authController.isLoggedIn.value) {
+  //     final result = await Get.toNamed('/settings/profile');
 
-    Get.toNamed('/cart'); // বা Get.toNamed('/cart')
+  //     if (authController.isLoggedIn.value) {
+  //       await addProductAfterLogin(product, option: option, shop: shop);
+  //     }
+  //   } else {
+  //     await addProductAfterLogin(product, option: option, shop: shop);
+  //   }
+  // }
+
+  Future<void> addProductAfterLogin(CartModel product,
+      {String? option, String? shop}) async {
+    await addProductToServer(product, option: option, shop: shop);
+
+    Get.toNamed('/cart');
   }
+
+  Future<void> getUserCart() async {
+    final token = GetStorage().read("accessToken");
+
+    if (token == null) {
+      Get.toNamed('/settings/profile'); // redirect to login
+      return;
+    }
+
+    isLoading.value = true;
+
+    final url = Uri.parse('$baseUrl/api/v1/cart');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+      );
+
+      final data = jsonDecode(response.body);
+      print("Get Cart Response: $data");
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        final cartData = data['data'];
+
+        // Map items to CartItem
+        final items = (cartData['items'] as List<dynamic>)
+            .map((item) => CartModel.fromJson(item))
+            .toList();
+
+        for (var item in products) {
+          print(
+              "ProductId: ${item.productId}, VariantId: ${item.variantId}, Name: ${item.variant}, Quantity: ${item.quantity}");
+        }
+
+        products.value = items;
+
+        // Extract totals safely
+        final totalsData = cartData['totals'] as Map<String, dynamic>? ?? {};
+        totals.value = Totals(
+          subtotal: (totalsData['subtotal'] ?? 0).toInt(),
+          vat: (totalsData['tax'] ?? 0).toInt(),
+          deliveryCharge: (totalsData['deliveryCharge'] ?? 0).toInt(),
+          total: (totalsData['grandTotal'] ?? 0).toInt(),
+        );
+
+        products.refresh();
+        print("Cart items: ${products.value}");
+        print("Cart totals: ${totals.value.subtotal}");
+      } else {
+        Fluttertoast.showToast(
+          msg: data['message'] ?? "Failed to fetch cart",
+          backgroundColor: Colors.red,
+        );
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Error fetching cart: $e",
+        backgroundColor: Colors.red,
+      );
+      print("Error: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Future<void> addProductToServer(CartModel product, {String? coupon}) async {
+  //   // if (!authController.isLoggedIn.value) {
+  //   //   Get.toNamed('/settings/profile'); // login page
+  //   //   return;
+  //   // }
+
+  //   isLoading.value = true;
+  //   try {
+  //     final url = Uri.parse('$baseUrl/api/v1/cart/item');
+  //     final box = GetStorage();
+  //     print("Sending Request to: $url");
+
+  //     // token read
+  //     final accessToken = box.read("accessToken");
+  //     print(" Token from storage: $accessToken");
+  //     final refreshToken = box.read("refreshToken");
+  //     print('$accessToken');
+  //     final response = await http.post(
+  //       url,
+  //       headers: {
+  //         "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+  //         "Authorization": "Bearer $accessToken",
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: jsonEncode({
+  //         "productId": product.productId,
+  //         "variantId": product.variantId,
+  //         "quantity": product.quantity,
+  //         if (coupon != null) "coupon": coupon,
+  //       }),
+  //     );
+  //     print("$response");
+  //     final data = jsonDecode(response.body);
+
+  //     if (response.statusCode == 200 && data['success'] == true) {
+  //       products.add(product);
+  //       await getUserCart(); // Refresh cart from server
+  //       //  Get.snackbar("Success", data['message'] ?? "Item added to cart");
+  //       print("Status code: ${response.statusCode}");
+
+  //       print("Response: $data");
+  //     } else {
+  //       Get.snackbar("Error", data['message'] ?? "Something went wrong");
+  //       print("Response: $data");
+  //     }
+  //   } catch (e) {
+  //     Get.snackbar("Error", "Failed to add product: $e");
+  //     print("Response: $e");
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
+
+  // void handleAddToCart(CartModel product) async {
+  //   if (!authController.isLoggedIn.value) {
+  //     // User not logged in → redirect to login page
+  //     final result = await Get.toNamed('/settings/profile');
+
+  //     if (authController.isLoggedIn.value) {
+  //       await addProductAfterLogin(product);
+  //     }
+  //   } else {
+  //     await addProductAfterLogin(product);
+  //   }
+  // }
+
+  // Future<void> addProductAfterLogin(CartModel product) async {
+  //   await addProductToServer(product);
+
+  //   Get.toNamed('/cart'); // বা Get.toNamed('/cart')
+  // }
 
   /// Update cart item quantity on server
   Future<void> updateCartItem({
+    required String cartItemId,
     required String productId,
     String? variantId,
     required int quantity,
@@ -125,6 +290,7 @@ class CartController extends GetConnect implements GetxService {
           if (variantId != null) "variantId": variantId,
           "quantity": quantity,
           "action": action,
+          "shop": vendorId,
         }),
       );
 
@@ -229,73 +395,73 @@ class CartController extends GetConnect implements GetxService {
     }
   }
 
-  Future<void> getUserCart() async {
-    final token = GetStorage().read("accessToken");
+  // Future<void> getUserCart() async {
+  //   final token = GetStorage().read("accessToken");
 
-    if (token == null) {
-      Get.toNamed('/settings/profile'); // redirect to login
-      return;
-    }
+  //   if (token == null) {
+  //     Get.toNamed('/settings/profile'); // redirect to login
+  //     return;
+  //   }
 
-    isLoading.value = true;
+  //   isLoading.value = true;
 
-    final url = Uri.parse('$baseUrl/api/v1/cart');
+  //   final url = Uri.parse('$baseUrl/api/v1/cart');
 
-    try {
-      final response = await http.get(
-        url,
-        headers: {
-          "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
-          "Authorization": "Bearer $token",
-          "Content-Type": "application/json",
-        },
-      );
+  //   try {
+  //     final response = await http.get(
+  //       url,
+  //       headers: {
+  //         "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+  //         "Authorization": "Bearer $token",
+  //         "Content-Type": "application/json",
+  //       },
+  //     );
 
-      final data = jsonDecode(response.body);
-      print("Get Cart Response: $data");
+  //     final data = jsonDecode(response.body);
+  //     print("Get Cart Response: $data");
 
-      if (response.statusCode == 200 && data['success'] == true) {
-        // Extract items
-        final items = data['data']['items'] as List<dynamic>;
+  //     if (response.statusCode == 200 && data['success'] == true) {
+  //       // Extract items
+  //       final items = data['data']['items'] as List<dynamic>;
 
-        // Map items to CartModel
-        products.value = items.map((e) => CartModel.fromJson(e)).toList();
-        // Extract subtotal, tax, deliveryCharge, grandTotal
-        final totalsData = data['data']['totals'] as Map<String, dynamic>;
-        totals.value = Totals(
-          subtotal: (totalsData['subtotal'] ?? 0).toInt(),
-          vat: (totalsData['tax'] ?? 0).toInt(),
-          deliveryCharge: (totalsData['deliveryCharge'] ?? 0).toInt(),
-          total: (totalsData['grandTotal'] ?? 0).toInt(),
+  //       // Map items to CartModel
+  //       products.value = items.map((e) => CartModel.fromJson(e)).toList();
+  //       // Extract subtotal, tax, deliveryCharge, grandTotal
+  //       final totalsData = data['data']['totals'] as Map<String, dynamic>;
+  //       totals.value = Totals(
+  //         subtotal: (totalsData['subtotal'] ?? 0).toInt(),
+  //         vat: (totalsData['tax'] ?? 0).toInt(),
+  //         deliveryCharge: (totalsData['deliveryCharge'] ?? 0).toInt(),
+  //         total: (totalsData['grandTotal'] ?? 0).toInt(),
 
-          // subtotal: (totalsData['subtotal'] ?? 0).toDouble(),
-          // vat: (totalsData['tax'] ?? 0).toDouble(),
-          // deliveryCharge: (totalsData['deliveryCharge'] ?? 0).toDouble(),
-          // total: (totalsData['grandTotal'] ?? 0).toDouble(),
-        );
+  //         // subtotal: (totalsData['subtotal'] ?? 0).toDouble(),
+  //         // vat: (totalsData['tax'] ?? 0).toDouble(),
+  //         // deliveryCharge: (totalsData['deliveryCharge'] ?? 0).toDouble(),
+  //         // total: (totalsData['grandTotal'] ?? 0).toDouble(),
+  //       );
 
-        print(items);
-        print("${products.value}");
-        print(totalsData);
-        print("Totals from API: ${totalsData['subtotal']}");
-        print("Totals.value.subtotal: ${totals.value.subtotal}");
-        products.refresh();
-      } else {
-        // Fluttertoast.showToast(
-        //   msg: data['message'] ?? "Failed to fetch cart",
-        //   backgroundColor: Colors.red,
-        // );
-      }
-    } catch (e) {
-      Fluttertoast.showToast(
-        msg: "Error fetching cart: $e",
-        backgroundColor: Colors.red,
-      );
-      print("Error: $e");
-    } finally {
-      isLoading.value = false;
-    }
-  }
+  //       print(items);
+  //       print("${products.value}");
+  //       print(totalsData);
+  //       print("Totals from API: ${totalsData['subtotal']}");
+  //       print("Totals.value.subtotal: ${totals.value.subtotal}");
+  //       products.refresh();
+  //     } else {
+  //       // Fluttertoast.showToast(
+  //       //   msg: data['message'] ?? "Failed to fetch cart",
+  //       //   backgroundColor: Colors.red,
+  //       // );
+  //     }
+  //   } catch (e) {
+  //     Fluttertoast.showToast(
+  //       msg: "Error fetching cart: $e",
+  //       backgroundColor: Colors.red,
+  //     );
+  //     print("Error: $e");
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
   void updateDeliveryCharge(int charge) {
     totals.value = Totals(
@@ -305,6 +471,13 @@ class CartController extends GetConnect implements GetxService {
       total: totals.value.subtotal + totals.value.vat + charge, // total recalc
     );
   }
+
+  @override
+  void onInit() {
+    super.onInit();
+    getUserCart();
+  }
+}
 
 
   // Future<void> removeCartItem({
@@ -430,7 +603,7 @@ class CartController extends GetConnect implements GetxService {
   // }
 
   /// Get user cart from server
-  
+
   // void addProduct({
   //   productId,
   //   variantId,
@@ -507,9 +680,3 @@ class CartController extends GetConnect implements GetxService {
   //   return productotal + vat + deliveryCharge;
   // }
 
-  @override
-  void onInit() {
-    super.onInit();
-    getUserCart();
-  }
-}

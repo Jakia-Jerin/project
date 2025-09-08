@@ -31,12 +31,17 @@ class OrdersController extends GetConnect implements GetxService {
         final jsonBody = jsonDecode(response.body);
         final data = jsonBody['data'] as List<dynamic>? ?? [];
         orders.value = data.map((json) => OrdersModel.fromJson(json)).toList();
+        print(response.statusCode);
+        print(data);
       } else {
         orders.clear();
         hasError.value = true;
+        print(response.statusCode);
+        print(response.body);
       }
     } catch (e) {
       print('Error fetching orders: $e');
+
       orders.clear();
       hasError.value = true;
     } finally {

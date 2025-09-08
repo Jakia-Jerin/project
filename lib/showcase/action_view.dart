@@ -34,6 +34,17 @@ class ActionView extends StatelessWidget {
     final cartController = Get.find<CartController>();
     final authController = Get.put(AuthController());
 
+    // আলাদা করে colors এবং sizes বের করি
+    final colorVariants = variants
+        .where((v) => v.options.any((o) => o.contains(RegExp(r'[a-zA-Z]'))))
+        .toList();
+    final sizeVariants = variants
+        .where((v) => v.options.any((o) => o.contains(RegExp(r'\d'))))
+        .toList();
+
+    // selected color & size
+    final selectedColor = showcaseController.selectedOptions['color'].obs;
+    final selectedSize = showcaseController.selectedOptions['size'].obs;
     return FCard(
       style: FTheme.of(context).cardStyle.copyWith(
             contentStyle: FTheme.of(context).cardStyle.contentStyle.copyWith(
@@ -101,156 +112,233 @@ class ActionView extends StatelessWidget {
           ),
 
           // --- Options Selection ---
-          Obx(() {
-            final selectedVariant = showcaseController.selectedVariant.value;
-
-            if (selectedVariant == null || selectedVariant.options.isEmpty) {
-              return SizedBox.shrink();
-            }
-
-            return Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children:
-                    List.generate(selectedVariant.options.length, (index) {
-                  // Filter matched variants based on previous selections
-                  List<VariantModel> matchedVariants = showcaseController
-                      .product.value!.variants
-                      .where((variant) {
-                    if (index == 0) {
-                      return true; // first attribute: all variants show
-                    }
-                    final previousSelected =
-                        selectedVariant.options.sublist(0, index);
-                    final previousVariant = variant.options.sublist(0, index);
-                    return ListEquality()
-                        .equals(previousSelected, previousVariant);
-                  }).toList();
-
-                  // Sort matchedVariants: selected option first
-                  matchedVariants.sort((a, b) {
-                    final aOption =
-                        a.options.length > index ? a.options[index] : '';
-                    final bOption =
-                        b.options.length > index ? b.options[index] : '';
-                    final selectedOption = selectedVariant.options[index];
-
-                    if (aOption == selectedOption &&
-                        bOption != selectedOption) {
-                      return -1;
-                    }
-                    if (aOption != selectedOption &&
-                        bOption == selectedOption) {
-                      return 1;
-                    }
-                    return 0;
-                  });
-
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Wrap(
-                        spacing: 8,
-                        children: matchedVariants.map((variant) {
-                          final variantOption = index < variant.options.length
-                              ? variant.options[index]
-                              : '';
-
-                          final isSelected =
-                              selectedVariant.options[index] == variantOption;
-
-                          return GestureDetector(
-                            onTap: () {
-                              showcaseController.selectedVariant.value =
-                                  variant;
-                            },
-                            child: FBadge(
-                              style: isSelected
-                                  ? FBadgeStyle.primary
-                                  : FBadgeStyle.outline,
-                              label: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(variantOption),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            );
-          }),
-
+          // --- Options Selection ---
           // Obx(() {
-          //   final selectedVariant = showcaseController.selectedVariant.value;
-          //   if (selectedVariant == null) {
-          //     print("No variant selected yet!");
-          //     return SizedBox.shrink();
-          //   }
+          //   final productVariants =
+          //       showcaseController.product.value?.variants ?? [];
+          //   if (productVariants.isEmpty) return SizedBox.shrink();
 
-          //   print("Selected Variant options: ${selectedVariant.options}");
-          //   if (variants.isEmpty) return SizedBox.shrink();
+          //   // Keep track of selected option per row
+          //   final RxList<String?> selectedOptions =
+          //       List.generate(options.length, (_) => null).obs;
 
           //   return Padding(
           //     padding: const EdgeInsets.all(10),
-          //     child: ListView.builder(
-          //       itemCount: options.length,
-          //       shrinkWrap: true,
-          //       physics: NeverScrollableScrollPhysics(),
-          //       itemBuilder: (context, index) {
-          //         Set<String> seenOptions = {};
-          //         List<VariantModel> matchedVariants = variants.where((item) {
-          //           if (index == 0) {
-          //             if (!seenOptions.contains(item.options[0])) {
-          //               seenOptions.add(item.options[index]);
-          //               return ListEquality().equals(
-          //                 item.options.sublist(0, index),
-          //                 selectedVariant?.options.sublist(0, index) ?? [],
-          //               );
-          //             } else {
-          //               return false;
-          //             }
-          //           } else {
-          //             return ListEquality().equals(
-          //               item.options.sublist(0, index),
-          //               selectedVariant?.options.sublist(0, index) ?? [],
-          //             );
+          //     child: Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: List.generate(options.length, (index) {
+          //         // Filter variants based on previous selections
+          //         final validVariants = productVariants.where((v) {
+          //           for (int j = 0; j < index; j++) {
+          //             if (selectedOptions[j] != null &&
+          //                 selectedOptions[j] != v.options[j]) return false;
           //           }
+          //           return true;
           //         }).toList();
 
+          //         // Get unique options for this row
+          //         final uniqueOptions = validVariants
+          //             .map((v) => v.options[index])
+          //             .toSet()
+          //             .toList();
+
           //         return Padding(
-          //           padding: const EdgeInsets.all(5),
+          //           padding: const EdgeInsets.only(bottom: 8.0),
+          //           child: Wrap(
+          //             spacing: 8,
+          //             children: uniqueOptions.map((opt) {
+          //               final isSelected = selectedOptions[index] == opt;
+
+          //               return GestureDetector(
+          //                 onTap: () {
+          //                   // Select only this option for this row
+          //                   selectedOptions[index] = opt;
+
+          //                   // Reset all later selections
+          //                   for (int k = index + 1;
+          //                       k < selectedOptions.length;
+          //                       k++) {
+          //                     selectedOptions[k] = null;
+          //                   }
+
+          //                   // Update selectedVariant based on current selections
+          //                   final matchedVariant = productVariants.firstWhere(
+          //                     (v) => ListEquality()
+          //                         .equals(v.options, selectedOptions),
+          //                     orElse: () => productVariants.first,
+          //                   );
+
+          //                   showcaseController.selectedVariant.value =
+          //                       matchedVariant;
+          //                 },
+          //                 child: FBadge(
+          //                   style: isSelected
+          //                       ? FBadgeStyle.primary
+          //                       : FBadgeStyle.outline,
+          //                   label: Padding(
+          //                     padding: const EdgeInsets.all(8.0),
+          //                     child: Text(opt),
+          //                   ),
+          //                 ),
+          //               );
+          //             }).toList(),
+          //           ),
+          //         );
+          //       }),
+          //     ),
+          //   );
+          // }),
+          if (colorVariants.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Color'),
+                  Obx(() => Wrap(
+                        spacing: 8,
+                        children: colorVariants.expand((v) {
+                          return v.options.map((color) {
+                            final isSelected = selectedColor.value == color;
+                            return GestureDetector(
+                              onTap: () {
+                                selectedColor.value = color;
+                                showcaseController.selectedOptions['color'] =
+                                    color;
+                              },
+                              child: FBadge(
+                                style: isSelected
+                                    ? FBadgeStyle.primary
+                                    : FBadgeStyle.outline,
+                                label: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(color),
+                                ),
+                              ),
+                            );
+                          });
+                        }).toList(),
+                      )),
+                ],
+              ),
+            ),
+
+          // Sizes
+          if (sizeVariants.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Size'),
+                  Obx(() => Wrap(
+                        spacing: 8,
+                        children: sizeVariants.expand((v) {
+                          return v.options.map((size) {
+                            final isSelected = selectedSize.value == size;
+                            return GestureDetector(
+                              onTap: () {
+                                selectedSize.value = size;
+                                showcaseController.selectedOptions['size'] =
+                                    size;
+                              },
+                              child: FBadge(
+                                style: isSelected
+                                    ? FBadgeStyle.primary
+                                    : FBadgeStyle.outline,
+                                label: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(size),
+                                ),
+                              ),
+                            );
+                          });
+                        }).toList(),
+                      )),
+                ],
+              ),
+            ),
+
+          // Obx(() {
+          //   final selectedVariant = showcaseController.selectedVariant.value;
+
+          //   if (selectedVariant == null || selectedVariant.options.isEmpty) {
+          //     return SizedBox.shrink();
+          //   }
+
+          //   return Padding(
+          //     padding: const EdgeInsets.all(10),
+          //     child: Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children:
+          //           List.generate(selectedVariant.options.length, (index) {
+          //         // Filter matched variants based on previous selections
+          //         List<VariantModel> matchedVariants = showcaseController
+          //             .product.value!.variants
+          //             .where((variant) {
+          //           if (index == 0) {
+          //             return true; // first attribute: all variants show
+          //           }
+          //           final previousSelected =
+          //               selectedVariant.options.sublist(0, index);
+          //           final previousVariant = variant.options.sublist(0, index);
+          //           return ListEquality()
+          //               .equals(previousSelected, previousVariant);
+          //         }).toList();
+
+          //         // Sort matchedVariants: selected option first
+          //         matchedVariants.sort((a, b) {
+          //           final aOption =
+          //               a.options.length > index ? a.options[index] : '';
+          //           final bOption =
+          //               b.options.length > index ? b.options[index] : '';
+          //           final selectedOption = selectedVariant.options[index];
+
+          //           if (aOption == selectedOption &&
+          //               bOption != selectedOption) {
+          //             return -1;
+          //           }
+          //           if (aOption != selectedOption &&
+          //               bOption == selectedOption) {
+          //             return 1;
+          //           }
+          //           return 0;
+          //         });
+
+          //         return Padding(
+          //           padding: const EdgeInsets.only(bottom: 8.0),
           //           child: SingleChildScrollView(
           //             scrollDirection: Axis.horizontal,
-          //             child: Flex(
-          //               direction: Axis.horizontal,
+          //             child: Wrap(
           //               spacing: 8,
-          //               children: List.generate(matchedVariants.length, (i) {
+          //               children: matchedVariants.map((variant) {
+          //                 final variantOption = index < variant.options.length
+          //                     ? variant.options[index]
+          //                     : '';
+
+          //                 final isSelected =
+          //                     selectedVariant.options[index] == variantOption;
+
           //                 return GestureDetector(
           //                   onTap: () {
           //                     showcaseController.selectedVariant.value =
-          //                         matchedVariants[i];
+          //                         variant;
           //                   },
           //                   child: FBadge(
-          //                     style: selectedVariant?.options[index] ==
-          //                             matchedVariants[i].options[index]
+          //                     style: isSelected
           //                         ? FBadgeStyle.primary
           //                         : FBadgeStyle.outline,
           //                     label: Padding(
           //                       padding: const EdgeInsets.all(8.0),
-          //                       child: Text(matchedVariants[i].options[index]),
+          //                       child: Text(variantOption),
           //                     ),
           //                   ),
           //                 );
-          //               }),
+          //               }).toList(),
           //             ),
           //           ),
           //         );
-          //       },
+          //       }),
           //     ),
           //   );
           // }),
@@ -281,23 +369,33 @@ class ActionView extends StatelessWidget {
 
                       // 1️⃣ Create CartModel
                       final cartItem = CartModel(
-                        productId: product.id,
-                        variantId: currentVariant?.id ?? '',
-                        title: product.title,
-                        variant: currentVariant?.options.join(" >") ?? '',
-                        image: product.featuredImage,
-                        stock: 10,
-                        price: currentVariant?.price['base'] ?? product.price,
-                        subtotal:
-                            (currentVariant?.price['base'] ?? product.price) *
-                                1,
-                        isAvailable:
-                            currentVariant?.available ?? product.available,
-                        quantity: 1,
-                      );
+                         cartItemId: '',
+                          productId: product.id,
+                          //  variantId: selectedVariant?.id ?? '',
+                          variantId: currentVariant?.id ?? '',
+                          title: product.title,
+                          variant:
+                              '${showcaseController.selectedOptions['color']}, ${showcaseController.selectedOptions['size']}',
+                          // variant: currentVariant?.options.join(" >") ?? '',
+                          image: product.featuredImage,
+                          stock: 10,
+                          price: currentVariant?.price['base'] ?? product.price,
+                          subtotal:
+                              (currentVariant?.price['base'] ?? product.price) *
+                                  1,
+                          isAvailable:
+                              currentVariant?.available ?? product.available,
+                          quantity: 1,
+                          options:
+                              '${showcaseController.selectedOptions['color']} > ${showcaseController.selectedOptions['size']}',
+                          shop: cartController.vendorId);
 
                       //  Call centralized helper
-                      cartController.handleAddToCart(cartItem);
+                      cartController.handleAddToCart(
+                        cartItem,
+                        option:
+                            "${showcaseController.selectedOptions['color']}, ${showcaseController.selectedOptions['size']}",
+                      );
                       if (authController.isLoggedIn.value) {
                         Fluttertoast.showToast(
                           msg: 'Added to cart'.tr,

@@ -106,7 +106,6 @@ class Product {
   }
 }
 
-
 class VariantModel {
   final int id;
   final String title;
@@ -206,7 +205,6 @@ class OptionModel {
     };
   }
 }
-
 
 class ReviewModel {
   final String id;

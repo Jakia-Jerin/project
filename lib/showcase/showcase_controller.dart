@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -63,12 +64,39 @@ class ShowcaseController extends GetxController {
     }
   }
 
+//  var selectedOptions = <String?>[].obs;
+  // Selected options (color, size) reactive
+  var selectedOptions = <String, String>{
+    'color': '',
+    'size': '',
+  }.obs;
+
+  // void selectOption(int optionIndex, String optionValue) {
+  //   selectedOptions[optionIndex] = optionValue;
+
+  //   // নতুন selectedVariant নির্ধারণ
+  //   final matched = product.value!.variants.firstWhere(
+  //     (v) {
+  //       for (int i = 0; i < selectedOptions.length; i++) {
+  //         if (i >= v.options.length) return false;
+  //         if (v.options[i] != selectedOptions[i]) return false;
+  //       }
+  //       return true;
+  //     },
+  //     orElse: () => product.value!.variants.first,
+  //   );
+
+  //   selectedVariant.value = matched;
+  // }
+
   @override
   void onInit() {
     super.onInit();
     final productId = Get.parameters['productId'] ?? '';
     if (productId.isNotEmpty) fetchProductByID(productId);
   }
+
+  // Add this field
 
   // Future<void> fetchProductbyID(String productId) async {
   //   isLoading.value = true;

@@ -326,6 +326,7 @@ class CartView extends StatelessWidget {
                                                 variantId: product.variantId,
                                                 quantity: 1,
                                                 action: "dec",
+                                                cartItemId: '',
                                               );
                                             } else {
                                               await cartController
@@ -374,6 +375,7 @@ class CartView extends StatelessWidget {
                                                 variantId: product.variantId,
                                                 quantity: 1,
                                                 action: "inc",
+                                                cartItemId: '',
                                               );
                                               cartController.products.refresh();
                                             } else {
@@ -395,7 +397,17 @@ class CartView extends StatelessWidget {
                               ],
                             ),
                             title: Text(product.title ?? ''),
-                            subtitle: Text(product.variant ?? ''),
+                            subtitle: Text(
+                              (product.variant != null &&
+                                      product.variant!.isNotEmpty)
+                                  ? product.variant!
+                                  : (product.options != null &&
+                                          product.options!.isNotEmpty
+                                      ? product.options!
+                                      : 'No options'),
+                            ),
+                            //  variant.options.join(', ')
+                            //  subtitle: Text(product.variant ?? ''),
                           );
                         },
                       ),
