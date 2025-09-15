@@ -4,14 +4,18 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:theme_desiree/a/controllers/cart.dart';
 import 'package:theme_desiree/address/address_controller.dart';
 import 'package:theme_desiree/checkout/checkout_model.dart';
+import 'package:theme_desiree/currency/currency_controller.dart';
 import 'package:theme_desiree/profile/profile_controller.dart';
 
 class CheckoutController extends GetConnect implements GetxService {
   final addressController = Get.put(AddressController());
 
   final profileController = Get.put(ProfileController());
+  final cartController = Get.put(CartController());
+  final currencyController = Get.put(CurrencyController());
   var deliveryCharges = <DeliveryChargeModel>[].obs;
   var selectedDeliveryId = ''.obs;
 
@@ -81,9 +85,6 @@ class CheckoutController extends GetConnect implements GetxService {
 
   Future<void> placeOrder({
     required String paymentMethod,
-    required num total,
-    // required List<Product> products,
-    // required String shippingMethod, // e.g. "standard"
   }) async {
     final addr = addressController.selectedAddress.value;
 
@@ -100,8 +101,41 @@ class CheckoutController extends GetConnect implements GetxService {
     }
 
     final user = await profileController.fetchUserProfile();
+    final vendorId = dotenv.env['SHOP_ID'] ?? "";
 
+    // Prepare items list
+    final itemsList = cartController.products
+        .map((item) => {
+              "cartItemId": item.cartItemId,
+              "productId": item.productId,
+              "variantId": item.variantId ?? "",
+              "quantity": item.quantity,
+              "price": {
+                "basePrice": item.price ?? 0,
+                "currency": "BDT", // per-item price
+              },
+              "total": item.subtotal,
+              // "subtotal": item.subtotal,
+              "title": item.title,
+              "options": item.options,
+              //  "isAvailable": item.isAvailable,
+            })
+        .toList();
+
+    // Prepare totals object
+    final totalsObj = {
+      "subtotal": cartController.totals.value.subtotal,
+      // "discount": cartController.totals.value.total,
+      "tax": cartController.totals.value.vat,
+      "deliveryCharge": cartController.totals.value.deliveryCharge,
+      "grandTotal": cartController.totals.value.total,
+    };
+
+    // Prepare request body
     final body = {
+      "shop": vendorId,
+      "cartId": cartController.cartId.value,
+      "items": itemsList,
       "shippingAddress": {
         "street": addr.line1,
         "city": addr.district,
@@ -111,25 +145,23 @@ class CheckoutController extends GetConnect implements GetxService {
         "name": profileController.profile.value?.name ?? "",
         "phone": addr.phone,
       },
-      "deliveryOptionId": deliveryId, //
+      "deliveryOptionId": deliveryId,
       "paymentMethod": paymentMethod,
-      "total": total,
-
-      // "products": products.map((p) => p.toJson()).toList(),
+      "totals": totalsObj,
     };
 
-    print(" Request Body: ${jsonEncode(body)}");
+    print("Request Body: ${jsonEncode(body)}");
 
     try {
       final box = GetStorage();
       final accessToken = box.read("accessToken");
       print("Token from storage: $accessToken");
 
-      final url = "$baseUrl/api/v1/order";
-      print(" API URL: $url");
+      final url = "https://app2.apidoxy.com/api/v1/order";
+      print("API URL: $url");
 
       final headers = {
-        "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+        "x-vendor-identifier": vendorId,
         "Authorization": "Bearer $accessToken",
         "Content-Type": "application/json",
       };
@@ -148,7 +180,7 @@ class CheckoutController extends GetConnect implements GetxService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         print("✅ Order placed successfully!");
         Get.snackbar('Success', 'Order placed successfully');
-        // Optionally: cart clear or navigate to orders screen
+        // Optionally clear cart or navigate to orders screen
       } else {
         print("❌ Failed: ${response.body}");
         Get.snackbar('Error', 'Failed: ${response.body}');

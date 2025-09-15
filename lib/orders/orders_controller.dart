@@ -12,16 +12,57 @@ class OrdersController extends GetConnect implements GetxService {
   var hasError = false.obs;
 
   // Fetch orders
+  // Future<void> fetchOrders() async {
+  //   final url = Uri.parse("https://app2.apidoxy.com//api/v1/order");
+  //   final token = GetStorage().read("accessToken");
+  //   try {
+  //     isLoading.value = true;
+
+  //     final response = await http.get(
+  //       url,
+  //       headers: {
+  //         "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+  //         "Authorization": "Bearer $token",
+  //         "Content-Type": "application/json",
+  //       },
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       final jsonBody = jsonDecode(response.body);
+  //       final data = jsonBody['data'] as List<dynamic>? ?? [];
+  //       orders.value = data.map((json) => OrdersModel.fromJson(json)).toList();
+  //       print(response.statusCode);
+  //       print(data);
+  //     } else {
+  //       orders.clear();
+  //       hasError.value = true;
+  //       print(response.statusCode);
+  //       print(response.body);
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching orders: $e');
+
+  //     orders.clear();
+  //     hasError.value = true;
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
+
+  // Fetch orders from API
   Future<void> fetchOrders() async {
-    final url = Uri.parse("https://app2.apidoxy.com//api/v1/order");
+    final url = Uri.parse("https://app2.apidoxy.com/api/v1/order");
     final token = GetStorage().read("accessToken");
+    final vendorId = dotenv.env['SHOP_ID'] ?? "";
+
     try {
       isLoading.value = true;
+      hasError.value = false;
 
       final response = await http.get(
         url,
         headers: {
-          "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+          "x-vendor-identifier": vendorId,
           "Authorization": "Bearer $token",
           "Content-Type": "application/json",
         },
@@ -30,20 +71,43 @@ class OrdersController extends GetConnect implements GetxService {
       if (response.statusCode == 200) {
         final jsonBody = jsonDecode(response.body);
         final data = jsonBody['data'] as List<dynamic>? ?? [];
-        orders.value = data.map((json) => OrdersModel.fromJson(json)).toList();
-        print(response.statusCode);
+        data.sort((a, b) => b.placedAt.compareTo(a.placedAt));
+
+        orders
+            .assignAll(data.map((json) => OrdersModel.fromJson(json)).toList());
+
+        print(
+            '**********************************************************************');
         print(data);
+
+        orders.value = data.map((json) => OrdersModel.fromJson(json)).toList();
+        print('--------------------------------------------------------------');
+        print("Fetched orders: ${orders.length}");
+        print('${response.statusCode}');
       } else {
+        print(
+            '**********************************************************************');
+
         orders.clear();
         hasError.value = true;
-        print(response.statusCode);
+
+        print(
+            '.....................................................................');
+        print(
+            '.....................................................................');
+        print("${response.statusCode}");
+        print("Failed to fetch orders: ${response.statusCode}");
         print(response.body);
       }
     } catch (e) {
-      print('Error fetching orders: $e');
-
       orders.clear();
       hasError.value = true;
+      print(
+          '.....................................................................');
+      print(
+          '.....................................................................');
+
+      print("Error fetching orders: $e");
     } finally {
       isLoading.value = false;
     }

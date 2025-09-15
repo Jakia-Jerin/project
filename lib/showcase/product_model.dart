@@ -1,3 +1,5 @@
+import 'package:theme_desiree/a/models/caregories.dart';
+
 class ProductModel {
   final String id;
   final String title;
@@ -7,6 +9,7 @@ class ProductModel {
   final String? createdAt;
   final String? vendor;
   final String? type;
+  final CategoryModel? category;
   final List<String> tags;
   final List<String> otherMediaContents;
   final Map<String, dynamic>? priceMap;
@@ -40,6 +43,7 @@ class ProductModel {
     required this.tags,
     required this.otherMediaContents,
     required this.priceMap,
+    required this.category,
     this.priceMin,
     this.priceMax,
     required this.available,
@@ -59,6 +63,20 @@ class ProductModel {
       id: json['id']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
       handle: json['handle']?.toString() ?? '',
+      category: json["category"] != null
+          ? (json["category"] is Map
+              ? CategoryModel.fromJson(json["category"])
+              : CategoryModel(
+                  id: json["category"],
+                  title: "",
+                  handle: "",
+                  description: '',
+                  imageUrl: null,
+                  coverUrl: ''))
+          : null,
+      // category: json["category"] != null
+      //     ? CategoryModel.fromJson(json["category"])
+      //     : null,
       description: json['description']?.toString() ?? '',
       publishedAt: json['published_at']?.toString(),
       createdAt: json['created_at']?.toString(),
@@ -81,14 +99,25 @@ class ProductModel {
       details: (json['details'] as Map?)
               ?.map((k, v) => MapEntry(k.toString(), v.toString())) ??
           {},
-      variants: (json['variants'] as List?)
-              ?.map((v) => VariantModel.fromJson(v))
+      variants: (json['variants'] as List<dynamic>?)
+              ?.map((v) => VariantModel.fromJson(v as Map<String, dynamic>))
               .toList() ??
           [],
-      images: List<String>.from(json['gallery'] ?? []),
+      images: (json['gallery'] as List?)
+              ?.map((e) => e['fileName']?.toString() ?? '')
+              .toList() ??
+          [],
+      featuredImage: (json['gallery'] as List?)
+              ?.firstWhere(
+                (e) => e['position'] == 0,
+                orElse: () => {'fileName': ''},
+              )['fileName']
+              ?.toString() ??
+          '',
+      // images: List<String>.from(json['gallery'] ?? []),
       // images:
       //     (json['images'] as List?)?.map((e) => e.toString()).toList() ?? [],
-      featuredImage: json['featured_image']?.toString(),
+      // featuredImage: json['featured_image']?.toString(),
       options:
           (json['options'] as List?)?.map((e) => e.toString()).toList() ?? [],
       reviews: (json['reviews'] as List?)
@@ -166,15 +195,21 @@ class VariantModel {
   factory VariantModel.fromJson(Map<String, dynamic> json) {
     print("Parsing variant: $json");
     return VariantModel(
-      id: json['id']?.toString() ?? '',
-      title: json['title']?.toString(),
+      id: json['id'] ?? json['variantId'].toString() ?? '',
+      title: json['title']?.toString() ?? json['name']?.toString(),
+      //  title: json['title']?.toString(),
       options:
-          (json['options'] as List?)?.map((e) => e.toString()).toList() ?? [],
+          json['options'] != null ? List<String>.from(json['options']) : [],
+      // options:
+      //     (json['options'] as List?)?.map((e) => e.toString()).toList() ?? [],
       option1: json['option1']?.toString(),
       option2: json['option2']?.toString(),
       option3: json['option3']?.toString(),
-      price:
-          json['price'] != null ? Map<String, dynamic>.from(json['price']) : {},
+      price: (json['price'] != null && json['price'] is Map<String, dynamic>)
+          ? Map<String, dynamic>.from(json['price'])
+          : {},
+      // price:
+      //     json['price'] != null ? Map<String, dynamic>.from(json['price']) : {},
 
 //      price: json['price'],
       weight: json['weight'],

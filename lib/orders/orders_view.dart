@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:theme_desiree/address/address_controller.dart';
 import 'package:theme_desiree/orders/orders_controller.dart';
 
 class OrdersView extends StatelessWidget {
@@ -9,9 +10,12 @@ class OrdersView extends StatelessWidget {
 
   final ordersController = Get.put(OrdersController());
 
+  final addressController = Get.find<AddressController>();
+
   @override
   Widget build(BuildContext context) {
     final contextTheme = FTheme.of(context);
+    final addr = addressController.selectedAddress.value;
 
     return Column(
       children: [
@@ -156,7 +160,7 @@ class OrdersView extends StatelessWidget {
                               style: TextStyle(
                                   color: contextTheme.typography.sm.color),
                             ),
-                            Text("Payment: ${order.paymentMethod}",
+                            Text("Payment Method: ${order.paymentMethod}",
                                 style: TextStyle(
                                     color: contextTheme.typography.sm.color)),
                             Text('Total: ৳${order.totals.total}',
@@ -202,6 +206,14 @@ class OrdersView extends StatelessWidget {
                                                             width: 60,
                                                             height: 60,
                                                             fit: BoxFit.cover,
+                                                            errorBuilder:
+                                                                (context, error,
+                                                                    stackTrace) {
+                                                              return const Icon(
+                                                                  Icons
+                                                                      .image_not_supported,
+                                                                  size: 60);
+                                                            },
                                                           ),
                                                         )
                                                       : const Icon(
@@ -218,7 +230,7 @@ class OrdersView extends StatelessWidget {
                                                         Text(
                                                             'Quantity: ${product.quantity ?? 1}'),
                                                         Text(
-                                                            'Variant: ${product.variant ?? "N/A"}'),
+                                                            'Variant: ${product.options ?? "N/A"}'),
                                                         Text(
                                                             'Price: ৳${product.price ?? 0}'),
                                                       ],
@@ -242,16 +254,14 @@ class OrdersView extends StatelessWidget {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
+                                                Text("Street: ${addr!.line1}"),
+                                                Text("City: ${addr.district}"),
+                                                Text("State: ${addr.region}"),
                                                 Text(
-                                                    "Street: ${order.address!.line1}"),
+                                                    "Postcode: ${addr.postcode}"),
                                                 Text(
-                                                    "City: ${order.address!.district}"),
-                                                Text(
-                                                    "State: ${order.address!.region}"),
-                                                Text(
-                                                    "Postcode: ${order.address!.postcode}"),
-                                                Text(
-                                                    "Country: ${order.address!.country}"),
+                                                    "Country: ${addr.country}"),
+                                                Text("Phone: ${addr.phone}"),
                                               ],
                                             ),
                                           ),

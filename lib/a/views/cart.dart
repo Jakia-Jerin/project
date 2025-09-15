@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
@@ -16,6 +17,8 @@ class CartView extends StatelessWidget {
     final currencyController = Get.find<CurrencyController>();
     final cartController = Get.find<CartController>();
     final contextTheme = FTheme.of(context);
+    final shopId = dotenv.env['SHOP_ID'];
+    final baseUrl = dotenv.env['BASE_URL'];
     //   final homeController = Get.put(HomeController());
 
     //cartController.getUserCart();
@@ -243,24 +246,38 @@ class CartView extends StatelessWidget {
                         tileBuilder: (context, index) {
                           final product = controller.products[index];
                           return FTile(
-                            prefixIcon: ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: Image.network(
-                                product.image ?? '',
-                                height: 50,
-                                width: 50,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Container(
-                                  width: 60,
-                                  height: 60,
-                                  color:
-                                      FTheme.of(context).colorScheme.background,
-                                  child: Center(
-                                    child: FIcon(
-                                      FAssets.icons.image,
-                                      size: 24,
-                                      color:
-                                          FTheme.of(context).colorScheme.border,
+                            prefixIcon: Container(
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.circular(8), // optional
+                                color: Colors.grey[
+                                    200], // background jodi image load na hoy
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: Image.network(
+                                  "$baseUrl/image/$shopId/${product.image}",
+                                  fit: BoxFit.cover,
+                                  //    product.image ?? '',
+                                  height: 50,
+                                  width: 50,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Container(
+                                    width: 60,
+                                    height: 60,
+                                    color: FTheme.of(context)
+                                        .colorScheme
+                                        .background,
+                                    child: Center(
+                                      child: FIcon(
+                                        FAssets.icons.image,
+                                        size: 24,
+                                        color: FTheme.of(context)
+                                            .colorScheme
+                                            .border,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -280,7 +297,7 @@ class CartView extends StatelessWidget {
                                       children: [
                                         Text(
                                           currencyController.formatCurrency(
-                                              product.price!.toDouble()),
+                                              product.price.toDouble()),
                                           style: contextTheme.typography.sm,
                                         ),
                                         Text(
@@ -322,17 +339,18 @@ class CartView extends StatelessWidget {
                                               product.quantity--;
                                               await cartController
                                                   .updateCartItem(
+                                                cartItemId: product.cartItemId,
                                                 productId: product.productId,
-                                                variantId: product.variantId,
+                                                //    variantId: product.variantId,
                                                 quantity: 1,
                                                 action: "dec",
-                                                cartItemId: '',
+                                                // cartItemId: '',
                                               );
                                             } else {
                                               await cartController
                                                   .removeCartItem(
-                                                productId: product.productId,
-                                                variantId: product.variantId,
+                                                product.cartItemId,
+                                                product.productId,
                                               );
                                               cartController.products.refresh();
 
@@ -372,10 +390,10 @@ class CartView extends StatelessWidget {
                                               await cartController
                                                   .updateCartItem(
                                                 productId: product.productId,
-                                                variantId: product.variantId,
+                                                //  variantId: product.variantId,
                                                 quantity: 1,
                                                 action: "inc",
-                                                cartItemId: '',
+                                                cartItemId: product.cartItemId,
                                               );
                                               cartController.products.refresh();
                                             } else {
@@ -398,13 +416,16 @@ class CartView extends StatelessWidget {
                             ),
                             title: Text(product.title ?? ''),
                             subtitle: Text(
-                              (product.variant != null &&
-                                      product.variant!.isNotEmpty)
-                                  ? product.variant!
+                              product.variant.isNotEmpty
+                                  ? product.variant
+                                      .map((v) =>
+                                          '${v.title}: ${v.options.join(", ")}')
+                                      .join(' > ')
                                   : (product.options.isNotEmpty
                                       ? product.options
                                       : 'No options'),
                             ),
+                            //
                             //  variant.options.join(', ')
                             //  subtitle: Text(product.variant ?? ''),
                           );

@@ -1,13 +1,18 @@
+import 'package:theme_desiree/showcase/product_model.dart';
+
 class CartModel {
   final String cartItemId;
   final String productId;
-  final String? variantId;
+  final List<String> variantId;
   final String? title;
-  final String? variant;
+  final List<VariantModel> variant;
+  //final List<VariantModel> variant;
+  // final String? variant;
   final String? image;
   late int quantity;
   final int? stock;
-  final num? price;
+  final num price;
+
   final num subtotal;
   final bool? isAvailable;
   final String? shop;
@@ -32,23 +37,54 @@ class CartModel {
 
   /// Updated fromJson to handle Get User Cart API
   factory CartModel.fromJson(Map<String, dynamic> json) {
+    num parsePrice(dynamic value) {
+      if (value is num) return value;
+      if (value is Map<String, dynamic>) return value['final'] ?? 0;
+      return 0;
+    }
+
     return CartModel(
-        cartItemId: json['cartItemId'] ?? json['_id'] ?? '',
+        cartItemId: json['cartItemId'] ?? json['id'] ?? '',
         productId: json['productId'] ?? json['_id'] ?? '',
-        variantId: json['variantId']?.toString(),
+        variantId: (json['variantIds'] as List<dynamic>?)
+                ?.map((v) => v.toString())
+                .toList() ??
+            [],
+        //    variantId: json['variantId']?.toString() ?? '',
         title: json['title'] ?? json['productTitle'] ?? '',
-        variant: json['variant'] != null && json['variant'] is Map
-            ? json['variant'].toString()
-            : '',
+        variant: (json['variants'] as List<dynamic>?)?.map((v) {
+              if (v is Map<String, dynamic>) {
+                return VariantModel(
+                  id: v['variantId'] ?? v['id'] ?? '',
+                  title: v['name'] ?? v['title']?.toString(),
+                  options: (v['options'] as List?)
+                          ?.map((e) => e.toString())
+                          .toList() ??
+                      [],
+                  price: {},
+                  compareAtPrice: 0,
+                  available: true,
+                );
+              }
+              return VariantModel(
+                id: v.toString(),
+                options: [],
+                price: {},
+                compareAtPrice: 0,
+                available: true,
+              );
+            }).toList() ??
+            [],
         image: json['image'] ?? '', // null হলে empty string
         quantity: json['quantity'] ?? 1,
         stock:
             json['stock'] != null ? int.tryParse(json['stock'].toString()) : 0,
-        price: json['price'] ?? {},
+        price: parsePrice(json['price']),
+        //  price: json['price'] ?? {},
         subtotal: json['subtotal'] ?? 0,
         isAvailable: json['isAvailable'] ?? true,
         options: (() {
-          final rawOptions = json['options'] ?? json['option'];
+          final rawOptions = json['variants'] ?? json['variants'];
 
           if (rawOptions == null) return '';
           if (rawOptions is List) {
@@ -67,7 +103,7 @@ class CartModel {
       productId: productId,
       variantId: variantId,
       title: title,
-      variant: variant,
+      variant: List<VariantModel>.from(variant),
       image: image,
       quantity: quantity,
       stock: stock,

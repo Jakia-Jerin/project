@@ -4,73 +4,131 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:theme_desiree/a/models/caregories.dart';
+import 'package:theme_desiree/showcase/product_model.dart';
 
-class CategoriesController extends GetConnect implements GetxService {
-  CategoriesController({this.selectedHandle});
+class CategoriesController extends GetxController {
   var categories = <CategoryModel>[].obs;
-  var subCategories = <String?>[].obs;
-  var selectedCategoryItems = <CategoryModel>[].obs;
+  var products = <ProductModel>[].obs;
   var isLoading = false.obs;
   var hasError = false.obs;
-  var isGrid = false.obs;
-  var screenWidth = Get.width.obs;
-  var currentPage = 1;
-  var totalPages = 1;
-  final String? selectedHandle;
 
+  @override
+  void onInit() {
+    super.onInit();
+    fetchCategories();
+    fetchAllProducts();
+  }
+
+  /// fetch categories
   Future<void> fetchCategories() async {
     isLoading.value = true;
     hasError.value = false;
 
     try {
       final response = await http.get(
-        Uri.parse(
-            "https://app2.apidoxy.com/api/v1/categories"), // ✅ তোমার API endpoint
+        Uri.parse("https://app2.apidoxy.com/api/v1/categories"),
         headers: {
           "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
           "Content-Type": "application/json",
         },
       );
 
-      print("Status Code: ${response.statusCode}");
-      print("Raw Response: ${response.body}");
-
       if (response.statusCode == 200) {
-        final jsonBody = json.decode(response.body);
-
-        if (jsonBody["success"] == true && jsonBody["data"] is List) {
-          final List<CategoryModel> fetched = (jsonBody["data"] as List)
-              .map((e) => CategoryModel.fromJson(e))
-              .toList();
-
-          categories.assignAll(fetched);
-
-          print("✅ Categories fetched: ${categories.length}");
-          for (var c in categories) {
-            print("id=${c.id}, title=${c.title}, handle=${c.handle}");
-          }
+        final jsonBody = jsonDecode(response.body);
+        if (jsonBody['success'] == true && jsonBody['data'] is List) {
+          categories.assignAll(
+            (jsonBody['data'] as List)
+                .map((e) => CategoryModel.fromJson(e))
+                .toList(),
+          );
         } else {
-          print("⚠️ JSON structure unexpected: $jsonBody");
           hasError.value = true;
         }
       } else {
-        print("⚠️ Server error: ${response.statusCode}");
         hasError.value = true;
       }
     } catch (e) {
-      print("❌ Exception: $e");
       hasError.value = true;
+      print("Error fetching categories: $e");
     } finally {
       isLoading.value = false;
     }
   }
 
-  @override
-  void onInit() {
-    super.onInit();
-    fetchCategories();
+  /// fetch all products for the shop
+  Future<void> fetchAllProducts() async {
+    isLoading.value = true;
+    try {
+      final response = await http.get(
+        Uri.parse("https://app2.apidoxy.com/api/v1/products"),
+        headers: {
+          "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+          "Content-Type": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonBody = jsonDecode(response.body);
+        if (jsonBody['success'] == true && jsonBody['data'] is List) {
+          products.assignAll(
+            (jsonBody['data'] as List)
+                .map((e) => ProductModel.fromJson(e))
+                .toList(),
+          );
+        } else {
+          hasError.value = true;
+        }
+      } else {
+        hasError.value = true;
+      }
+    } catch (e) {
+      hasError.value = true;
+      print("Error fetching products: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// filter products by category handle
+  List<ProductModel> filterProductsByCategory(String handle) {
+    return products.where((p) => p.category?.handle == handle).toList();
+  }
+
+  /// fetch products by category directly from API (optional)
+  Future<void> fetchProductsByCategory(String handle) async {
+    isLoading.value = true;
+    try {
+      final response = await http.get(
+        Uri.parse("https://app2.apidoxy.com/api/v1/products?category=$handle"),
+        headers: {
+          "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
+          "Content-Type": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonBody = jsonDecode(response.body);
+        if (jsonBody['success'] == true && jsonBody['data'] is List) {
+          products.assignAll(
+            (jsonBody['data'] as List)
+                .map((e) => ProductModel.fromJson(e))
+                .toList(),
+          );
+        } else {
+          hasError.value = true;
+        }
+      } else {
+        hasError.value = true;
+      }
+    } catch (e) {
+      hasError.value = true;
+      print("Error fetching products by category: $e");
+    } finally {
+      isLoading.value = false;
+    }
   }
 }
+
 // class CategoriesController extends GetConnect implements GetxService {
 //   CategoriesController({this.selectedHandle});
 //   var categories = <CategoryModel>[].obs;

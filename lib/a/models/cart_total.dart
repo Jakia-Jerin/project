@@ -9,20 +9,23 @@ class Totals {
     required this.deliveryCharge,
     required this.total,
   });
-  factory Totals.fromJson(Map<String, dynamic> json) {
+  factory Totals.fromJson(dynamic json) {
+    if (json == null || json is! Map<String, dynamic>) {
+      return Totals(subtotal: 0, vat: 0, deliveryCharge: 0, total: 0);
+    }
+
+    num parseNum(dynamic value) {
+      if (value == null) return 0;
+      if (value is num) return value;
+      if (value is String) return num.tryParse(value) ?? 0;
+      return 0;
+    }
+
     return Totals(
-      subtotal: (json['subtotal'] ?? 0).toDouble(),
-      vat: (json['tax'] ?? 0).toDouble(),
-      deliveryCharge: (json['deliveryCharge'] ?? 0).toDouble(),
-      total: (json['grandTotal'] ?? 0).toDouble(),
+      subtotal: parseNum(json['subtotal']),
+      vat: parseNum(json['tax']),
+      deliveryCharge: parseNum(json['deliveryCharge']),
+      total: parseNum(json['grandTotal']),
     );
-  }
-  Map<String, dynamic> toJson() {
-    return {
-      'subtotal': subtotal,
-      'tax': vat,
-      'deliveryCharge': deliveryCharge,
-      'grandTotal': total,
-    };
   }
 }

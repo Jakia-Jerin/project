@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
 import 'package:theme_desiree/a/controllers/product_mini_card.dart';
@@ -11,9 +12,12 @@ class ProductMiniCard extends StatelessWidget {
 
   final productMiniCardController = Get.put(ProductMiniCardController());
   final currencyController = Get.find<CurrencyController>();
+  final shopId = dotenv.env['SHOP_ID'];
+  final baseUrl = dotenv.env['BASE_URL'];
   @override
   Widget build(BuildContext context) {
     final contextTheme = FTheme.of(context);
+    print("Navigating to /item with productId: ${data.id}");
     return FCard(
         style: FCardStyle(
           decoration: BoxDecoration(
@@ -27,7 +31,12 @@ class ProductMiniCard extends StatelessWidget {
           ),
         ),
         child: GestureDetector(
-          onTap: () => Get.toNamed("/item", parameters: {"productId": data.id}),
+          onTap: () {
+            Get.toNamed("/item", parameters: {"productId": data.id});
+            print(
+                "*************************************************************************");
+            print("Navigating to /item with productId: ${data.id}");
+          },
           child: Container(
             constraints: BoxConstraints(maxWidth: 360),
             child: Column(
@@ -43,7 +52,7 @@ class ProductMiniCard extends StatelessWidget {
                       children: [
                         Positioned.fill(
                           child: Image.network(
-                            data.featuredImage,
+                            "$baseUrl/image/$shopId/${data.gallery[0]}",
                             fit: BoxFit.cover,
                           ),
                         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
 import 'package:theme_desiree/a/controllers/categories.dart';
@@ -7,135 +8,306 @@ class Categories extends StatelessWidget {
   final categoriesController = Get.put(CategoriesController());
 
   Categories({super.key});
-
   @override
   Widget build(BuildContext context) {
     final contextTheme = FTheme.of(context);
+    final shopId = dotenv.env['SHOP_ID'];
+
     return Scaffold(
-      body: Container(
-        color: Colors.white,
-        child: Column(
-          children: [
-            // 🔹 Top Bar
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  FButton.icon(
-                    onPress: () => Get.back(),
-                    child: FIcon(FAssets.icons.chevronLeft, size: 28),
-                  ),
-                  Text(
-                    'Categories'.tr.toUpperCase(),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 22),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: () => categoriesController.fetchCategories(),
-                  ),
-                ],
-              ),
-            ),
-
-            // 🔹 Search Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: TextField(
-                readOnly: true,
-                onTap: () => Get.toNamed("/search"),
-                decoration: InputDecoration(
-                  hintText: 'Search for products or categories'.tr,
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 0),
+      backgroundColor: contextTheme.colorScheme.background,
+      body: Column(
+        children: [
+          // 🔹 Top Bar
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                FButton.icon(
+                  onPress: () => Get.back(),
+                  child: FIcon(FAssets.icons.chevronLeft, size: 28),
                 ),
+                Text(
+                  'Categories'.tr.toUpperCase(),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 22),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () => categoriesController.fetchCategories(),
+                ),
+              ],
+            ),
+          ),
+
+          // 🔹 Search Bar
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: TextField(
+              readOnly: true,
+              onTap: () => Get.toNamed("/search"),
+              decoration: InputDecoration(
+                hintText: 'Search for products or categories'.tr,
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
               ),
             ),
+          ),
 
-            // 🔹 Category List
-            Expanded(
-              child: Obx(() {
-                if (categoriesController.isLoading.value) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+          // 🔹 Category List
+          Expanded(
+            child: Obx(() {
+              if (categoriesController.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-                if (categoriesController.hasError.value) {
-                  return Center(
-                    child: Text("Failed to load categories"),
-                  );
-                }
-
-                final items = categoriesController.categories;
-                if (items.isEmpty) {
-                  return const Center(
-                    child: Text("No categories found"),
-                  );
-                }
-
-                return SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 12),
-                    child: FTileGroup(
-                      divider: FTileDivider.full,
-                      children: items.map((category) {
-                        return FTile(
-                          onPress: () {
-                            Get.toNamed("/search",
-                                parameters: {"category": category.handle});
-                            // final hasRoot = categoriesController
-                            //     .selectCategoryItems(category.handle);
-                            // if (!hasRoot) {
-                            //   Get.toNamed("/search",
-                            //       parameters: {"category": category.handle});
-                            // }
-                          },
-                          prefixIcon: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              category.imageUrl != null
-                                  ? 'https://app2.apidoxy.com/${category.imageUrl!.imageName}'
-                                  : 'https://via.placeholder.com/50',
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  width: 50,
-                                  height: 50,
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.broken_image,
-                                      color: Colors.grey),
-                                );
-                              },
-                            ),
-                          ),
-                          title: Text(
-                            category.title,
-                            style: contextTheme.typography.sm.copyWith(
-                              fontWeight: FontWeight.normal,
-                            ),
-                            // style:  TextStyle(
-                            //     fontWeight: FontWeight.normal, fontSize: 16),
-                          ),
-                          suffixIcon: const Icon(Icons.chevron_right),
-                        );
-                      }).toList(),
-                    ),
-                  ),
+              if (categoriesController.hasError.value) {
+                return const Center(
+                  child: Text("Failed to load categories"),
                 );
-              }),
-            ),
-          ],
-        ),
+              }
+
+              final items = categoriesController.categories;
+              if (items.isEmpty) {
+                return const Center(
+                  child: Text("No categories found"),
+                );
+              }
+
+              return SingleChildScrollView(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  child: FTileGroup(
+                    divider: FTileDivider.full,
+                    children: items.map((category) {
+                      return FTile(
+                        onPress: () async {
+                          // 🔹 Fetch products for this category
+                          await categoriesController
+                              .fetchProductsByCategory(category.handle);
+
+                          // 🔹 Show bottom sheet with products
+                          Get.bottomSheet(
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(16),
+                                ),
+                              ),
+                              child: Obx(() {
+                                final products = categoriesController.products;
+
+                                if (categoriesController.isLoading.value) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                }
+
+                                if (products.isEmpty) {
+                                  return const Center(
+                                      child: Text("No products found"));
+                                }
+
+                                return ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: products.length,
+                                  itemBuilder: (context, index) {
+                                    final p = products[index];
+                                    return ListTile(
+                                      leading: p.images.isNotEmpty
+                                          ? Image.network(
+                                              'https://app2.apidoxy.com/api/v1/image/$shopId/${p.images[0]}',
+                                              width: 50,
+                                              height: 50,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : const Icon(Icons.image),
+                                      title: Text(p.title),
+                                      subtitle: Text(
+                                          "৳${p.price} | ${p.category?.title ?? ''}"),
+                                    );
+                                  },
+                                );
+                              }),
+                            ),
+                            isScrollControlled: true,
+                          );
+                        },
+                        prefixIcon: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            category.imageUrl != null
+                                ? 'https://app2.apidoxy.com/api/v1/image/$shopId/${category.imageUrl!.imageName}'
+                                : 'https://via.placeholder.com/50',
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                width: 50,
+                                height: 50,
+                                color: Colors.grey[300],
+                                child: const Icon(Icons.broken_image,
+                                    color: Colors.grey),
+                              );
+                            },
+                          ),
+                        ),
+                        title: Text(
+                          category.title,
+                          style: contextTheme.typography.sm.copyWith(
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        suffixIcon: const Icon(Icons.chevron_right),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              );
+            }),
+          ),
+        ],
       ),
     );
   }
 }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final contextTheme = FTheme.of(context);
+//     final shopId = dotenv.env['SHOP_ID'];
+//     final baseUrl = dotenv.env['BASE_URL'];
+//     return Scaffold(
+//       backgroundColor: contextTheme.colorScheme.background,
+//       body: Container(
+//         child: Column(
+//           children: [
+//             // 🔹 Top Bar
+//             Padding(
+//               padding: const EdgeInsets.all(12),
+//               child: Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                 children: [
+//                   FButton.icon(
+//                     onPress: () => Get.back(),
+//                     child: FIcon(FAssets.icons.chevronLeft, size: 28),
+//                   ),
+//                   Text(
+//                     'Categories'.tr.toUpperCase(),
+//                     style: const TextStyle(
+//                         fontWeight: FontWeight.bold, fontSize: 22),
+//                   ),
+//                   IconButton(
+//                     icon: const Icon(Icons.refresh),
+//                     onPressed: () => categoriesController.fetchCategories(),
+//                   ),
+//                 ],
+//               ),
+//             ),
+
+//             // 🔹 Search Bar
+//             Padding(
+//               padding: const EdgeInsets.symmetric(horizontal: 12),
+//               child: TextField(
+//                 readOnly: true,
+//                 onTap: () => Get.toNamed("/search"),
+//                 decoration: InputDecoration(
+//                   hintText: 'Search for products or categories'.tr,
+//                   prefixIcon: const Icon(Icons.search),
+//                   border: OutlineInputBorder(
+//                     borderRadius: BorderRadius.circular(8),
+//                   ),
+//                   contentPadding: const EdgeInsets.symmetric(vertical: 0),
+//                 ),
+//               ),
+//             ),
+
+//             // 🔹 Category List
+//             Expanded(
+//               child: Obx(() {
+//                 if (categoriesController.isLoading.value) {
+//                   return const Center(child: CircularProgressIndicator());
+//                 }
+
+//                 if (categoriesController.hasError.value) {
+//                   return Center(
+//                     child: Text("Failed to load categories"),
+//                   );
+//                 }
+
+//                 final items = categoriesController.categories;
+//                 if (items.isEmpty) {
+//                   return const Center(
+//                     child: Text("No categories found"),
+//                   );
+//                 }
+
+//                 return SingleChildScrollView(
+//                   child: Padding(
+//                     padding: const EdgeInsets.symmetric(
+//                         horizontal: 12, vertical: 12),
+//                     child: FTileGroup(
+//                       divider: FTileDivider.full,
+//                       children: items.map((category) {
+//                         return FTile(
+//                           onPress: () {
+//                             Get.toNamed("/",
+//                                 parameters: {"category": category.handle});
+//                             // final hasRoot = categoriesController
+//                             //     .selectCategoryItems(category.handle);
+//                             // if (!hasRoot) {
+//                             //   Get.toNamed("/search",
+//                             //       parameters: {"category": category.handle});
+//                             // }
+//                           },
+//                           prefixIcon: ClipRRect(
+//                             borderRadius: BorderRadius.circular(8),
+//                             child: Image.network(
+//                               category.imageUrl != null
+//                                   ? 'https://app2.apidoxy.com/api/v1/image/$shopId/${category.imageUrl!.imageName}'
+//                                   : 'https://via.placeholder.com/50',
+//                               width: 50,
+//                               height: 50,
+//                               fit: BoxFit.cover,
+//                               errorBuilder: (context, error, stackTrace) {
+//                                 return Container(
+//                                   width: 50,
+//                                   height: 50,
+//                                   color: Colors.grey[300],
+//                                   child: const Icon(Icons.broken_image,
+//                                       color: Colors.grey),
+//                                 );
+//                               },
+//                             ),
+//                           ),
+//                           title: Text(
+//                             category.title,
+//                             style: contextTheme.typography.sm.copyWith(
+//                               fontWeight: FontWeight.normal,
+//                             ),
+//                             // style:  TextStyle(
+//                             //     fontWeight: FontWeight.normal, fontSize: 16),
+//                           ),
+//                           suffixIcon: const Icon(Icons.chevron_right),
+//                         );
+//                       }).toList(),
+//                     ),
+//                   ),
+//                 );
+//               }),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 // class Categories extends StatelessWidget {
 //   final categoriesController = Get.put(CategoriesController());

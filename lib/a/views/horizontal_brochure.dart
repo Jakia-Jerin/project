@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
 import 'package:theme_desiree/a/controllers/horizontal_brochure.dart';
@@ -15,7 +16,8 @@ class HorizontalBrochure extends StatelessWidget {
     //  horizontalBrochureController.fetchCategoryWiseBrochures();
 
     final contextTheme = FTheme.of(context);
-
+    final shopId = dotenv.env['SHOP_ID'];
+    final baseUrl = dotenv.env['BASE_URL'];
     return GetX<HorizontalBrochureController>(
       tag: tag,
       builder: (controller) {
@@ -41,16 +43,15 @@ class HorizontalBrochure extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    // // Image Section
-                    // if (brochure.image != null &&
-                    //     brochure.image!.imageName.isNotEmpty)
+                    // Image Section
+                    // if (brochure.image != null && brochure.image!.isNotEmpty)
                     //   ClipRRect(
                     //     borderRadius: const BorderRadius.only(
                     //       topLeft: Radius.circular(8),
                     //       topRight: Radius.circular(8),
                     //     ),
                     //     child: Image.network(
-                    //       'https://app2.apidoxy.com/${brochure.image!.imageName}',
+                    //       "$baseUrl/image/$shopId/${brochure.image}",
                     //       fit: BoxFit.cover,
                     //       height: 140,
                     //       width: double.infinity,

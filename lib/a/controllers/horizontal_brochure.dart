@@ -98,7 +98,10 @@ class HorizontalBrochureController extends GetxController {
           HorizontalBrochureModel(
             title: category.title,
             subtitle: category.description,
-            image: category.imageUrl,
+            image: category.imageUrl != null
+                ? "https://app2.apidoxy.com/api/v1/image/${dotenv.env['SHOP_ID']}/${category.imageUrl!.imageName}"
+                : null,
+            //   image: category.imageUrl?.imageName,
             handle: "/category/${category.id}",
             products: products,
           ),
@@ -121,6 +124,7 @@ class HorizontalBrochureController extends GetxController {
     super.onInit();
     fetchCategoryWiseBrochures();
   }
+}
 
   // Future<void> fetchCategoryWiseBrochures() async {
   //   try {
@@ -245,7 +249,7 @@ class HorizontalBrochureController extends GetxController {
   //   super.onInit();
   //   fetchCategoryWiseBrochures();
   // }
-}
+
 
 
 

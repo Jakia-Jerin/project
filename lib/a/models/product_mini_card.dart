@@ -6,6 +6,7 @@ class ProductMiniCardModel {
   final List<String> tag;
   final double price;
   final double compareAtPrice;
+  final List<String> gallery;
   final String featuredImage;
   final CategoryModel? category;
   final String? categoryId;
@@ -17,6 +18,7 @@ class ProductMiniCardModel {
     required this.tag,
     required this.price,
     required this.compareAtPrice,
+    required this.gallery,
     required this.featuredImage,
     required this.category,
     this.categoryId,
@@ -26,6 +28,11 @@ class ProductMiniCardModel {
   factory ProductMiniCardModel.fromJson(Map<String, dynamic> json) {
     final priceMap = json['price'] as Map<String, dynamic>? ?? {};
     final category = json['category'] as Map<String, dynamic>?;
+    // Convert gallery JSON array to List<String>
+    final galleryList = (json['gallery'] as List?)
+            ?.map((e) => e['fileName'] as String? ?? '')
+            .toList() ??
+        [];
     return ProductMiniCardModel(
       id: json['id'] ?? '',
       title: json['title'] ?? '',
@@ -34,7 +41,9 @@ class ProductMiniCardModel {
       compareAtPrice: (priceMap['compareAt'] as num?)?.toDouble() ?? 0.0,
       //   price: (json['price'] as num?)?.toDouble() ?? 0.0,
       //  compareAtPrice: (json['compare_at_price'] as num?)?.toDouble() ?? 0.0,
-      featuredImage: json['featured_image'] ?? '',
+      gallery: galleryList,
+      featuredImage: galleryList.isNotEmpty ? galleryList[0] : '',
+      //   featuredImage: json['featured_image'] ?? '',
       category: json['category'] != null
           ? CategoryModel(
               id: json['category']['_id'] ?? '',

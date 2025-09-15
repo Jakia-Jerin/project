@@ -250,7 +250,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                     onPress: () async {
                       await checkoutController.placeOrder(
                         paymentMethod: selectedPaymentMethod!,
-                        total: cartController.totals.value.total,
+                        // total: cartController.totals.value.total,
                         //   products: cartController.products,
                         //   shippingMethod: checkoutController.selectedCharge?.name ?? "standard",
                       );

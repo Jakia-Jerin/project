@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
 import 'package:theme_desiree/showcase/action_view.dart';
@@ -12,11 +13,26 @@ import 'package:theme_desiree/showcase/details_view.dart';
 class ShowcaseView extends StatelessWidget {
   ShowcaseView({super.key});
 
-  final ShowcaseController showcaseController = Get.put(ShowcaseController());
-
   @override
   Widget build(BuildContext context) {
+    final ShowcaseController controller = Get.put(ShowcaseController());
     final productId = Get.parameters['productId'] ?? '';
+
+    print("ShowcaseView productId: $productId");
+
+    final shopId = dotenv.env['SHOP_ID'];
+    final baseUrl = dotenv.env['BASE_URL'];
+    //    final productId = Get.parameters['productId'] ?? '';
+    print("??????????????????????????????????????????????????");
+    print("ShowcaseView productId: $productId"); // debug
+
+    // if (productId.isEmpty) {
+    //   return Center(child: Text("No product selected"));
+    // }
+    // Call API explicitly after controller instantiation
+    if (productId.isNotEmpty && controller.product.value == null) {
+      controller.fetchProductByID(productId);
+    }
 
     if (productId.isEmpty) {
       return Center(child: Text("No product selected"));
@@ -42,12 +58,12 @@ class ShowcaseView extends StatelessWidget {
         return SingleChildScrollView(
           child: Column(
             children: [
-              ImageSlider(
-                  images: product.images.isNotEmpty
-                      ? product.images
-                      : [
-                          'https://via.placeholder.com/150' // Placeholder if no images
-                        ]),
+              // ImageSlider(
+              //     images: product.images.isNotEmpty
+              //         ? product.images
+              //         : [
+              //             'https://via.placeholder.com/150' // Placeholder if no images
+              //           ]),
               Transform.translate(
                 offset: Offset(0, -20),
                 child: FCard(
@@ -55,7 +71,22 @@ class ShowcaseView extends StatelessWidget {
                     spacing: 10,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ImageSlider(images: product.images),
+                      Container(
+                        padding: const EdgeInsets.only(top: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: ImageSlider(
+                            images: product.images.isNotEmpty
+                                ? product.images
+                                    .map((img) => "$baseUrl/image/$shopId/$img")
+                                    .toList()
+                                : ['https://via.placeholder.com/150'],
+                          ),
+                        ),
+                      ),
                       ProductLabel(
                         title: product.title,
                         badges: product.tags,

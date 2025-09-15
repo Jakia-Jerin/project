@@ -2,18 +2,15 @@ import 'package:theme_desiree/a/models/cart.dart';
 import 'package:theme_desiree/a/models/cart_total.dart';
 import 'package:theme_desiree/address/address_model.dart';
 
-
-
-
 class OrdersModel {
-  final String id;                // _id
-  final String orderId;           // e.g. ORD-100045
-  String status;                  // orderStatus
-  final DateTime placedAt;        // order placed date
-  final String paymentMethod;     // cod / online
-  final String paymentStatus;     // pending / paid
-  final Totals totals;            // subtotal, tax, deliveryCharge, grandTotal
-  final FullAddress? address;     // shipping.address
+  final String id; // _id
+  final String orderId; // e.g. ORD-100045
+  String status; // orderStatus
+  final DateTime placedAt; // order placed date
+  final String paymentMethod; // cod / online
+  final String paymentStatus; // pending / paid
+  final Totals totals; // subtotal, tax, deliveryCharge, grandTotal
+  final FullAddress? address; // shipping.address
   final List<CartModel> products; // items list
 
   OrdersModel({
@@ -40,15 +37,21 @@ class OrdersModel {
       products: (json['items'] as List? ?? [])
           .map((e) => CartModel.fromJson(e))
           .toList(),
-     address: json['shipping']?['address'] != null
-    ? FullAddress.fromJson(json['shipping']['address'])
-    : null,
+
+      address: json['shipping']?['address'] != null
+          ? FullAddress.fromJson({
+              ...json['shipping']['address'],
+              "phone": json['shipping']
+                  ['phone'], // phone ta address er sathe merge
+            })
+          : null,
+
+      // address: json['shipping']?['address'] != null
+      //     ? FullAddress.fromJson(json['shipping']['address'])
+      //     : null,
     );
   }
-
-
 }
-
 
 // class OrdersModel {
 //   final String id;
