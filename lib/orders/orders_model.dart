@@ -30,7 +30,10 @@ class OrdersModel {
       id: json['_id'] ?? '',
       orderId: json['orderId'] ?? '',
       status: json['orderStatus'] ?? '',
-      placedAt: DateTime.tryParse(json['placedAt'] ?? '') ?? DateTime.now(),
+      placedAt: json['placedAt'] != null
+          ? DateTime.tryParse(json['placedAt']) ?? DateTime.now()
+          : DateTime.now(),
+      // placedAt: DateTime.tryParse(json['placedAt'] ?? '') ?? DateTime.now(),
       paymentMethod: json['payment']?['method'] ?? '',
       paymentStatus: json['payment']?['status'] ?? '',
       totals: Totals.fromJson(json['totals'] ?? {}),

@@ -68,45 +68,35 @@ class OrdersController extends GetConnect implements GetxService {
         },
       );
 
+     
+
       if (response.statusCode == 200) {
         final jsonBody = jsonDecode(response.body);
         final data = jsonBody['data'] as List<dynamic>? ?? [];
-        data.sort((a, b) => b.placedAt.compareTo(a.placedAt));
 
+        // sort by placedAt descending (newest first)
+
+        // ✅ Sort by placedAt descending (newest first)
+        data.sort((a, b) {
+          final dateA = DateTime.parse(a['placedAt']);
+          final dateB = DateTime.parse(b['placedAt']);
+          return dateB.compareTo(dateA); // newest first
+        });
+        // data.sort((a, b) => b['placedAt'].compareTo(a['placedAt']));
+
+        // update observable list
         orders
             .assignAll(data.map((json) => OrdersModel.fromJson(json)).toList());
 
-        print(
-            '**********************************************************************');
-        print(data);
-
-        orders.value = data.map((json) => OrdersModel.fromJson(json)).toList();
-        print('--------------------------------------------------------------');
         print("Fetched orders: ${orders.length}");
-        print('${response.statusCode}');
       } else {
-        print(
-            '**********************************************************************');
-
         orders.clear();
         hasError.value = true;
-
-        print(
-            '.....................................................................');
-        print(
-            '.....................................................................');
-        print("${response.statusCode}");
         print("Failed to fetch orders: ${response.statusCode}");
-        print(response.body);
       }
     } catch (e) {
       orders.clear();
       hasError.value = true;
-      print(
-          '.....................................................................');
-      print(
-          '.....................................................................');
-
       print("Error fetching orders: $e");
     } finally {
       isLoading.value = false;

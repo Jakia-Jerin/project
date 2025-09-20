@@ -54,6 +54,9 @@ class ProductMiniCardModel {
                   ? CategoryImage.fromJson(json['category']['image'])
                   : null,
               coverUrl: '',
+              children: json['children'] != null
+                  ? List<String>.from(json['children'])
+                  : [],
             )
           : null,
       categoryId: category != null ? category['_id'] ?? "" : "",

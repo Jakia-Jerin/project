@@ -127,26 +127,47 @@ class HorizontalBrochure extends StatelessWidget {
                     ),
 
                     // Horizontal Products List
-                    SizedBox(
-                      height: 230,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 8),
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: brochure.products.length,
-                        itemBuilder: (context, index) {
-                          final product = brochure.products[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: SizedBox(
-                              width: 172,
-                              child: ProductMiniCard(data: product),
-                            ),
-                          );
-                        },
+                    // SizedBox(
+                    //   height: 230,
+                    //   child: ListView.builder(
+                    //     scrollDirection: Axis.horizontal,
+                    //     padding: const EdgeInsets.symmetric(
+                    //         horizontal: 8, vertical: 8),
+                    //     physics: const BouncingScrollPhysics(),
+                    //     itemCount: brochure.products.length,
+                    //     itemBuilder: (context, index) {
+                    //       final product = brochure.products[index];
+                    //       return Padding(
+                    //         padding: const EdgeInsets.only(right: 8),
+                    //         child: SizedBox(
+                    //           width: 172,
+                    //           child: ProductMiniCard(data: product),
+                    //         ),
+                    //       );
+                    //     },
+                    //   ),
+                    // ),
+                    if (brochure.products.isNotEmpty)
+                      SizedBox(
+                        height: 230,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 8),
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: brochure.products.length,
+                          itemBuilder: (context, index) {
+                            final product = brochure.products[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: SizedBox(
+                                width: 172,
+                                child: ProductMiniCard(data: product),
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),

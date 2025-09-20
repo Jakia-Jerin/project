@@ -1,6 +1,9 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:forui/theme.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
@@ -8,6 +11,7 @@ import 'package:theme_desiree/a/controllers/cart.dart';
 import 'package:theme_desiree/address/address_controller.dart';
 import 'package:theme_desiree/checkout/checkout_model.dart';
 import 'package:theme_desiree/currency/currency_controller.dart';
+import 'package:theme_desiree/orders/orders_controller.dart';
 import 'package:theme_desiree/profile/profile_controller.dart';
 
 class CheckoutController extends GetConnect implements GetxService {
@@ -16,6 +20,7 @@ class CheckoutController extends GetConnect implements GetxService {
   final profileController = Get.put(ProfileController());
   final cartController = Get.put(CartController());
   final currencyController = Get.put(CurrencyController());
+  final orderController = Get.put(OrdersController());
   var deliveryCharges = <DeliveryChargeModel>[].obs;
   var selectedDeliveryId = ''.obs;
 
@@ -103,12 +108,17 @@ class CheckoutController extends GetConnect implements GetxService {
     final user = await profileController.fetchUserProfile();
     final vendorId = dotenv.env['SHOP_ID'] ?? "";
 
+    // Backend expects a List<String> but with only the first variant
+    /// Convert product variants to correct request format
+
     // Prepare items list
     final itemsList = cartController.products
         .map((item) => {
               "cartItemId": item.cartItemId,
               "productId": item.productId,
-              "variantId": item.variantId ?? "",
+              "variants": item.Variantsbody(),
+              //       "variantId": item.variantId,
+              //     "variantId": item.variantId ?? "",
               "quantity": item.quantity,
               "price": {
                 "basePrice": item.price ?? 0,
@@ -117,7 +127,8 @@ class CheckoutController extends GetConnect implements GetxService {
               "total": item.subtotal,
               // "subtotal": item.subtotal,
               "title": item.title,
-              "options": item.options,
+
+              "option": item.options,
               //  "isAvailable": item.isAvailable,
             })
         .toList();
@@ -178,8 +189,22 @@ class CheckoutController extends GetConnect implements GetxService {
       print("📩 Response Body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        final cartData = jsonDecode(response.body);
+        print("🛒 Current Cart: $cartData");
         print("✅ Order placed successfully!");
-        Get.snackbar('Success', 'Order placed successfully');
+        Fluttertoast.showToast(
+          msg: "Successfully Ordered ",
+          backgroundColor: Colors.green,
+        );
+        //   Get.snackbar('Success', 'Order placed successfully');
+
+        await cartController.getUserCart();
+
+        // 3 second delay before fetching orders
+        await Future.delayed(Duration(seconds: 3));
+
+        await orderController.fetchOrders();
+        Get.toNamed('settings/orders');
         // Optionally clear cart or navigate to orders screen
       } else {
         print("❌ Failed: ${response.body}");

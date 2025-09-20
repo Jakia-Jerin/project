@@ -51,10 +51,29 @@ class ProductMiniCard extends StatelessWidget {
                     child: Stack(
                       children: [
                         Positioned.fill(
-                          child: Image.network(
-                            "$baseUrl/image/$shopId/${data.gallery[0]}",
-                            fit: BoxFit.cover,
-                          ),
+                          child: (data.gallery.isNotEmpty)
+                              ? Image.network(
+                                  "$baseUrl/image/$shopId/${data.gallery[0]}",
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      "assets/download (1).jpg",
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                )
+                              : Image.asset(
+                                  "assets/download (1).jpg",
+                                ),
+
+                          // child: Image.network(
+                          //   "$baseUrl/image/$shopId/${data.gallery[0]}",
+                          //   errorBuilder: (context, error, stackTrace) {
+                          //     return Image.asset("assets/download (1).jpg",
+                          //         fit: BoxFit.cover);
+                          //   },
+                          //   fit: BoxFit.cover,
+                          // ),
                         ),
                         Positioned(
                           bottom: 0,

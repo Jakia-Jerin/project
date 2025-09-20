@@ -283,21 +283,141 @@ import 'package:theme_desiree/signin_opt/authcontroller.dart';
 //       );
 //     }
 //   }
-class CartController extends GetConnect implements GetxService {
-  var products = <CartModel>[].obs;
-  var isLoading = false.obs;
-  var cartId = ''.obs;
-  var totals = Totals(subtotal: 0, vat: 0, deliveryCharge: 0, total: 0).obs;
+// class CartController extends GetConnect implements GetxService {
+//   var products = <CartModel>[].obs;
+//   var isLoading = false.obs;
+//   var cartId = ''.obs;
+//   var totals = Totals(subtotal: 0, vat: 0, deliveryCharge: 0, total: 0).obs;
 
+//   double vat = 50.0;
+//   double deliveryCharge = 120.0;
+//   @override
+//   final String baseUrl = "https://app2.apidoxy.com";
+
+//   final AuthController authController = Get.put(AuthController());
+//   final ShowcaseController showcaseController = Get.put(ShowcaseController());
+//   final vendorId = dotenv.env['SHOP_ID'] ?? "";
+//   final selectedVariantIds = <String>[].obs; // make it observable
+
+//   Future<void> addProductToServer(CartModel product,
+//       {String? option, String? shop}) async {
+//     isLoading.value = true;
+//     try {
+//       final url = Uri.parse('$baseUrl/api/v1/cart/item');
+//       final box = GetStorage();
+//       final accessToken = box.read("accessToken");
+
+//       final variantsBody = <Map<String, dynamic>>[];
+//       final showcaseController = Get.find<ShowcaseController>();
+
+//       final currentProductVariants =
+//           showcaseController.product.value?.variants ?? [];
+
+//       for (int i = 0; i < currentProductVariants.length; i++) {
+//         final v = currentProductVariants[i];
+//         final selectedOption = showcaseController.selectedOptions[i]?.value;
+
+//         if (selectedOption != null && selectedOption.isNotEmpty) {
+//           variantsBody.add({
+//             "id": v.id,
+//             "option": selectedOption,
+//           });
+//         }
+//       }
+//       print("..........................");
+//       final requestBody = {
+//         "productId": product.productId,
+//         if (variantsBody.isNotEmpty) "variants": variantsBody,
+//         "quantity": product.quantity,
+//         if (option != null) "option": option,
+//         "shop": vendorId,
+//       };
+
+//       final response = await http.post(
+//         url,
+//         headers: {
+//           "Authorization": "Bearer $accessToken",
+//           "x-vendor-identifier": vendorId,
+//           "Content-Type": "application/json",
+//         },
+//         body: jsonEncode(requestBody),
+//       );
+
+//       final data = jsonDecode(response.body);
+
+//       if (response.statusCode == 200 && data['success'] == true) {
+//         Get.snackbar("Success", data['message'] ?? "Item added to cart");
+//         print("data: $data");
+//         await getUserCart();
+//       } else {
+//         print("Failed to add product: $data");
+//         Get.snackbar("Error",
+//             data['error'] ?? data['message'] ?? "Something went wrong");
+//       }
+//     } catch (e) {
+//       Get.snackbar("Error", "Failed to add product: $e");
+//     } finally {
+//       isLoading.value = false;
+//     }
+//   }
+
+//   void handleAddToCart(CartModel product,
+//       {String? option, String? shop}) async {
+//     final showcaseController = Get.find<ShowcaseController>();
+
+//     // Combine selected options string
+//     final selectedOption = showcaseController.selectedOptions.entries
+//         .map((e) => e.value.value)
+//         .where((val) => val.isNotEmpty)
+//         .join(' > ');
+
+//     // Collect selected variant IDs
+//     selectedVariantIds.clear();
+//     for (var v in showcaseController.product.value?.variants ?? []) {
+//       for (var selected in showcaseController.selectedOptions.values) {
+//         if (selected.value.isNotEmpty && v.options.contains(selected.value)) {
+//           selectedVariantIds.add(v.id);
+//         }
+//       }
+//     }
+
+//     if (selectedVariantIds.isEmpty) return;
+
+//     // Update CartModel
+//     final cartItem = product.copy();
+//     cartItem.variantId.clear();
+//     cartItem.variantId.addAll(selectedVariantIds);
+
+//     // Add actual VariantModel objects for API
+//     cartItem.variant.clear();
+//     for (var v in showcaseController.product.value!.variants) {
+//       if (selectedVariantIds.contains(v.id)) {
+//         cartItem.variant.add(v);
+//       }
+//     }
+
+//     // Call server
+//     if (!authController.isLoggedIn.value) {
+//       await Get.toNamed('/settings/profile');
+//       if (!authController.isLoggedIn.value) return;
+//     }
+
+//     await addProductToServer(cartItem, option: selectedOption, shop: shop);
+//   }
+
+class CartController extends GetxController {
+  var isLoading = false.obs;
+  var products = <CartModel>[].obs;
+  var cartId = ''.obs;
+  //var totals = Totals().obs;
+  var totals = Totals(subtotal: 0, vat: 0, deliveryCharge: 0, total: 0).obs;
   double vat = 50.0;
   double deliveryCharge = 120.0;
-  @override
-  final String baseUrl = "https://app2.apidoxy.com";
 
-  final AuthController authController = Get.put(AuthController());
-  final ShowcaseController showcaseController = Get.put(ShowcaseController());
+  @override
   final vendorId = dotenv.env['SHOP_ID'] ?? "";
-  final selectedVariantIds = <String>[].obs; // make it observable
+  final String baseUrl = "https://app2.apidoxy.com";
+  final AuthController authController = Get.put(AuthController());
 
   Future<void> addProductToServer(CartModel product,
       {String? option, String? shop}) async {
@@ -307,15 +427,40 @@ class CartController extends GetConnect implements GetxService {
       final box = GetStorage();
       final accessToken = box.read("accessToken");
 
-      final variantsBody = product.variant.map((v) => v.toJson()).toList();
+      final showcaseController = Get.find<ShowcaseController>();
+      final currentProductVariants =
+          showcaseController.product.value?.variants ?? [];
+
+      print("🛒 Adding to cart: productId=${product.productId}");
+      print("🛒 Selected Options Map: ${showcaseController.selectedOptions}");
+
+      final variantsBody = <Map<String, dynamic>>[];
+      for (int i = 0; i < currentProductVariants.length; i++) {
+        final v = currentProductVariants[i];
+        final selectedOption = showcaseController.selectedOptions[i]?.value;
+        print(
+            "➡️ Checking variant[${v.title}] id=${v.id} selected=$selectedOption");
+
+        if (selectedOption != null && selectedOption.isNotEmpty) {
+          variantsBody.add({
+            "variantId": v.id,
+            "name": v.title,
+            "option": selectedOption,
+          });
+        }
+      }
+
+      print("📝 Final variantsBody: $variantsBody");
 
       final requestBody = {
         "productId": product.productId,
-        if (variantsBody.isNotEmpty) "variants": variantsBody,
+        "variants": variantsBody,
         "quantity": product.quantity,
         if (option != null) "option": option,
         "shop": vendorId,
       };
+
+      print("📤 Request Body: $requestBody");
 
       final response = await http.post(
         url,
@@ -328,6 +473,7 @@ class CartController extends GetConnect implements GetxService {
       );
 
       final data = jsonDecode(response.body);
+      print("📥 API Response: $data");
 
       if (response.statusCode == 200 && data['success'] == true) {
         Get.snackbar("Success", data['message'] ?? "Item added to cart");
@@ -337,6 +483,7 @@ class CartController extends GetConnect implements GetxService {
             data['error'] ?? data['message'] ?? "Something went wrong");
       }
     } catch (e) {
+      print("❌ Exception in addProductToServer: $e");
       Get.snackbar("Error", "Failed to add product: $e");
     } finally {
       isLoading.value = false;
@@ -347,44 +494,21 @@ class CartController extends GetConnect implements GetxService {
       {String? option, String? shop}) async {
     final showcaseController = Get.find<ShowcaseController>();
 
-    // Combine selected options string
+    // build option string
     final selectedOption = showcaseController.selectedOptions.entries
         .map((e) => e.value.value)
         .where((val) => val.isNotEmpty)
         .join(' > ');
 
-    // Collect selected variant IDs
-    selectedVariantIds.clear();
-    for (var v in showcaseController.product.value?.variants ?? []) {
-      for (var selected in showcaseController.selectedOptions.values) {
-        if (selected.value.isNotEmpty && v.options.contains(selected.value)) {
-          selectedVariantIds.add(v.id);
-        }
-      }
-    }
-
-    if (selectedVariantIds.isEmpty) return;
-
-    // Update CartModel
-    final cartItem = product.copy();
-    cartItem.variantId.clear();
-    cartItem.variantId.addAll(selectedVariantIds);
-
-    // Add actual VariantModel objects for API
-    cartItem.variant.clear();
-    for (var v in showcaseController.product.value!.variants) {
-      if (selectedVariantIds.contains(v.id)) {
-        cartItem.variant.add(v);
-      }
-    }
-
-    // Call server
+    print("🛒 handleAddToCart => selectedOptionString=$selectedOption");
+    //  Call server
     if (!authController.isLoggedIn.value) {
       await Get.toNamed('/settings/profile');
       if (!authController.isLoggedIn.value) return;
     }
 
-    await addProductToServer(cartItem, option: selectedOption, shop: shop);
+    await addProductToServer(product, option: selectedOption, shop: shop);
+    Get.toNamed('/cart');
   }
 
   Future<void> addProductAfterLogin(CartModel product,
@@ -469,11 +593,25 @@ class CartController extends GetConnect implements GetxService {
     }
   }
 
+  // Toggle checkbox
+  Future<void> toggleProductSelection(CartModel product, bool val) async {
+    //  product.isSelected.value = val; // immediate UI update
+
+    await updateCartItem(
+      cartItemId: product.cartItemId,
+      productId: product.productId,
+      action: val ? "checked" : "unchecked",
+    );
+    product.isSelected.value = val;
+
+    // products.refresh();
+  }
+
   Future<void> updateCartItem({
     required String cartItemId,
     required String productId,
     List<String>? variantIds,
-    required String action, // "inc" / "dec"
+    required String action, // "inc" / "dec" /"checked" / "unchecked"
     int? quantity,
   }) async {
     final token = GetStorage().read("accessToken");
@@ -508,10 +646,14 @@ class CartController extends GetConnect implements GetxService {
           .map((e) => CartModel.fromJson(e as Map<String, dynamic>))
           .toList();
       products.value = items;
+      products.refresh();
+      print("✅ Cart updated: $data");
+
       Fluttertoast.showToast(
         msg: data['message'] ?? "Cart updated",
         backgroundColor: Colors.green,
       );
+      await getUserCart();
     } else {
       Fluttertoast.showToast(
         msg: data['error'] ?? data['message'] ?? "Failed to update cart",

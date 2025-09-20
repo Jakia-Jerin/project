@@ -180,52 +180,164 @@ class ActionView extends StatelessWidget {
                 Expanded(
                   child: FButton(
                     onPress: () {
+//                       final currentVariant =
+//                           showcaseController.selectedVariant.value;
+//                       final product = showcaseController.product.value;
+
+//                       if (product == null) return;
+
+// // 1️⃣ Create CartModel
+//                       final cartItem = CartModel(
+//                           cartItemId: '',
+//                           productId: product.id,
+//                           variantId:
+//                               cartController.selectedVariantIds.isNotEmpty
+//                                   ? cartController.selectedVariantIds
+//                                   : [],
+//                           title: product.title,
+//                           variant:
+//                               currentVariant != null ? [currentVariant] : [],
+//                           // List<VariantModel>
+//                           // variant:
+//                           //     '${showcaseController.selectedOptions['color']}, ${showcaseController.selectedOptions['size']}',
+//                           // variant: currentVariant?.options.join(" >") ?? '',
+//                           image: product.featuredImage,
+//                           stock: 10,
+//                           price: currentVariant?.price['base'] ?? product.price,
+//                           subtotal:
+//                               (currentVariant?.price['base'] ?? product.price) *
+//                                   1,
+//                           isAvailable:
+//                               currentVariant?.available ?? product.available,
+//                           quantity: 1,
+//                           options: showcaseController.selectedOptions.entries
+//                               .map((e) => e.value
+//                                   .value) // get selected value for each option type
+//                               .join(' >'),
+
+//                           // options:
+//                           //     '${showcaseController.selectedOptions['color']} > ${showcaseController.selectedOptions['size']}',
+//                           shop: cartController.vendorId);
+//                       final currentVariant =
+//                           showcaseController.selectedVariant.value;
+//                       final product = showcaseController.product.value;
+
+//                       if (product == null) return;
+
+// // Build variantsBody like [{id: v1, option: Red}, {id: v1, option: M}]
+//                       final variantsBody = <Map<String, dynamic>>[];
+//                       if (currentVariant != null) {
+//                         showcaseController.selectedOptions
+//                             .forEach((rowIndex, rxOption) {
+//                           final selectedOption = rxOption.value;
+//                           if (selectedOption.isNotEmpty) {
+//                             variantsBody.add({
+//                               "id": currentVariant.id,
+//                               "option": selectedOption,
+//                             });
+//                           }
+//                         });
+//                       }
+
+// // 1️⃣ Create CartModel
+//                       final cartItem = CartModel(
+//                         cartItemId: '',
+//                         productId: product.id,
+//                         variantId: variantsBody
+//                             .map((v) => v["id"].toString())
+//                             .toList(),
+//                         title: product.title,
+//                         variant: variantsBody
+//                             .map((v) => VariantModel(
+//                                   id: v["id"].toString(),
+//                                   title: null, // optional
+//                                   options: [v["option"].toString()],
+//                                   price: {},
+//                                   available: true,
+//                                 ))
+//                             .toList(),
+//                         image: product.featuredImage,
+//                         stock: 10,
+//                         price: currentVariant?.price['base'] ?? product.price,
+//                         subtotal:
+//                             (currentVariant?.price['base'] ?? product.price) *
+//                                 1,
+//                         isAvailable:
+//                             currentVariant?.available ?? product.available,
+//                         quantity: 1,
+//                         options:
+//                             variantsBody.map((v) => v["option"]).join(" > "),
+//                         shop: cartController.vendorId,
+//                       );
                       final currentVariant =
                           showcaseController.selectedVariant.value;
                       final product = showcaseController.product.value;
 
-                      if (product == null) return;
+                      if (product == null) {
+                        print("❌ Product is null, cannot add to cart");
+                        return;
+                      }
+
+// Build variantsBody like [{id: v1, option: Red}, {id: v2, option: M}]
+                      final variantsBody = <Map<String, dynamic>>[];
+                      if (currentVariant != null) {
+                        showcaseController.selectedOptions
+                            .forEach((rowIndex, rxOption) {
+                          final selectedOption = rxOption.value;
+                          print(
+                              "➡️ Selected option at row=$rowIndex => $selectedOption");
+                          if (selectedOption.isNotEmpty) {
+                            variantsBody.add({
+                              "id": currentVariant.id,
+                              "option": selectedOption,
+                            });
+                          }
+                        });
+                      }
+
+                      print("📝 Final variantsBody from UI: $variantsBody");
 
 // 1️⃣ Create CartModel
                       final cartItem = CartModel(
-                          cartItemId: '',
-                          productId: product.id,
-                          variantId:
-                              cartController.selectedVariantIds.isNotEmpty
-                                  ? cartController.selectedVariantIds
-                                  : [],
-                          title: product.title,
-                          variant:
-                              currentVariant != null ? [currentVariant] : [],
-                          // List<VariantModel>
-                          // variant:
-                          //     '${showcaseController.selectedOptions['color']}, ${showcaseController.selectedOptions['size']}',
-                          // variant: currentVariant?.options.join(" >") ?? '',
-                          image: product.featuredImage,
-                          stock: 10,
-                          price: currentVariant?.price['base'] ?? product.price,
-                          subtotal:
-                              (currentVariant?.price['base'] ?? product.price) *
-                                  1,
-                          isAvailable:
-                              currentVariant?.available ?? product.available,
-                          quantity: 1,
-                          options: showcaseController.selectedOptions.entries
-                              .map((e) => e.value
-                                  .value) // get selected value for each option type
-                              .join(' >'),
+                        cartItemId: '',
+                        productId: product.id,
+                        variantId: variantsBody
+                            .map((v) => v["variantId"].toString())
+                            .toList(),
+                        title: product.title,
+                        variant: variantsBody
+                            .map((v) => VariantModel(
+                                  id: v["variantId"].toString(),
+                                  title: null,
+                                  options: [v["option"].toString()],
+                                  price: {},
+                                  available: true,
+                                ))
+                            .toList(),
+                        image: product.featuredImage,
+                        stock: 10,
+                        price: currentVariant?.price['base'] ?? product.price,
+                        subtotal:
+                            (currentVariant?.price['base'] ?? product.price) *
+                                1,
+                        isAvailable:
+                            currentVariant?.available ?? product.available,
+                        quantity: 1,
+                        options:
+                            variantsBody.map((v) => v["option"]).join(" > "),
+                        shop: cartController.vendorId,
+                      );
 
-                          // options:
-                          //     '${showcaseController.selectedOptions['color']} > ${showcaseController.selectedOptions['size']}',
-                          shop: cartController.vendorId);
+                      print("🛒 CartItem ready: ${cartItem.toJson()}");
 
                       //  Call centralized helper
-                      cartController.handleAddToCart(cartItem,
-                          option: showcaseController.selectedOptions.entries
-                              .map((e) => e.value.value)
-                              .join(' >')
-                          // "${showcaseController.selectedOptions['color']}, ${showcaseController.selectedOptions['size']}",
-                          );
+                      cartController.handleAddToCart(
+                        cartItem,
+                        // option: showcaseController.selectedOptions.entries
+                        //     .map((e) => e.value.value)
+                        //     .join(' >')
+                        // "${showcaseController.selectedOptions['color']}, ${showcaseController.selectedOptions['size']}",
+                      );
                       if (authController.isLoggedIn.value) {
                         Fluttertoast.showToast(
                           msg: 'Added to cart'.tr,

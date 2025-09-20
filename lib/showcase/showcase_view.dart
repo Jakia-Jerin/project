@@ -11,7 +11,7 @@ import 'package:theme_desiree/showcase/showcase_controller.dart';
 import 'package:theme_desiree/showcase/details_view.dart';
 
 class ShowcaseView extends StatelessWidget {
-  ShowcaseView({super.key});
+  const ShowcaseView({super.key});
 
   @override
   Widget build(BuildContext context) {

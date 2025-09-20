@@ -111,16 +111,27 @@ class OrdersView extends StatelessWidget {
               );
             }
 
-            final reversedOrders = ordersController.orders.reversed.toList();
+            final ordersList = ordersController.orders;
 
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: FTileGroup.builder(
-                  count: reversedOrders.length,
+                  count: ordersList.length,
                   divider: FTileDivider.full,
                   tileBuilder: (context, index) {
-                    final order = reversedOrders[index];
+                    final order = ordersList[index];
+
+                    // final reversedOrders = ordersController.orders.reversed.toList();
+
+                    // return SingleChildScrollView(
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.all(8.0),
+                    //     child: FTileGroup.builder(
+                    //       count: reversedOrders.length,
+                    //       divider: FTileDivider.full,
+                    //       tileBuilder: (context, index) {
+                    //         final order = reversedOrders[index];
 
                     // Icon & color based on status
                     IconData statusIcon;

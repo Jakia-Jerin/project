@@ -34,32 +34,76 @@ class ProductCollage extends StatelessWidget {
             retry: () => controller.fetchProducts(),
           );
         }
-        return FCard(
-          style: contextTheme.cardStyle.copyWith(
-            contentStyle: contextTheme.cardStyle.contentStyle.copyWith(
-              padding: EdgeInsets.all(8),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // All Products Label
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+              child: Text(
+                "All Products",
+                style: contextTheme.typography.base.copyWith(
+                  //   decoration: TextDecoration.underline,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
             ),
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              int crossAxisCount =
-                  (constraints.maxWidth / 240).round().clamp(2, 8);
-              return MasonryGridView.count(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                crossAxisCount: crossAxisCount,
-                crossAxisSpacing: 8.0,
-                mainAxisSpacing: 8.0,
-                itemCount: controller.products.length,
-                itemBuilder: (context, index) {
-                  return ProductMiniCard(
-                    data: controller.products[index],
+            // Product Collage Card
+            FCard(
+              style: contextTheme.cardStyle.copyWith(
+                contentStyle: contextTheme.cardStyle.contentStyle.copyWith(
+                  padding: EdgeInsets.all(8),
+                ),
+              ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  int crossAxisCount =
+                      (constraints.maxWidth / 240).round().clamp(2, 8);
+                  return MasonryGridView.count(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 8.0,
+                    mainAxisSpacing: 8.0,
+                    itemCount: controller.products.length,
+                    itemBuilder: (context, index) {
+                      return ProductMiniCard(
+                        data: controller.products[index],
+                      );
+                    },
                   );
                 },
-              );
-            },
-          ),
+              ),
+            ),
+          ],
         );
+        // return FCard(
+        //   style: contextTheme.cardStyle.copyWith(
+        //     contentStyle: contextTheme.cardStyle.contentStyle.copyWith(
+        //       padding: EdgeInsets.all(8),
+        //     ),
+        //   ),
+        //   child: LayoutBuilder(
+        //     builder: (context, constraints) {
+        //       int crossAxisCount =
+        //           (constraints.maxWidth / 240).round().clamp(2, 8);
+        //       return MasonryGridView.count(
+        //         shrinkWrap: true,
+        //         physics: NeverScrollableScrollPhysics(),
+        //         crossAxisCount: crossAxisCount,
+        //         crossAxisSpacing: 8.0,
+        //         mainAxisSpacing: 8.0,
+        //         itemCount: controller.products.length,
+        //         itemBuilder: (context, index) {
+        //           return ProductMiniCard(
+        //             data: controller.products[index],
+        //           );
+        //         },
+        //       );
+        //     },
+        //   ),
+        // );
       },
     );
   }

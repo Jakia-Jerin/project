@@ -50,15 +50,15 @@ class HomeView extends StatelessWidget {
 
                   final section = sortedSections[index];
                   switch (section.type) {
-                    case SectionType.bannerCarousal:
-                      return BannerCarousel(data: section.data);
+                    // case SectionType.bannerCarousal:
+                    //   return BannerCarousel(data: section.data);
                     case SectionType.horizontalBrochure:
                       return HorizontalBrochure();
                     //   return HorizontalBrochure(data: section.data);
                     case SectionType.collage:
                       return ProductCollage(data: section.data);
-                    case SectionType.faq:
-                      return FaqView(data: section.data);
+                    // case SectionType.faq:
+                    //   return FaqView(data: section.data);
                     default:
                       return SizedBox.shrink();
                   }

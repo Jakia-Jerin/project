@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:theme_desiree/showcase/product_model.dart';
 
 class CartModel {
@@ -10,14 +11,17 @@ class CartModel {
   // final String? variant;
   final String? image;
   late int quantity;
-  final int? stock;
+  final num stock;
   final num price;
 
   final num subtotal;
   final bool? isAvailable;
+
   final String? shop;
 //  final List<String> options;
-  final String options;
+  String options;
+
+  RxBool isSelected;
 
   CartModel({
     required this.cartItemId,
@@ -33,15 +37,54 @@ class CartModel {
     required this.isAvailable,
     required this.options,
     this.shop,
-  });
+    bool selected = false,
+  }) : isSelected = selected.obs;
+
+  ///  helper for order post for API request
+
+  List<Map<String, dynamic>> Variantsbody() {
+    return variant.map((v) {
+      final option = (v.options.isNotEmpty && v.options.first.isNotEmpty)
+          ? v.options.first
+          : '';
+      final name = v.title?.isNotEmpty == true ? v.title! : '';
+
+      return {
+        "variantId": v.id.isNotEmpty ? v.id : '',
+        "name": name,
+        "option": option,
+      };
+    }).toList();
+  }
 
   /// Updated fromJson to handle Get User Cart API
   factory CartModel.fromJson(Map<String, dynamic> json) {
+    // num parsePrice(dynamic value) {
+    //   if (value is num) return value;
+    //   if (value is Map<String, dynamic>) return value['final'] ?? 0;
+    //   return 0;
+    // }
     num parsePrice(dynamic value) {
       if (value is num) return value;
-      if (value is Map<String, dynamic>) return value['final'] ?? 0;
+      if (value is Map<String, dynamic>) {
+        return value['basePrice'] ??
+            value['final'] ??
+            0; // 👈 basePrice handle koro
+      }
       return 0;
     }
+
+    final variantsList = (json['variants'] as List<dynamic>?)
+            ?.map((v) => VariantModel(
+                  id: v['variantId']?.toString() ?? '',
+                  options: v['option'] != null ? [v['option'].toString()] : [],
+                  title: v['name'],
+                  price: {},
+                  // compareAtPrice: 0,
+                  available: true,
+                ))
+            .toList() ??
+        [];
 
     return CartModel(
         cartItemId: json['cartItemId'] ?? json['id'] ?? '',
@@ -52,46 +95,32 @@ class CartModel {
             [],
         //    variantId: json['variantId']?.toString() ?? '',
         title: json['title'] ?? json['productTitle'] ?? '',
-        variant: (json['variants'] as List<dynamic>?)?.map((v) {
-              if (v is Map<String, dynamic>) {
-                return VariantModel(
-                  id: v['variantId'] ?? v['id'] ?? '',
-                  title: v['name'] ?? v['title']?.toString(),
-                  options: (v['options'] as List?)
-                          ?.map((e) => e.toString())
-                          .toList() ??
-                      [],
-                  price: {},
-                  compareAtPrice: 0,
-                  available: true,
-                );
-              }
-              return VariantModel(
-                id: v.toString(),
-                options: [],
-                price: {},
-                compareAtPrice: 0,
-                available: true,
-              );
-            }).toList() ??
-            [],
+        variant: variantsList,
         image: json['image'] ?? '', // null হলে empty string
         quantity: json['quantity'] ?? 1,
-        stock:
-            json['stock'] != null ? int.tryParse(json['stock'].toString()) : 0,
+        stock: json['stock'] is num
+            ? json['stock']
+            : int.tryParse(json['stock']?.toString() ?? '12') ?? 12,
+        //   json['stock'] != null ? int.tryParse(json['stock'].toString()) : 0,
         price: parsePrice(json['price']),
         //  price: json['price'] ?? {},
         subtotal: json['subtotal'] ?? 0,
         isAvailable: json['isAvailable'] ?? true,
+        selected: json['isSelected'] ?? false,
         options: (() {
-          final rawOptions = json['variants'] ?? json['variants'];
-
-          if (rawOptions == null) return '';
-          if (rawOptions is List) {
-            return rawOptions.map((e) => e.toString()).join(', ');
-          }
-          return rawOptions.toString();
+          if (variantsList.isEmpty) return '';
+          return variantsList.expand((v) => v.options).join(', ');
         })(),
+
+        // options: (() {
+        //   final rawOptions = json['variants'] ?? json['variants'];
+
+        //   if (rawOptions == null) return '';
+        //   if (rawOptions is List) {
+        //     return rawOptions.map((e) => e.toString()).join(', ');
+        //   }
+        //   return rawOptions.toString();
+        // })(),
         // options:
         //     (json['options'] as List?)?.map((e) => e.toString()).toList() ?? [],
         shop: json['shop'] ?? '');
@@ -110,9 +139,29 @@ class CartModel {
       price: price,
       subtotal: subtotal,
       isAvailable: isAvailable,
+      selected: isSelected.value,
       shop: shop,
       options: options,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "cartItemId": cartItemId,
+      "productId": productId,
+      "variantIds": variantId,
+      "title": title,
+      "variants": variant.map((v) => v.toJson()).toList(),
+      "image": image,
+      "quantity": quantity,
+      "stock": stock,
+      "price": price,
+      "subtotal": subtotal,
+      "isAvailable": isAvailable,
+      "isSelected": isSelected.value,
+      "options": options,
+      "shop": shop,
+    };
   }
 }
 

@@ -100,7 +100,7 @@ class HorizontalBrochureController extends GetxController {
             subtitle: category.description,
             image: category.imageUrl != null
                 ? "https://app2.apidoxy.com/api/v1/image/${dotenv.env['SHOP_ID']}/${category.imageUrl!.imageName}"
-                : null,
+                : "assets/download (1).jpg",
             //   image: category.imageUrl?.imageName,
             handle: "/category/${category.id}",
             products: products,

@@ -72,7 +72,8 @@ class ProductModel {
                   handle: "",
                   description: '',
                   imageUrl: null,
-                  coverUrl: ''))
+                  coverUrl: '',
+                  children: []))
           : null,
       // category: json["category"] != null
       //     ? CategoryModel.fromJson(json["category"])
@@ -107,13 +108,22 @@ class ProductModel {
               ?.map((e) => e['fileName']?.toString() ?? '')
               .toList() ??
           [],
-      featuredImage: (json['gallery'] as List?)
-              ?.firstWhere(
-                (e) => e['position'] == 0,
-                orElse: () => {'fileName': ''},
-              )['fileName']
-              ?.toString() ??
-          '',
+      featuredImage: (() {
+        final gallery = json['gallery'] as List<dynamic>? ?? [];
+        if (gallery.isEmpty) return '';
+        final firstImage = gallery.firstWhere(
+          (e) => e['position'] == 0,
+          orElse: () => {'fileName': ''},
+        );
+        return firstImage['fileName']?.toString() ?? '';
+      })(),
+      // featuredImage: (json['gallery'] as List?)
+      //         ?.firstWhere(
+      //           (e) => e['position'] == 0,
+      //           orElse: () => {'fileName': ''},
+      //         )['fileName']
+      //         ?.toString() ??
+      //     '',
       // images: List<String>.from(json['gallery'] ?? []),
       // images:
       //     (json['images'] as List?)?.map((e) => e.toString()).toList() ?? [],
@@ -160,36 +170,36 @@ class VariantModel {
   final String id;
   final String? title;
   final List<String> options;
-  final String? option1;
-  final String? option2;
-  final String? option3;
+//   final String? option1;
+//   final String? option2;
+//   final String? option3;
   final Map<String, dynamic> price;
-//  final int? price;
-  final int? weight;
-  final int compareAtPrice;
-  final String? inventoryManagement;
+// //  final int? price;
+//   final int? weight;
+//   final int compareAtPrice;
+//   final String? inventoryManagement;
   final bool available;
-  final String? sku;
-  final bool? requiresShipping;
-  final bool? taxable;
-  final String? barcode;
+//   final String? sku;
+//   final bool? requiresShipping;
+//   final bool? taxable;
+//   final String? barcode;
 
   VariantModel({
     required this.id,
     this.title,
     required this.options,
-    this.option1,
-    this.option2,
-    this.option3,
+    // this.option1,
+    // this.option2,
+    // this.option3,
     required this.price,
-    this.weight,
-    required this.compareAtPrice,
-    this.inventoryManagement,
+    // this.weight,
+    // required this.compareAtPrice,
+    // this.inventoryManagement,
     required this.available,
-    this.sku,
-    this.requiresShipping,
-    this.taxable,
-    this.barcode,
+    // this.sku,
+    // this.requiresShipping,
+    // this.taxable,
+    // this.barcode,
   });
 
   factory VariantModel.fromJson(Map<String, dynamic> json) {
@@ -202,44 +212,44 @@ class VariantModel {
           json['options'] != null ? List<String>.from(json['options']) : [],
       // options:
       //     (json['options'] as List?)?.map((e) => e.toString()).toList() ?? [],
-      option1: json['option1']?.toString(),
-      option2: json['option2']?.toString(),
-      option3: json['option3']?.toString(),
+//       option1: json['option1']?.toString(),
+//       option2: json['option2']?.toString(),
+//       option3: json['option3']?.toString(),
       price: (json['price'] != null && json['price'] is Map<String, dynamic>)
           ? Map<String, dynamic>.from(json['price'])
           : {},
-      // price:
-      //     json['price'] != null ? Map<String, dynamic>.from(json['price']) : {},
+//       // price:
+//       //     json['price'] != null ? Map<String, dynamic>.from(json['price']) : {},
 
-//      price: json['price'],
-      weight: json['weight'],
-      compareAtPrice: json['compare_at_price'] ?? 0,
-      inventoryManagement: json['inventory_management']?.toString(),
+// //     price: json['price'],
+//       weight: json['weight'],
+//       compareAtPrice: json['compare_at_price'] ?? 0,
+//       inventoryManagement: json['inventory_management']?.toString(),
       available: json['available'] ?? false,
-      sku: json['sku']?.toString(),
-      requiresShipping: json['requires_shipping'],
-      taxable: json['taxable'],
-      barcode: json['barcode']?.toString(),
+//       sku: json['sku']?.toString(),
+//       requiresShipping: json['requires_shipping'],
+//       taxable: json['taxable'],
+//       barcode: json['barcode']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       "id": id,
-      "title": title,
+      "name": title,
       "options": options,
-      "option1": option1,
-      "option2": option2,
-      "option3": option3,
+      // "option1": option1,
+      // "option2": option2,
+      // "option3": option3,
       "price": price,
-      "weight": weight,
-      "compare_at_price": compareAtPrice,
-      "inventory_management": inventoryManagement,
+      // "weight": weight,
+      // "compare_at_price": compareAtPrice,
+      // "inventory_management": inventoryManagement,
       "available": available,
-      "sku": sku,
-      "requires_shipping": requiresShipping,
-      "taxable": taxable,
-      "barcode": barcode,
+      // "sku": sku,
+      // "requires_shipping": requiresShipping,
+      // "taxable": taxable,
+      // "barcode": barcode,
     };
   }
 }

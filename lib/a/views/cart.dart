@@ -239,195 +239,234 @@ class CartView extends StatelessWidget {
 
                   return SingleChildScrollView(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      // padding: EdgeInsets.only(left: 30, right: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18.0,
+                      ),
                       child: FTileGroup.builder(
                         count: controller.products.length,
                         divider: FTileDivider.full,
                         tileBuilder: (context, index) {
                           final product = controller.products[index];
-                          return FTile(
-                            prefixIcon: Container(
-                              height: 50,
-                              width: 50,
-                              decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.circular(8), // optional
-                                color: Colors.grey[
-                                    200], // background jodi image load na hoy
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
-                                child: Image.network(
-                                  "$baseUrl/image/$shopId/${product.image}",
-                                  fit: BoxFit.cover,
-                                  //    product.image ?? '',
-                                  height: 50,
-                                  width: 50,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Container(
-                                    width: 60,
-                                    height: 60,
-                                    color: FTheme.of(context)
-                                        .colorScheme
-                                        .background,
-                                    child: Center(
-                                      child: FIcon(
-                                        FAssets.icons.image,
-                                        size: 24,
-                                        color: FTheme.of(context)
-                                            .colorScheme
-                                            .border,
+                          return Row(
+                            children: [
+                              Obx(() => Checkbox(
+                                    value: product.isSelected.value,
+                                    onChanged: (val) =>
+                                        cartController.toggleProductSelection(
+                                            product, val ?? false),
+                                  )),
+                              Expanded(
+                                child: FTile(
+                                  prefixIcon: Container(
+                                    height: 50,
+                                    width: 50,
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.circular(8), // optional
+                                      color: Colors.grey[
+                                          200], // background jodi image load na hoy
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(4),
+                                      child: Image.network(
+                                        "$baseUrl/image/$shopId/${product.image}",
+                                        fit: BoxFit.cover,
+                                        //    product.image ?? '',
+                                        height: 50,
+                                        width: 50,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Container(
+                                          width: 60,
+                                          height: 60,
+                                          color: FTheme.of(context)
+                                              .colorScheme
+                                              .background,
+                                          child: Center(
+                                            child: FIcon(
+                                              FAssets.icons.image,
+                                              size: 24,
+                                              color: FTheme.of(context)
+                                                  .colorScheme
+                                                  .border,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            suffixIcon: Row(
-                              spacing: 8,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Column(
-                                  spacing: 4,
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Row(
-                                      spacing: 2,
-                                      children: [
-                                        Text(
-                                          currencyController.formatCurrency(
-                                              product.price.toDouble()),
-                                          style: contextTheme.typography.sm,
-                                        ),
-                                        Text(
-                                          "×",
-                                          style: contextTheme.typography.sm,
-                                        ),
-                                        Text(
-                                          product.quantity.toString(),
-                                          style: contextTheme.typography.sm,
-                                        ),
-                                      ],
-                                    ),
-                                    Text(
-                                      currencyController.formatCurrency(
-                                          product.subtotal.toDouble()),
-                                      // currencyController.formatCurrency(
-                                      //   product.price!.toDouble() *
-                                      //       product.quantity,
-                                      // ),
-                                      style:
-                                          contextTheme.typography.lg.copyWith(
-                                        height: 1,
-                                        fontWeight: FontWeight.bold,
-                                        color: contextTheme.colorScheme.primary,
+                                  suffixIcon: Row(
+                                    spacing: 8,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Column(
+                                        spacing: 4,
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Row(
+                                            spacing: 2,
+                                            children: [
+                                              Text(
+                                                currencyController
+                                                    .formatCurrency(product
+                                                        .price
+                                                        .toDouble()),
+                                                style:
+                                                    contextTheme.typography.sm,
+                                              ),
+                                              Text(
+                                                "×",
+                                                style:
+                                                    contextTheme.typography.sm,
+                                              ),
+                                              Text(
+                                                product.quantity.toString(),
+                                                style:
+                                                    contextTheme.typography.sm,
+                                              ),
+                                            ],
+                                          ),
+                                          Text(
+                                            currencyController.formatCurrency(
+                                                product.subtotal.toDouble()),
+                                            // currencyController.formatCurrency(
+                                            //   product.price!.toDouble() *
+                                            //       product.quantity,
+                                            // ),
+                                            style: contextTheme.typography.lg
+                                                .copyWith(
+                                              height: 1,
+                                              fontWeight: FontWeight.bold,
+                                              color: contextTheme
+                                                  .colorScheme.primary,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: Container(
-                                    color: contextTheme.colorScheme.primary,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        FButton.icon(
-                                          onPress: () async {
-                                            if (product.quantity > 1) {
-                                              product.quantity--;
-                                              await cartController
-                                                  .updateCartItem(
-                                                cartItemId: product.cartItemId,
-                                                productId: product.productId,
-                                                //    variantId: product.variantId,
-                                                quantity: 1,
-                                                action: "dec",
-                                                // cartItemId: '',
-                                              );
-                                            } else {
-                                              await cartController
-                                                  .removeCartItem(
-                                                product.cartItemId,
-                                                product.productId,
-                                              );
-                                              cartController.products.refresh();
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child: Container(
+                                          color:
+                                              contextTheme.colorScheme.primary,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              FButton.icon(
+                                                onPress: () async {
+                                                  if (product.quantity > 1) {
+                                                    product.quantity--;
+                                                    await cartController
+                                                        .updateCartItem(
+                                                      cartItemId:
+                                                          product.cartItemId,
+                                                      productId:
+                                                          product.productId,
+                                                      //    variantId: product.variantId,
+                                                      quantity: 1,
+                                                      action: "dec",
+                                                      // cartItemId: '',
+                                                    );
+                                                  } else {
+                                                    await cartController
+                                                        .removeCartItem(
+                                                      product.cartItemId,
+                                                      product.productId,
+                                                    );
+                                                    cartController.products
+                                                        .refresh();
 
-                                              cartController.products
-                                                  .remove(product);
-                                              // await cartController
-                                              //     .updateCartItem(
-                                              //   productId: product.productId,
-                                              //   variantId: product.variantId,
-                                              //   quantity: 1,
-                                              //   action: "dec",
-                                              // );
-                                              Fluttertoast.showToast(
-                                                msg: 'Item removed'.tr,
-                                                backgroundColor: contextTheme
-                                                    .colorScheme.primary,
-                                              );
-                                              HapticFeedback.vibrate();
-                                            }
-                                            cartController.products.refresh();
-                                          },
-                                          style: FButtonStyle.primary,
-                                          child: FIcon(
-                                            product.quantity <= 1
-                                                ? FAssets.icons.trash
-                                                : FAssets.icons.minus,
-                                            size: 12,
-                                            color: contextTheme
-                                                .colorScheme.foreground,
+                                                    cartController.products
+                                                        .remove(product);
+                                                    // await cartController
+                                                    //     .updateCartItem(
+                                                    //   productId: product.productId,
+                                                    //   variantId: product.variantId,
+                                                    //   quantity: 1,
+                                                    //   action: "dec",
+                                                    // );
+                                                    Fluttertoast.showToast(
+                                                      msg: 'Item removed'.tr,
+                                                      backgroundColor:
+                                                          contextTheme
+                                                              .colorScheme
+                                                              .primary,
+                                                    );
+                                                    HapticFeedback.vibrate();
+                                                  }
+                                                  cartController.products
+                                                      .refresh();
+                                                },
+                                                style: FButtonStyle.primary,
+                                                child: FIcon(
+                                                  product.quantity <= 1
+                                                      ? FAssets.icons.trash
+                                                      : FAssets.icons.minus,
+                                                  size: 12,
+                                                  color: contextTheme
+                                                      .colorScheme.foreground,
+                                                ),
+                                              ),
+                                              FButton.icon(
+                                                onPress: () async {
+                                                  // if (product.quantity <
+                                                  //     product.stock!.toInt()) {
+                                                  product.quantity++;
+                                                  await cartController
+                                                      .updateCartItem(
+                                                    productId:
+                                                        product.productId,
+                                                    //  variantId: product.variantId,
+                                                    quantity: 1,
+                                                    action: "inc",
+                                                    cartItemId:
+                                                        product.cartItemId,
+                                                  );
+                                                  await cartController
+                                                      .getUserCart();
+                                                  cartController.products
+                                                      .refresh();
+                                                  // // } else {
+                                                  //   Fluttertoast.showToast(
+                                                  //     msg: 'Out of stock'.tr,
+                                                  //     backgroundColor: Colors.red,
+                                                  //   );
+                                                  //   HapticFeedback.vibrate();
+                                                  // }
+                                                },
+                                                style: FButtonStyle.primary,
+                                                child: FIcon(
+                                                  FAssets.icons.plus,
+                                                  size: 12,
+                                                  color: contextTheme
+                                                      .colorScheme.foreground,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        FButton.icon(
-                                          onPress: () async {
-                                            if (product.quantity <
-                                                product.stock!.toInt()) {
-                                              product.quantity++;
-                                              await cartController
-                                                  .updateCartItem(
-                                                productId: product.productId,
-                                                //  variantId: product.variantId,
-                                                quantity: 1,
-                                                action: "inc",
-                                                cartItemId: product.cartItemId,
-                                              );
-                                              cartController.products.refresh();
-                                            } else {
-                                              HapticFeedback.vibrate();
-                                            }
-                                          },
-                                          style: FButtonStyle.primary,
-                                          child: FIcon(
-                                            FAssets.icons.plus,
-                                            size: 12,
-                                            color: contextTheme
-                                                .colorScheme.foreground,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                      )
+                                    ],
                                   ),
-                                )
-                              ],
-                            ),
-                            title: Text(product.title ?? ''),
-                            subtitle: Text(
-                              product.variant.isNotEmpty
-                                  ? product.variant
-                                      .map((v) =>
-                                          '${v.title}: ${v.options.join(", ")}')
-                                      .join(' > ')
-                                  : (product.options.isNotEmpty
-                                      ? product.options
-                                      : 'No options'),
-                            ),
-                            //
-                            //  variant.options.join(', ')
-                            //  subtitle: Text(product.variant ?? ''),
+                                  title: Text(product.title ?? ''),
+                                  subtitle: Text(
+                                    product.variant.isNotEmpty
+                                        ? product.variant
+                                            .map((v) => v.options.join(","))
+                                            .join('>')
+                                        : (product.options.isNotEmpty
+                                            ? product.options
+                                            : 'No options'),
+                                  ),
+
+                                  //
+                                  //  variant.options.join(', ')
+                                  //  subtitle: Text(product.variant ?? ''),
+                                ),
+                              ),
+                            ],
                           );
                         },
                       ),

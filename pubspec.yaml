@@ -122,6 +122,7 @@ flutter:
     - assets/images.jpg
     - assets/imagecart-removebg-preview.png
     - assets/male-removebg-preview.png
+    - assets/download (1).jpg
     
     - .env
 
