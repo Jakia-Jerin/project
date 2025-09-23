@@ -12,6 +12,7 @@ class ShowcaseController extends GetxController {
 
   var isLoading = false.obs;
   var hasError = false.obs;
+  final baseUrl = dotenv.env['BASE_URL'];
 
   Future<void> fetchProductByID(String productId) async {
     final shopId = dotenv.env['SHOP_ID'];
@@ -26,8 +27,7 @@ class ShowcaseController extends GetxController {
     hasError.value = false;
 
     try {
-      final url =
-          Uri.parse("https://app2.apidoxy.com/api/v1/products/$productId");
+      final url = Uri.parse("$baseUrl/products/$productId");
 
       final response = await http.get(
         url,

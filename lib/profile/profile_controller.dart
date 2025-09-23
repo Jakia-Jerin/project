@@ -66,8 +66,9 @@ class ProfileController extends GetConnect implements GetxService {
       hasError.value = false;
 
       final token = GetStorage().read("accessToken");
+      final baseUrl = dotenv.env['BASE_URL'];
 
-      final url = Uri.parse('https://app2.apidoxy.com/api/v1/user/session');
+      final url = Uri.parse('$baseUrl/user/session');
       final response = await http.get(
         url,
         headers: {
@@ -99,6 +100,8 @@ class ProfileController extends GetConnect implements GetxService {
               ? ProfileModel.parseGender(userData['gender'])
               : Gender.none,
         );
+
+        print("User Profile: $userData");
       } else {
         hasError.value = true;
         print("Failed to fetch profile: ${response.statusCode}");

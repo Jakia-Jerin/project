@@ -416,14 +416,15 @@ class CartController extends GetxController {
 
   @override
   final vendorId = dotenv.env['SHOP_ID'] ?? "";
-  final String baseUrl = "https://app2.apidoxy.com";
+  //final String baseUrl = "https://app2.apidoxy.com";
+  final baseUrl = dotenv.env['BASE_URL'];
   final AuthController authController = Get.put(AuthController());
 
   Future<void> addProductToServer(CartModel product,
       {String? option, String? shop}) async {
     isLoading.value = true;
     try {
-      final url = Uri.parse('$baseUrl/api/v1/cart/item');
+      final url = Uri.parse('$baseUrl/cart/item');
       final box = GetStorage();
       final accessToken = box.read("accessToken");
 
@@ -504,7 +505,7 @@ class CartController extends GetxController {
     //  Call server
     if (!authController.isLoggedIn.value) {
       await Get.toNamed('/settings/profile');
-      if (!authController.isLoggedIn.value) return;
+      if (authController.isLoggedIn.value) return;
     }
 
     await addProductToServer(product, option: selectedOption, shop: shop);

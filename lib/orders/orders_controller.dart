@@ -10,6 +10,7 @@ class OrdersController extends GetConnect implements GetxService {
   var orders = <OrdersModel>[].obs;
   var isLoading = true.obs;
   var hasError = false.obs;
+  final baseUrl = dotenv.env['BASE_URL'];
 
   // Fetch orders
   // Future<void> fetchOrders() async {
@@ -51,9 +52,16 @@ class OrdersController extends GetConnect implements GetxService {
 
   // Fetch orders from API
   Future<void> fetchOrders() async {
-    final url = Uri.parse("https://app2.apidoxy.com/api/v1/order");
+    final url = Uri.parse("$baseUrl/order");
     final token = GetStorage().read("accessToken");
     final vendorId = dotenv.env['SHOP_ID'] ?? "";
+
+    // if (token == null || token.isEmpty) {
+    //   // User logged out or token missing
+    //   await Get.toNamed('/settings/profile');
+    //   // Login page  redirect
+    //   return; //
+    // }
 
     try {
       isLoading.value = true;
@@ -67,8 +75,6 @@ class OrdersController extends GetConnect implements GetxService {
           "Content-Type": "application/json",
         },
       );
-
-     
 
       if (response.statusCode == 200) {
         final jsonBody = jsonDecode(response.body);

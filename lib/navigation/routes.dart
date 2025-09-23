@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'package:theme_desiree/a/views/home.dart';
 import 'package:theme_desiree/a/views/settings.dart';
 import 'package:theme_desiree/a/views/cart.dart';
@@ -73,6 +74,12 @@ class AppRoutes {
             curve: Curves.easeInOut,
             transitionDuration: Duration(milliseconds: 300),
           ),
+          // GetPage(
+          //   name: '/settings',
+          //   page: () => Settings(),
+          //   transition: Transition.rightToLeft,
+          //   curve: Curves.easeInOut,
+          //   transitionDuration: Duration(milliseconds: 300),
           GetPage(
             name: '/settings',
             page: () => Settings(),
@@ -80,15 +87,25 @@ class AppRoutes {
             curve: Curves.easeInOut,
             transitionDuration: Duration(milliseconds: 300),
             children: [
-              GetPage(
-                name: '/userme',
-                page: () => UserProfileScreen(),
+              // GetPage(
+              //   name: '/account',
+              //   page: () => AccountPage(),
 
-                //     page: () => ProfileView(),
-                transition: Transition.rightToLeft,
-                curve: Curves.easeInOut,
-                transitionDuration: Duration(milliseconds: 300),
-              ),
+              //   //     page: () => ProfileView(),
+              //   transition: Transition.rightToLeft,
+              //   curve: Curves.easeInOut,
+              //   transitionDuration: Duration(milliseconds: 300),
+              // ),
+              // GetPage(
+              //   name: '/settings',
+              //   page: () => Settings(),
+
+              //   //     page: () => ProfileView(),
+              //   transition: Transition.rightToLeft,
+              //   curve: Curves.easeInOut,
+              //   transitionDuration: Duration(milliseconds: 300),
+              // ),
+
               GetPage(
                 name: '/profile',
                 page: () => SigninPage(),

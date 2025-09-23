@@ -72,6 +72,7 @@ dependencies:
   cloud_firestore: ^5.6.11
   pinput: ^5.0.1
   flutter_slidable: ^4.0.0
+  liquid_pull_to_refresh: ^3.0.1
   
   
   
@@ -123,6 +124,9 @@ flutter:
     - assets/imagecart-removebg-preview.png
     - assets/male-removebg-preview.png
     - assets/download (1).jpg
+    - assets/7852470-removebg-preview.png
+    - assets/360_F_241431868_8DFQpCcmpEPVG0UvopdztOAd4a6Rqsoo-removebg-preview.png
+    - assets/pngtree-return-icon-image_1130841.jpg
     
     - .env
 

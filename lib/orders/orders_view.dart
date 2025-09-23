@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:theme_desiree/address/address_controller.dart';
 import 'package:theme_desiree/orders/orders_controller.dart';
+import 'package:theme_desiree/signin_opt/authcontroller.dart';
 
 class OrdersView extends StatelessWidget {
   OrdersView({super.key});
@@ -11,6 +13,7 @@ class OrdersView extends StatelessWidget {
   final ordersController = Get.put(OrdersController());
 
   final addressController = Get.find<AddressController>();
+  final authController = Get.put(AuthController());
 
   @override
   Widget build(BuildContext context) {
@@ -53,265 +56,308 @@ class OrdersView extends StatelessWidget {
         // Orders List
         Expanded(
           child: Obx(() {
-            if (ordersController.isLoading.value) {
-              return const Center(child: CircularProgressIndicator());
-            }
+            final box = GetStorage();
+            final token = box.read("accessToken");
 
-            if (ordersController.hasError.value) {
-              return const Center(child: Text("Error loading orders"));
-            }
-
-            if (ordersController.orders.isEmpty) {
+            // 1️⃣ Login check
+            if (!authController.isLoggedIn.value) {
               return Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 100),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.shopping_cart_outlined,
-                          size: 80, color: contextTheme.colorScheme.primary),
-                      const SizedBox(height: 20),
-                      Text(
-                        "No Orders Yet!",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: contextTheme.typography.lg.color,
-                        ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FIcon(FAssets.icons.lock, size: 80),
+                    SizedBox(height: 16),
+                    Text(
+                      "Please login to view your orders",
+                      style: TextStyle(fontSize: 18),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: FButton(
+                        style: FButtonStyle.primary,
+                        onPress: () => Get.toNamed("/settings/profile"),
+                        label: Text("Login Now",
+                            style: contextTheme.typography.sm),
                       ),
-                      const SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 30),
-                        child: Text(
-                          "Looks like you haven’t placed any orders yet.\nDiscover amazing products and exclusive deals now!",
-                          textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              final ordersList = ordersController.orders;
+
+              if (ordersController.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (ordersController.hasError.value) {
+                return const Center(child: Text("Error loading orders"));
+              }
+
+              if (ordersController.orders.isEmpty) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 100),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.shopping_cart_outlined,
+                            size: 80, color: contextTheme.colorScheme.primary),
+                        const SizedBox(height: 20),
+                        Text(
+                          "No Orders Yet!",
                           style: TextStyle(
-                            fontSize: 16,
-                            color: contextTheme.typography.sm.color,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: contextTheme.typography.lg.color,
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(50.0),
-                        child: FButton(
-                          style: FButtonStyle.primary,
-                          onPress: () => Get.toNamed("/"),
-                          label: Text(
-                            "Continue Shopping",
-                            style: contextTheme.typography.sm.copyWith(
-                              fontSize: 17,
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          child: Text(
+                            "Looks like you haven’t placed any orders yet.\nDiscover amazing products and exclusive deals now!",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
                               color: contextTheme.typography.sm.color,
                             ),
                           ),
                         ),
-                      )
-                    ],
-                  ),
-                ),
-              );
-            }
-
-            final ordersList = ordersController.orders;
-
-            return SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: FTileGroup.builder(
-                  count: ordersList.length,
-                  divider: FTileDivider.full,
-                  tileBuilder: (context, index) {
-                    final order = ordersList[index];
-
-                    // final reversedOrders = ordersController.orders.reversed.toList();
-
-                    // return SingleChildScrollView(
-                    //   child: Padding(
-                    //     padding: const EdgeInsets.all(8.0),
-                    //     child: FTileGroup.builder(
-                    //       count: reversedOrders.length,
-                    //       divider: FTileDivider.full,
-                    //       tileBuilder: (context, index) {
-                    //         final order = reversedOrders[index];
-
-                    // Icon & color based on status
-                    IconData statusIcon;
-                    Color statusColor;
-                    switch (order.status.toLowerCase()) {
-                      case 'pending':
-                        statusIcon = LucideIcons.clock;
-                        statusColor = Colors.orange;
-                        break;
-                      case 'shipped':
-                        statusIcon = LucideIcons.truck;
-                        statusColor = Colors.green;
-                        break;
-                      case 'delivered':
-                        statusIcon = LucideIcons.check_check;
-                        statusColor = Colors.red;
-                        break;
-                      default:
-                        statusIcon = LucideIcons.info;
-                        statusColor = Colors.grey;
-                    }
-
-                    return FTile(
-                      prefixIcon:
-                          Icon(statusIcon, color: statusColor, size: 24),
-                      title: Text("Order ID: ${order.orderId}",
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Status: ${order.status}",
-                                style: TextStyle(color: statusColor)),
-                            Text(
-                              "Order Date: ${order.placedAt.toLocal().toString().split(' ')[0]}",
-                              style: TextStyle(
-                                  color: contextTheme.typography.sm.color),
+                        Padding(
+                          padding: const EdgeInsets.all(50.0),
+                          child: FButton(
+                            style: FButtonStyle.primary,
+                            onPress: () => Get.toNamed("/"),
+                            label: Text(
+                              "Continue Shopping",
+                              style: contextTheme.typography.sm.copyWith(
+                                fontSize: 17,
+                                color: contextTheme.typography.sm.color,
+                              ),
                             ),
-                            Text("Payment Method: ${order.paymentMethod}",
-                                style: TextStyle(
-                                    color: contextTheme.typography.sm.color)),
-                            Text('Total: ৳${order.totals.total}',
-                                style: TextStyle(
-                                    color: contextTheme.typography.sm.color)),
-                          ],
-                        ),
-                      ),
-                      suffixIcon: FIcon(FAssets.icons.chevronRight, size: 24),
-                      onPress: () {
-                        // Show order details in modal
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: contextTheme.colorScheme.background,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(20)),
                           ),
-                          builder: (context) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 24),
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  children: [
-                                    ...order.products.map((product) =>
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              //       final ordersList = ordersController.orders;
+
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FTileGroup.builder(
+                    count: ordersList.length,
+                    divider: FTileDivider.full,
+                    tileBuilder: (context, index) {
+                      final order = ordersList[index];
+
+                      // final reversedOrders = ordersController.orders.reversed.toList();
+
+                      // return SingleChildScrollView(
+                      //   child: Padding(
+                      //     padding: const EdgeInsets.all(8.0),
+                      //     child: FTileGroup.builder(
+                      //       count: reversedOrders.length,
+                      //       divider: FTileDivider.full,
+                      //       tileBuilder: (context, index) {
+                      //         final order = reversedOrders[index];
+
+                      // Icon & color based on status
+                      IconData statusIcon;
+                      Color statusColor;
+                      switch (order.status.toLowerCase()) {
+                        case 'pending':
+                          statusIcon = LucideIcons.clock;
+                          statusColor = Colors.orange;
+                          break;
+                        case 'shipped':
+                          statusIcon = LucideIcons.truck;
+                          statusColor = Colors.green;
+                          break;
+                        case 'delivered':
+                          statusIcon = LucideIcons.check_check;
+                          statusColor = Colors.red;
+                          break;
+                        default:
+                          statusIcon = LucideIcons.info;
+                          statusColor = Colors.grey;
+                      }
+
+                      return FTile(
+                        prefixIcon:
+                            Icon(statusIcon, color: statusColor, size: 24),
+                        title: Text("Order ID: ${order.orderId}",
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Status: ${order.status}",
+                                  style: TextStyle(color: statusColor)),
+                              Text(
+                                "Order Date: ${order.placedAt.toLocal().toString().split(' ')[0]}",
+                                style: TextStyle(
+                                    color: contextTheme.typography.sm.color),
+                              ),
+                              Text("Payment Method: ${order.paymentMethod}",
+                                  style: TextStyle(
+                                      color: contextTheme.typography.sm.color)),
+                              Text('Total: ৳${order.totals.total}',
+                                  style: TextStyle(
+                                      color: contextTheme.typography.sm.color)),
+                            ],
+                          ),
+                        ),
+                        suffixIcon: FIcon(FAssets.icons.chevronRight, size: 24),
+                        onPress: () {
+                          // Show order details in modal
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor:
+                                contextTheme.colorScheme.background,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(20)),
+                            ),
+                            builder: (context) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 24),
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      ...order.products.map((product) =>
+                                          FAccordion(
+                                            controller:
+                                                FAccordionController(max: 1),
+                                            items: [
+                                              FAccordionItem(
+                                                title:
+                                                    Text(product.title ?? ''),
+                                                child: Row(
+                                                  children: [
+                                                    product.image != null
+                                                        ? ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                            child:
+                                                                Image.network(
+                                                              product.image!,
+                                                              width: 60,
+                                                              height: 60,
+                                                              fit: BoxFit.cover,
+                                                              errorBuilder:
+                                                                  (context,
+                                                                      error,
+                                                                      stackTrace) {
+                                                                return const Icon(
+                                                                    Icons
+                                                                        .image_not_supported,
+                                                                    size: 60);
+                                                              },
+                                                            ),
+                                                          )
+                                                        : const Icon(
+                                                            Icons
+                                                                .image_not_supported,
+                                                            size: 60),
+                                                    const SizedBox(width: 12),
+                                                    Expanded(
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                              'Quantity: ${product.quantity ?? 1}'),
+                                                          Text(
+                                                              'Variant: ${product.options ?? "N/A"}'),
+                                                          Text(
+                                                              'Price: ৳${product.price ?? 0}'),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          )),
+                                      const SizedBox(height: 20),
+                                      if (order.address != null)
                                         FAccordion(
                                           controller:
                                               FAccordionController(max: 1),
                                           items: [
                                             FAccordionItem(
-                                              title: Text(product.title ?? ''),
-                                              child: Row(
+                                              title: const Text(
+                                                  "Shipping Address"),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
-                                                  product.image != null
-                                                      ? ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
-                                                          child: Image.network(
-                                                            product.image!,
-                                                            width: 60,
-                                                            height: 60,
-                                                            fit: BoxFit.cover,
-                                                            errorBuilder:
-                                                                (context, error,
-                                                                    stackTrace) {
-                                                              return const Icon(
-                                                                  Icons
-                                                                      .image_not_supported,
-                                                                  size: 60);
-                                                            },
-                                                          ),
-                                                        )
-                                                      : const Icon(
-                                                          Icons
-                                                              .image_not_supported,
-                                                          size: 60),
-                                                  const SizedBox(width: 12),
-                                                  Expanded(
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                            'Quantity: ${product.quantity ?? 1}'),
-                                                        Text(
-                                                            'Variant: ${product.options ?? "N/A"}'),
-                                                        Text(
-                                                            'Price: ৳${product.price ?? 0}'),
-                                                      ],
-                                                    ),
-                                                  ),
+                                                  Text(
+                                                      "Street: ${addr!.line1}"),
+                                                  Text(
+                                                      "City: ${addr.district}"),
+                                                  Text("State: ${addr.region}"),
+                                                  Text(
+                                                      "Postcode: ${addr.postcode}"),
+                                                  Text(
+                                                      "Country: ${addr.country}"),
+                                                  Text("Phone: ${addr.phone}"),
                                                 ],
                                               ),
                                             ),
                                           ],
-                                        )),
-                                    const SizedBox(height: 20),
-                                    if (order.address != null)
+                                        ),
+                                      const SizedBox(height: 20),
                                       FAccordion(
                                         controller:
                                             FAccordionController(max: 1),
                                         items: [
                                           FAccordionItem(
-                                            title:
-                                                const Text("Shipping Address"),
+                                            title: const Text("Totals"),
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                Text("Street: ${addr!.line1}"),
-                                                Text("City: ${addr.district}"),
-                                                Text("State: ${addr.region}"),
                                                 Text(
-                                                    "Postcode: ${addr.postcode}"),
+                                                    "Subtotal: ৳${order.totals.subtotal}"),
                                                 Text(
-                                                    "Country: ${addr.country}"),
-                                                Text("Phone: ${addr.phone}"),
+                                                    "Tax: ৳${order.totals.vat}"),
+                                                Text(
+                                                    "Delivery Charge: ৳${order.totals.deliveryCharge}"),
+                                                Text(
+                                                    "Grand Total: ৳${order.totals.total}"),
                                               ],
                                             ),
                                           ),
                                         ],
                                       ),
-                                    const SizedBox(height: 20),
-                                    FAccordion(
-                                      controller: FAccordionController(max: 1),
-                                      items: [
-                                        FAccordionItem(
-                                          title: const Text("Totals"),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                  "Subtotal: ৳${order.totals.subtotal}"),
-                                              Text("Tax: ৳${order.totals.vat}"),
-                                              Text(
-                                                  "Delivery Charge: ৳${order.totals.deliveryCharge}"),
-                                              Text(
-                                                  "Grand Total: ৳${order.totals.total}"),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
-            );
+              );
+            }
           }),
         ),
       ],

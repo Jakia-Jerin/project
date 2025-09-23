@@ -11,15 +11,18 @@ class HorizontalBrochureController extends GetxController {
   var isLoading = false.obs;
   var hasError = false.obs;
   var brochures = <HorizontalBrochureModel>[].obs;
+  final baseUrl = dotenv.env['BASE_URL'];
 
   Future<void> fetchCategoryWiseBrochures() async {
     try {
       print("Fetching categories...");
       isLoading.value = true;
       hasError.value = false;
-
+      //  final baseUrl = dotenv.env['BASE_URL'];
       // 1. Fetch categories
-      final catUri = Uri.https("app2.apidoxy.com", "/api/v1/categories");
+
+      //  final catUri = Uri.https("app2.apidoxy.com", "/api/v1/categories");
+      final catUri = Uri.parse('$baseUrl/categories');
       final catResponse = await http.get(
         catUri,
         headers: {
@@ -58,11 +61,12 @@ class HorizontalBrochureController extends GetxController {
         print(
             "Fetching products for category: ${category.title} (${category.id})");
 
-        final prodUri = Uri.https(
-          "app2.apidoxy.com",
-          "/api/v1/products",
-          {"category": category.id}, // category filter
-        );
+        // final prodUri = Uri.https(
+        //   "app2.apidoxy.com",
+        //   "/api/v1/products",
+        //   {"category": category.id}, // category filter
+        // );
+        final prodUri = Uri.parse('$baseUrl/products?category=${category.id}');
 
         final prodResponse = await http.get(
           prodUri,
@@ -99,8 +103,8 @@ class HorizontalBrochureController extends GetxController {
             title: category.title,
             subtitle: category.description,
             image: category.imageUrl != null
-                ? "https://app2.apidoxy.com/api/v1/image/${dotenv.env['SHOP_ID']}/${category.imageUrl!.imageName}"
-                : "assets/download (1).jpg",
+                ? "$baseUrl/image/${dotenv.env['SHOP_ID']}/${category.imageUrl!.imageName}"
+                : "assets/pngtree-return-icon-image_1130841.jpg",
             //   image: category.imageUrl?.imageName,
             handle: "/category/${category.id}",
             products: products,

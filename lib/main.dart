@@ -115,6 +115,10 @@ class Application extends StatelessWidget {
                         case 4:
                           Get.toNamed('/settings');
                           break;
+
+                        // case 4:
+                        //   Get.toNamed('/settings');
+                        //   break;
                       }
                     },
                     children: [
@@ -158,9 +162,13 @@ class Application extends StatelessWidget {
                         label: const Text('Cart'),
                       ),
                       FBottomNavigationBarItem(
-                        icon: FIcon(FAssets.icons.settings),
-                        label: const Text('Settings'),
+                        icon: FIcon(FAssets.icons.circleUserRound),
+                        label: const Text('Account'),
                       ),
+                      // FBottomNavigationBarItem(
+                      //   icon: FIcon(FAssets.icons.settings),
+                      //   label: const Text('Settings'),
+                      // ),
                     ],
                   ),
                 ),

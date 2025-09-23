@@ -1,11 +1,13 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:theme_desiree/address/address_model.dart';
 
 class AddressController extends GetxController {
   final storage = GetStorage();
+  final baseUrl = dotenv.env['BASE_URL'];
 
-  final String baseUrl = "https://app2.apidoxy.com";
+//  final String baseUrl = "https://app2.apidoxy.com";
 
   // Form fields
   var line1 = ''.obs;

@@ -10,6 +10,7 @@ class SearchResultController extends GetxController {
   var results = <ProductMiniCardModel>[].obs;
   var isLoading = false.obs;
   var hasError = false.obs;
+  var currentQuery = "".obs;
 
   final baseUrl = dotenv.env['BASE_URL'];
   final shopId = dotenv.env['SHOP_ID'];
@@ -21,9 +22,13 @@ class SearchResultController extends GetxController {
     CategoriesController? catController,
   }) async {
     try {
+      if ((query == null || query.isEmpty) && categoryId == null) return;
       isLoading.value = true;
       hasError.value = false;
       results.clear();
+      // Save current query
+      if (query != null) currentQuery.value = query;
+      update();
 
       // 1️⃣ Prepare category IDs (parent + child)
       // 1️⃣ Prepare category IDs
@@ -35,14 +40,18 @@ class SearchResultController extends GetxController {
 // 2️⃣ Build query parameters
       final queryParams = <String, String>{};
       if (query != null && query.isNotEmpty) queryParams['q'] = query;
-      if (categoryIds.isNotEmpty)
+      if (categoryIds.isNotEmpty) {
         queryParams['category'] = categoryIds.join(',');
+      }
 
 // 3️⃣ Build URI properly
-      final uri = Uri.https(
-        'app2.apidoxy.com', // Domain only, no https://
-        '/api/v1/products', // Path
-        queryParams, // Query parameters
+      // final uri = Uri.https(
+      //   'app2.apidoxy.com', // Domain only, no https://
+      //   '/api/v1/products', // Path
+      //   queryParams, // Query parameters
+      // );
+      final uri = Uri.parse('$baseUrl/products').replace(
+        queryParameters: queryParams,
       );
 
       print("*********************************************************");
@@ -66,6 +75,7 @@ class SearchResultController extends GetxController {
           results.assignAll((body['data'] as List)
               .map((e) => ProductMiniCardModel.fromJson(e))
               .toList());
+          update();
 
           print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
           print(response.body);

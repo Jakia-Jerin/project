@@ -1,12 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:theme_desiree/a/controllers/categories.dart';
 import 'package:theme_desiree/a/controllers/product_collage.dart';
-import 'package:theme_desiree/showcase/product_model.dart';
 
 class SearchSuggestionController extends GetConnect implements GetxService {
   var hasError = false.obs;

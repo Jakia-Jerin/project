@@ -12,6 +12,7 @@ class CategoriesController extends GetxController {
   var hasError = false.obs;
   var isGrid = false.obs;
   final String? selectedHandle;
+  final baseUrl = dotenv.env['BASE_URL'];
 
   CategoriesController({this.selectedHandle});
 
@@ -27,7 +28,8 @@ class CategoriesController extends GetxController {
 
     try {
       final response = await http.get(
-        Uri.parse("https://app2.apidoxy.com/api/v1/categories"),
+        Uri.parse("$baseUrl/categories"),
+        //   Uri.parse("https://app2.apidoxy.com/api/v1/categories"),
         headers: {
           "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
           "Content-Type": "application/json",

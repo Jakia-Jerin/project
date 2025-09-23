@@ -1,4 +1,3 @@
-
 import 'package:get/get.dart';
 import 'package:theme_desiree/a/models/section.dart';
 
@@ -94,7 +93,16 @@ class HomeController extends GetConnect implements GetxService {
               (data['sections'] as List<dynamic>)
                   .map((item) => SectionModel.fromJson(item))
                   .toList();
-          sections.assignAll(tempData);
+
+          // 🔹 Filter sections: only include sections with products
+          final filteredSections = tempData.where((section) {
+            // assume section.data is List of products
+            return section.data != null && section.data.isNotEmpty;
+          }).toList();
+
+          sections.assignAll(filteredSections);
+
+          //  sections.assignAll(tempData);
         } else {
           hasError.value = true;
         }

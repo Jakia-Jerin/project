@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:theme_desiree/a/controllers/categories.dart';
 import 'package:theme_desiree/a/controllers/product_collage.dart';
 import 'package:theme_desiree/a/controllers/search.dart';
@@ -23,6 +24,11 @@ class Search extends StatelessWidget {
 
   // When user taps a category
   void onCategorySelected(String categoryId) {
+    // clear previous search bar + handle
+    searchSuggestionController.suggestions.clear();
+    searchSuggestionController.textController.clear();
+
+    searchResultController.results.clear();
     searchResultController.fetchResult(
       categoryId: categoryId,
       catController: categoriesController,
@@ -33,6 +39,7 @@ class Search extends StatelessWidget {
   Widget build(BuildContext context) {
     final contextTheme = FTheme.of(context);
     final category = Get.parameters['category'];
+    String currentQuery = "";
 
     // Update textController safely
     // if (category != null &&
@@ -40,111 +47,158 @@ class Search extends StatelessWidget {
     //   searchSuggestionController.textController.text = category;
     //   onCategorySelected(category);
     // }
+
+    // if (category != null &&
+    //     searchSuggestionController.textController.text.isEmpty) {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     searchSuggestionController.textController.text = category;
+    //     onCategorySelected(category);
+    //   });
+    // }
+    // Automatic category search (only if category param exists)
     if (category != null &&
         searchSuggestionController.textController.text.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        searchSuggestionController.textController.text = category;
+        // Properly set text using TextEditingValue
+        searchSuggestionController.textController.value = TextEditingValue(
+          text: category,
+          selection: TextSelection.fromPosition(
+            TextPosition(offset: category.length),
+          ),
+        );
+
+        // Clear previous results and fetch category
+        searchResultController.results.clear();
         onCategorySelected(category);
       });
     }
-    return Container(
-      color: contextTheme.colorScheme.background,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Search'.tr.toUpperCase(),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 22),
-                ),
-              ],
+
+    return LiquidPullToRefresh(
+      showChildOpacityTransition: false,
+      color: contextTheme.colorScheme.primary,
+      backgroundColor: Colors.black,
+      height: 150,
+      animSpeedFactor: 5,
+      onRefresh: () async {
+        await searchResultController.fetchResult(query: currentQuery);
+      },
+      child: Container(
+        color: contextTheme.colorScheme.background,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Search'.tr.toUpperCase(),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 22),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: FTextField(
-              hint: 'Search for products or categories'.tr,
-              controller: searchSuggestionController.textController,
-              textInputAction: TextInputAction.done,
-              maxLines: 1,
-              onSubmit: (value) {
-                final matchedCategory =
-                    categoriesController.categories.firstWhereOrNull(
-                  (c) => c.title.toLowerCase() == value.toLowerCase(),
-                );
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: FTextField(
+                hint: 'Search for products or categories'.tr,
+                controller: searchSuggestionController.textController,
+                textInputAction: TextInputAction.done,
+                maxLines: 1,
+                onSubmit: (value) {
+                  // currentQuery = value;
 
-                if (matchedCategory != null) {
-                  onCategorySelected(matchedCategory.id);
-                } else {
-                  searchResultController.fetchResult(query: value);
-                }
+                  // searchSuggestionController.suggestions.clear();
 
-                searchSuggestionController.textController.clear();
-              },
-              //   searchResultController.results.clear();
-              //   //   searchSuggestionController.suggestions.clear();
-              //   final matchedCategory =
-              //       categoriesController.categories.firstWhereOrNull(
-              //     (c) => c.title.toLowerCase() == value.toLowerCase(),
-              //   );
+                  // searchSuggestionController.textController.text = value;
 
-              //   if (matchedCategory != null) {
-              //     onCategorySelected(matchedCategory.id);
-              //   } else {
-              //     searchResultController.fetchResult(query: value);
-              //   }
-              //   searchSuggestionController.textController.clear();
-              // },
-              onChange: (value) =>
-                  searchSuggestionController.getSuggestions(value),
-              prefixBuilder: (context, value, child) => Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
-                  child: FIcon(FAssets.icons.search)),
-            ),
-          ),
-          Obx(() {
-            if (searchSuggestionController.suggestions.isNotEmpty) {
-              return ListView.builder(
-                shrinkWrap: true,
-                itemCount: searchSuggestionController.suggestions.length,
-                itemBuilder: (context, index) {
-                  final item = searchSuggestionController.suggestions[index];
-                  return GestureDetector(
-                    onTap: () {
-                      searchSuggestionController.textController.text = item;
+                  // // Save current query
+                  // searchResultController.currentQuery.value = value;
+                  if (value.trim().isEmpty) return;
 
-                      final matchedCategory =
-                          categoriesController.categories.firstWhereOrNull(
-                        (c) => c.title.toLowerCase() == item.toLowerCase(),
-                      );
+                  // Save current query (search bar এ থাকবে)
+                  searchResultController.currentQuery.value = value;
 
-                      if (matchedCategory != null) {
-                        onCategorySelected(matchedCategory.id);
-                      } else {
-                        searchResultController.fetchResult(query: item);
-                      }
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Text(item),
-                    ),
+                  // suggestions clear করে দাও যাতে লিস্ট না দেখায়
+
+                  // Clear previous results
+                  searchResultController.results.clear();
+                  final matchedCategory =
+                      categoriesController.categories.firstWhereOrNull(
+                    (c) => c.title.toLowerCase() == value.toLowerCase(),
                   );
+
+                  if (matchedCategory != null) {
+                    onCategorySelected(matchedCategory.id);
+                  } else {
+                    searchResultController.fetchResult(query: value);
+                  }
+                  //     searchSuggestionController.textController.text = "";
+
+                  //    searchSuggestionController.textController.clear();
                 },
-              );
-            }
-            return const SizedBox.shrink();
-          }),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
-              child: SearchResultView(),
+                //   searchResultController.results.clear();
+                //   //   searchSuggestionController.suggestions.clear();
+                //   final matchedCategory =
+                //       categoriesController.categories.firstWhereOrNull(
+                //     (c) => c.title.toLowerCase() == value.toLowerCase(),
+                //   );
+
+                //   if (matchedCategory != null) {
+                //     onCategorySelected(matchedCategory.id);
+                //   } else {
+                //     searchResultController.fetchResult(query: value);
+                //   }
+                //   searchSuggestionController.textController.clear();
+                // },
+                onChange: (value) =>
+                    searchSuggestionController.getSuggestions(value),
+                prefixBuilder: (context, value, child) => Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: FIcon(FAssets.icons.search)),
+              ),
             ),
-          ),
-        ],
+            Obx(() {
+              if (searchSuggestionController.suggestions.isNotEmpty) {
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: searchSuggestionController.suggestions.length,
+                  itemBuilder: (context, index) {
+                    final item = searchSuggestionController.suggestions[index];
+                    return GestureDetector(
+                      onTap: () {
+                        searchSuggestionController.textController.text = item;
+
+                        final matchedCategory =
+                            categoriesController.categories.firstWhereOrNull(
+                          (c) => c.title.toLowerCase() == item.toLowerCase(),
+                        );
+
+                        if (matchedCategory != null) {
+                          onCategorySelected(matchedCategory.id);
+                        } else {
+                          searchResultController.fetchResult(query: item);
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(item),
+                      ),
+                    );
+                  },
+                );
+              }
+              return const SizedBox.shrink();
+            }),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
+                child: SearchResultView(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

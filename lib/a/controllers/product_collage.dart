@@ -20,11 +20,14 @@ class ProductCollageController extends GetConnect implements GetxService {
     try {
       isLoading.value = true;
       hasError.value = false;
+      final baseUrl = dotenv.env['BASE_URL']; // https://app2.apidoxy.com/api/v1
 
-      final uri = Uri.https(
-        "app2.apidoxy.com", // host
-        "/api/v1/products", // path
-      );
+      final uri = Uri.parse("$baseUrl/products"); // products endpoint
+
+      // final uri = Uri.https(
+      //   "app2.apidoxy.com", // host
+      //   "/api/v1/products", // path
+      // );
 
       final response = await http.get(
         uri,

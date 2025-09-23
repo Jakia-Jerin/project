@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:theme_desiree/a/views/product_mini_card.dart';
 import 'package:theme_desiree/currency/currency_controller.dart';
 import 'package:theme_desiree/a/controllers/search_result.dart';
@@ -11,37 +12,95 @@ class SearchResultView extends StatelessWidget {
   SearchResultView({super.key, this.query});
 
   final CurrencyController currencyController = Get.find<CurrencyController>();
+  final SearchResultController searchResultController =
+      Get.find<SearchResultController>();
+
   @override
   Widget build(BuildContext context) {
     return GetX<SearchResultController>(
       builder: (controller) {
         if (controller.isLoading.value) {
-          return Center(
+          return const Center(
             child: LoaderView(),
           );
         }
 
         if (controller.hasError.value) {
-          return Center(
+          return const Center(
             child: SizedBox.shrink(),
           );
         }
 
         return LayoutBuilder(builder: (context, constraints) {
           int crossAxisCount = (constraints.maxWidth / 240).floor().clamp(2, 8);
-          return MasonryGridView.count(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 8.0,
-            mainAxisSpacing: 8.0,
-            itemCount: controller.results.length,
-            physics: BouncingScrollPhysics(),
-            itemBuilder: (context, index) {
-              final item = controller.results[index];
-              return ProductMiniCard(data: item);
+
+          return LiquidPullToRefresh(
+            showChildOpacityTransition: false,
+            color: Colors.orange,
+            backgroundColor: Colors.black,
+            height: 150,
+            animSpeedFactor: 2.0,
+            onRefresh: () async {
+              // Use the current query or empty string
+              await searchResultController.fetchResult(query: query ?? "");
             },
+            child: MasonryGridView.count(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: 8.0,
+              mainAxisSpacing: 8.0,
+              itemCount: controller.results.length,
+              physics: const BouncingScrollPhysics(
+                parent:
+                    AlwaysScrollableScrollPhysics(), // ensures pull works even if not scrollable
+              ),
+              itemBuilder: (context, index) {
+                final item = controller.results[index];
+                return ProductMiniCard(data: item);
+              },
+            ),
           );
         });
       },
     );
   }
 }
+
+// class SearchResultView extends StatelessWidget {
+//   final String? query;
+//   SearchResultView({super.key, this.query});
+
+//   final CurrencyController currencyController = Get.find<CurrencyController>();
+//   @override
+//   Widget build(BuildContext context) {
+//     return GetX<SearchResultController>(
+//       builder: (controller) {
+//         if (controller.isLoading.value) {
+//           return Center(
+//             child: LoaderView(),
+//           );
+//         }
+
+//         if (controller.hasError.value) {
+//           return Center(
+//             child: SizedBox.shrink(),
+//           );
+//         }
+
+//         return LayoutBuilder(builder: (context, constraints) {
+//           int crossAxisCount = (constraints.maxWidth / 240).floor().clamp(2, 8);
+//           return MasonryGridView.count(
+//             crossAxisCount: crossAxisCount,
+//             crossAxisSpacing: 8.0,
+//             mainAxisSpacing: 8.0,
+//             itemCount: controller.results.length,
+//             physics: BouncingScrollPhysics(),
+//             itemBuilder: (context, index) {
+//               final item = controller.results[index];
+//               return ProductMiniCard(data: item);
+//             },
+//           );
+//         });
+//       },
+//     );
+//   }
+// }

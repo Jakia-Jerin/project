@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
 import 'package:theme_desiree/a/controllers/horizontal_brochure.dart';
+import 'package:theme_desiree/a/models/horizontal_brochure.dart';
 import 'package:theme_desiree/a/views/product_mini_card.dart';
 
 class HorizontalBrochure extends StatelessWidget {
@@ -32,7 +33,12 @@ class HorizontalBrochure extends StatelessWidget {
         }
 
         return Column(
-          children: controller.brochures.map((brochure) {
+          //  children: controller.brochures.map((brochure)
+          children: controller.brochures
+              .where((brochure) => brochure.products.isNotEmpty)
+              .map((brochure) {
+            // Take only first 2 products for preview
+            final displayedProducts = brochure.products.take(2).toList();
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: FCard.raw(
@@ -110,7 +116,12 @@ class HorizontalBrochure extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            onPress: () => Get.toNamed(brochure.handle),
+                            onPress: () {
+                              // Navigate to FullBrochurePage with brochure
+                              Get.to(
+                                  () => FullBrochurePage(brochure: brochure));
+                            },
+                            //    onPress: () => Get.toNamed(brochure.handle),
                             label: Text(
                               "View more",
                               style: contextTheme.typography.sm.copyWith(
@@ -155,9 +166,11 @@ class HorizontalBrochure extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 8),
                           physics: const BouncingScrollPhysics(),
-                          itemCount: brochure.products.length,
+                          itemCount: displayedProducts.length,
+                          //       itemCount: brochure.products.length,
                           itemBuilder: (context, index) {
-                            final product = brochure.products[index];
+                            final product = displayedProducts[index];
+                            //  final product = brochure.products[index];
                             return Padding(
                               padding: const EdgeInsets.only(right: 8),
                               child: SizedBox(
@@ -179,6 +192,89 @@ class HorizontalBrochure extends StatelessWidget {
   }
 }
 
+class FullBrochurePage extends StatelessWidget {
+  final HorizontalBrochureModel brochure;
+
+  const FullBrochurePage({super.key, required this.brochure});
+
+  @override
+  Widget build(BuildContext context) {
+    final contextTheme = FTheme.of(context);
+
+    return Scaffold(
+      backgroundColor: contextTheme.colorScheme.background,
+      appBar: AppBar(
+        backgroundColor: contextTheme.colorScheme.background,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: FButton.icon(
+            style: FButtonStyle.outline,
+            child: FIcon(
+              FAssets.icons.chevronLeft,
+              size: 24,
+            ),
+            onPress: () => Get.back(),
+          ),
+        ),
+        centerTitle: true,
+        title: Text(
+          '${brochure.title}'.tr.toUpperCase(),
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              color: contextTheme.typography.lg.color),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Text(
+            //   brochure.subtitle,
+            //   style: contextTheme.typography.base,
+            // ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: GridView.builder(
+                padding: EdgeInsets.all(8),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // row 2 item
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 0.7, // card  width-height ratio
+                ),
+                itemCount: brochure.products.length,
+                itemBuilder: (context, index) {
+                  final product = brochure.products[index];
+                  return ProductMiniCard(data: product);
+                },
+              ),
+            )
+            // Expanded(
+            //   child: ListView.builder(
+            //     scrollDirection: Axis.horizontal,
+            //     itemCount: brochure.products.length,
+            //     padding: EdgeInsets.symmetric(horizontal: 8),
+            //     physics: BouncingScrollPhysics(),
+            //     itemBuilder: (context, index) {
+            //       final product = brochure.products[index];
+            //       return Padding(
+            //         padding: const EdgeInsets.only(right: 12),
+            //         child: SizedBox(
+            //           width: 160,
+            //           child: ProductMiniCard(data: product),
+            //         ),
+            //       );
+            //     },
+            //   ),
+            // ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 // class HorizontalBrochure extends StatelessWidget {
 //   final Map<String, dynamic> data;
 //   const HorizontalBrochure({super.key, required this.data});

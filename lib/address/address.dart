@@ -3,6 +3,7 @@ import 'package:forui/forui.dart';
 import 'package:get/get.dart';
 import 'package:theme_desiree/address/address_controller.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:theme_desiree/signin_opt/authcontroller.dart';
 
 class AddressPage extends StatelessWidget {
   const AddressPage({super.key});
@@ -11,6 +12,7 @@ class AddressPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final contextTheme = FTheme.of(context);
     final AddressController controller = Get.put(AddressController());
+    final authController = Get.put(AuthController());
 
     return Column(
       children: [
@@ -52,6 +54,34 @@ class AddressPage extends StatelessWidget {
         const SizedBox(height: 10),
         Expanded(
           child: Obx(() {
+            // if (!authController.isLoggedIn.value) {
+            //   return Center(
+            //     child: Column(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       children: [
+            //         Image.asset("assets/7852470-removebg-preview.png",
+            //             width: 80, height: 80),
+            //         SizedBox(height: 16),
+            //         Text(
+            //           "Please login to view your Address",
+            //           style: TextStyle(fontSize: 18),
+            //           textAlign: TextAlign.center,
+            //         ),
+            //         SizedBox(height: 16),
+            //         Padding(
+            //           padding: const EdgeInsets.all(20.0),
+            //           child: FButton(
+            //             style: FButtonStyle.primary,
+            //             onPress: () => Get.toNamed("/settings/profile"),
+            //             label: Text("Login Now",
+            //                 style: contextTheme.typography.sm),
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   );
+            // }
+
             if (controller.savedAddresses.isEmpty) {
               return const Center(child: Text("No saved addresses yet."));
             }

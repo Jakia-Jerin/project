@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:forui/theme.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
@@ -29,14 +28,15 @@ class CheckoutController extends GetConnect implements GetxService {
   var hasError = false.obs;
   var isLoading = false.obs;
   @override
-  final String baseUrl = "https://app2.apidoxy.com";
+  final baseUrl = dotenv.env['BASE_URL'];
+  //final String baseUrl = "https://app2.apidoxy.com";
 
   Future<void> getDeliveryCharges() async {
     try {
       isLoading.value = true;
 
       final response = await http.get(
-        Uri.parse("$baseUrl/api/v1/settings/delivery-charge"),
+        Uri.parse("$baseUrl/settings/delivery-charge"),
         headers: {
           "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
           'Content-Type': 'application/json',
@@ -168,7 +168,7 @@ class CheckoutController extends GetConnect implements GetxService {
       final accessToken = box.read("accessToken");
       print("Token from storage: $accessToken");
 
-      final url = "https://app2.apidoxy.com/api/v1/order";
+      final url = "$baseUrl/order";
       print("API URL: $url");
 
       final headers = {

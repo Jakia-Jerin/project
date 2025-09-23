@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:theme_desiree/a/controllers/home.dart';
 import 'package:theme_desiree/a/models/section.dart';
-import 'package:theme_desiree/a/views/banner_carousel.dart';
-import 'package:theme_desiree/a/views/faq.dart';
 import 'package:theme_desiree/a/views/horizontal_brochure.dart';
 import 'package:theme_desiree/a/views/product_collage.dart';
 import 'package:theme_desiree/currency/currency_controller.dart';
@@ -39,30 +38,42 @@ class HomeView extends StatelessWidget {
                   retry: controller.fetchSections,
                 );
               }
-              return ListView.separated(
-                itemCount: controller.sections.length,
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                separatorBuilder: (context, index) => SizedBox(height: 8),
-                itemBuilder: (context, index) {
-                  final sortedSections =
-                      List<SectionModel>.from(controller.sections)
-                        ..sort((a, b) => a.index.compareTo(b.index));
-
-                  final section = sortedSections[index];
-                  switch (section.type) {
-                    // case SectionType.bannerCarousal:
-                    //   return BannerCarousel(data: section.data);
-                    case SectionType.horizontalBrochure:
-                      return HorizontalBrochure();
-                    //   return HorizontalBrochure(data: section.data);
-                    case SectionType.collage:
-                      return ProductCollage(data: section.data);
-                    // case SectionType.faq:
-                    //   return FaqView(data: section.data);
-                    default:
-                      return SizedBox.shrink();
-                  }
+              return LiquidPullToRefresh(
+                showChildOpacityTransition: false,
+                color: contextTheme.colorScheme.primary,
+                backgroundColor: Colors.white,
+                height: 150,
+                animSpeedFactor: 5,
+                onRefresh: () async {
+                  await Future.wait(
+                    [homeController.fetchSections()],
+                  );
                 },
+                child: ListView.separated(
+                  itemCount: controller.sections.length,
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  separatorBuilder: (context, index) => SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final sortedSections =
+                        List<SectionModel>.from(controller.sections)
+                          ..sort((a, b) => a.index.compareTo(b.index));
+
+                    final section = sortedSections[index];
+                    switch (section.type) {
+                      // case SectionType.bannerCarousal:
+                      //   return BannerCarousel(data: section.data);
+                      case SectionType.horizontalBrochure:
+                        return HorizontalBrochure();
+                      //   return HorizontalBrochure(data: section.data);
+                      case SectionType.collage:
+                        return ProductCollage(data: section.data);
+                      // case SectionType.faq:
+                      //   return FaqView(data: section.data);
+                      default:
+                        return SizedBox.shrink();
+                    }
+                  },
+                ),
               );
             }),
           ),

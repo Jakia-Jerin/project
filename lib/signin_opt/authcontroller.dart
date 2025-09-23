@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
+import 'package:theme_desiree/orders/orders_controller.dart';
 
 import 'package:theme_desiree/profile/contacts.dart';
 import 'package:theme_desiree/signin_opt/profile_model.dart';
@@ -51,6 +52,8 @@ class AuthController extends GetxController {
   var showPasswordWarning = false.obs;
 
   var passwordFocusNode = FocusNode();
+  var token = "".obs;
+  final baseUrl = dotenv.env['BASE_URL'];
 
   ///password validation UI
   void validatePassword(String password) {
@@ -161,7 +164,7 @@ class AuthController extends GetxController {
 
   // API-based Email verification
   Future<bool> verifyEmail(String email, String otp) async {
-    final url = Uri.parse('https://app2.apidoxy.com/api/v1/user/verify-email');
+    final url = Uri.parse('$baseUrl/user/verify-email');
     final headers = {
       "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
       "Content-Type": "application/json",
@@ -196,7 +199,7 @@ class AuthController extends GetxController {
   }
 
   Future<bool> verifyPhone(String phone, String otp) async {
-    final url = Uri.parse('https://app2.apidoxy.com/api/v1/user/verify-phone');
+    final url = Uri.parse('$baseUrl/user/verify-phone');
     final headers = {
       "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
       "Content-Type": "application/json",
@@ -300,7 +303,7 @@ class AuthController extends GetxController {
       };
 
       final response = await http.post(
-        Uri.parse("https://app2.apidoxy.com/api/v1/user/register"),
+        Uri.parse("$baseUrl/user/register"),
         headers: {
           "x-vendor-identifier":
               dotenv.env['SHOP_ID'] ?? "", //"cmdodf60l000028vh5otnn9fg",
@@ -371,6 +374,7 @@ class AuthController extends GetxController {
     final inputEmail = emailController.text.trim();
     final inputPhone = phoneController.text.trim();
     final inputPassword = passwordController.text.trim();
+    final ordersController = Get.put(OrdersController());
 
     if (inputPassword.isEmpty || (inputEmail.isEmpty && inputPhone.isEmpty)) {
       Get.snackbar("Error", "Please enter email/phone and password");
@@ -379,7 +383,7 @@ class AuthController extends GetxController {
 
     final identifier = inputEmail.isNotEmpty ? inputEmail : inputPhone;
 
-    final url = Uri.parse("https://app2.apidoxy.com/api/v1/user/login"); //
+    final url = Uri.parse("$baseUrl/user/login"); //
     final headers = {
       "x-vendor-identifier":
           dotenv.env['SHOP_ID'] ?? " ", //"cmdodf60l000028vh5otnn9fg"
@@ -415,6 +419,7 @@ class AuthController extends GetxController {
 
         //    Get.snackbar("Success", "Login Successful");
         Get.toNamed('/settings');
+        //  ordersController.fetchOrders();
         //  Access & Refresh token save
         final box = GetStorage();
         box.write("accessToken", data["accessToken"]);
@@ -456,13 +461,14 @@ class AuthController extends GetxController {
     // token read
     final accessToken = box.read("accessToken");
     final refreshToken = box.read("refreshToken");
+    final ordersController = Get.put(OrdersController());
 
     if (accessToken == null || refreshToken == null) {
       print("No token found, already logged out");
       return;
     }
 
-    final url = Uri.parse("https://app2.apidoxy.com/api/v1/user/logout");
+    final url = Uri.parse("$baseUrl/user/logout");
 
     try {
       final response = await http.post(
@@ -480,11 +486,14 @@ class AuthController extends GetxController {
         final data = jsonDecode(response.body);
         print("Logout Success: ${data['message']}");
         Get.snackbar("Success", "Logout Successful");
-        Get.toNamed("settings/profile");
+        //Get.toNamed("/accounts");
+        Get.toNamed("/settings");
         // local storage clear
         box.remove("accessToken");
         box.remove("refreshToken");
         box.remove("user");
+        //  ordersController.orders.clear();
+
         isLoggedIn.value = false;
         userEmailOrPhone.value = "";
         print("User logged out, local storage cleared");
@@ -522,7 +531,7 @@ class AuthController extends GetxController {
       );
 
       final response = await http.post(
-        Uri.parse("https://app2.apidoxy.com/api/v1/user/change-password"),
+        Uri.parse("$baseUrl/user/change-password"),
         headers: {
           "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? " ",
           "Content-Type": "application/json",
@@ -595,7 +604,7 @@ class AuthController extends GetxController {
 //.............Forget Password Function............
   Future<void> forgotPassword(String account) async {
     final url =
-        Uri.parse('https://app2.apidoxy.com/api/v1/user/forget-password');
+        Uri.parse('$baseUrl/user/forget-password');
 
     Map<String, dynamic> body = {};
 
@@ -639,7 +648,7 @@ class AuthController extends GetxController {
 
   Future<Map<String, dynamic>?> verifyForgotToken(String token) async {
     final url =
-        Uri.parse('https://app2.apidoxy.com/api/v1/user/verify-forget-token');
+        Uri.parse('$baseUrl/user/verify-forget-token');
     final headers = {
       "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
       "Content-Type": "application/json",
@@ -680,7 +689,7 @@ class AuthController extends GetxController {
   }) async {
     final isEmail = contact.contains('@');
     final url =
-        Uri.parse('https://app2.apidoxy.com/api/v1/user/reset-password');
+        Uri.parse('$baseUrl/user/reset-password');
     final headers = {
       "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
       "Content-Type": "application/json",
