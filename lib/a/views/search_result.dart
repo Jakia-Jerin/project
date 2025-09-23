@@ -34,30 +34,19 @@ class SearchResultView extends StatelessWidget {
         return LayoutBuilder(builder: (context, constraints) {
           int crossAxisCount = (constraints.maxWidth / 240).floor().clamp(2, 8);
 
-          return LiquidPullToRefresh(
-            showChildOpacityTransition: false,
-            color: Colors.orange,
-            backgroundColor: Colors.black,
-            height: 150,
-            animSpeedFactor: 2.0,
-            onRefresh: () async {
-              // Use the current query or empty string
-              await searchResultController.fetchResult(query: query ?? "");
-            },
-            child: MasonryGridView.count(
-              crossAxisCount: crossAxisCount,
-              crossAxisSpacing: 8.0,
-              mainAxisSpacing: 8.0,
-              itemCount: controller.results.length,
-              physics: const BouncingScrollPhysics(
-                parent:
-                    AlwaysScrollableScrollPhysics(), // ensures pull works even if not scrollable
-              ),
-              itemBuilder: (context, index) {
-                final item = controller.results[index];
-                return ProductMiniCard(data: item);
-              },
+          return MasonryGridView.count(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: 8.0,
+            mainAxisSpacing: 8.0,
+            itemCount: controller.results.length,
+            physics: const BouncingScrollPhysics(
+              parent:
+                  AlwaysScrollableScrollPhysics(), // ensures pull works even if not scrollable
             ),
+            itemBuilder: (context, index) {
+              final item = controller.results[index];
+              return ProductMiniCard(data: item);
+            },
           );
         });
       },

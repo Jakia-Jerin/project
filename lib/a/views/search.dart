@@ -26,7 +26,7 @@ class Search extends StatelessWidget {
   void onCategorySelected(String categoryId) {
     // clear previous search bar + handle
     searchSuggestionController.suggestions.clear();
-    searchSuggestionController.textController.clear();
+    //searchSuggestionController.textController.clear();
 
     searchResultController.results.clear();
     searchResultController.fetchResult(
@@ -73,131 +73,155 @@ class Search extends StatelessWidget {
       });
     }
 
-    return LiquidPullToRefresh(
-      showChildOpacityTransition: false,
-      color: contextTheme.colorScheme.primary,
-      backgroundColor: Colors.black,
-      height: 150,
-      animSpeedFactor: 5,
-      onRefresh: () async {
-        await searchResultController.fetchResult(query: currentQuery);
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        // Back pressed: search bar & results clear
+        searchSuggestionController.textController.clear();
+        searchResultController.results.clear();
+        searchResultController.currentQuery.value = "";
+
+        return;
       },
-      child: Container(
-        color: contextTheme.colorScheme.background,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Search'.tr.toUpperCase(),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 22),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: FTextField(
-                hint: 'Search for products or categories'.tr,
-                controller: searchSuggestionController.textController,
-                textInputAction: TextInputAction.done,
-                maxLines: 1,
-                onSubmit: (value) {
-                  // currentQuery = value;
-
-                  // searchSuggestionController.suggestions.clear();
-
-                  // searchSuggestionController.textController.text = value;
-
-                  // // Save current query
-                  // searchResultController.currentQuery.value = value;
-                  if (value.trim().isEmpty) return;
-
-                  // Save current query (search bar এ থাকবে)
-                  searchResultController.currentQuery.value = value;
-
-                  // suggestions clear করে দাও যাতে লিস্ট না দেখায়
-
-                  // Clear previous results
-                  searchResultController.results.clear();
-                  final matchedCategory =
-                      categoriesController.categories.firstWhereOrNull(
-                    (c) => c.title.toLowerCase() == value.toLowerCase(),
-                  );
-
-                  if (matchedCategory != null) {
-                    onCategorySelected(matchedCategory.id);
-                  } else {
-                    searchResultController.fetchResult(query: value);
-                  }
-                  //     searchSuggestionController.textController.text = "";
-
-                  //    searchSuggestionController.textController.clear();
-                },
-                //   searchResultController.results.clear();
-                //   //   searchSuggestionController.suggestions.clear();
-                //   final matchedCategory =
-                //       categoriesController.categories.firstWhereOrNull(
-                //     (c) => c.title.toLowerCase() == value.toLowerCase(),
-                //   );
-
-                //   if (matchedCategory != null) {
-                //     onCategorySelected(matchedCategory.id);
-                //   } else {
-                //     searchResultController.fetchResult(query: value);
-                //   }
-                //   searchSuggestionController.textController.clear();
-                // },
-                onChange: (value) =>
-                    searchSuggestionController.getSuggestions(value),
-                prefixBuilder: (context, value, child) => Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: FIcon(FAssets.icons.search)),
-              ),
-            ),
-            Obx(() {
-              if (searchSuggestionController.suggestions.isNotEmpty) {
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: searchSuggestionController.suggestions.length,
-                  itemBuilder: (context, index) {
-                    final item = searchSuggestionController.suggestions[index];
-                    return GestureDetector(
-                      onTap: () {
-                        searchSuggestionController.textController.text = item;
-
-                        final matchedCategory =
-                            categoriesController.categories.firstWhereOrNull(
-                          (c) => c.title.toLowerCase() == item.toLowerCase(),
-                        );
-
-                        if (matchedCategory != null) {
-                          onCategorySelected(matchedCategory.id);
-                        } else {
-                          searchResultController.fetchResult(query: item);
-                        }
+      child: LiquidPullToRefresh(
+        showChildOpacityTransition: false,
+        color: contextTheme.colorScheme.primary,
+        backgroundColor: Colors.white,
+        height: 150,
+        animSpeedFactor: 5,
+        onRefresh: () async {
+          await searchResultController.fetchResult(query: currentQuery);
+        },
+        child: Container(
+          color: contextTheme.colorScheme.background,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    FButton.icon(
+                      onPress: () {
+                        searchSuggestionController.textController.clear();
+                        searchResultController.results.clear();
+                        searchResultController.currentQuery.value = "";
+                        Get.toNamed("/categories");
                       },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(item),
+                      style: FButtonStyle.outline,
+                      child: FIcon(
+                        FAssets.icons.chevronLeft,
+                        size: 24,
                       ),
-                    );
-                  },
-                );
-              }
-              return const SizedBox.shrink();
-            }),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
-                child: SearchResultView(),
+                    ),
+                    Text(
+                      'Search'.tr.toUpperCase(),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 22),
+                    ),
+                    Text(
+                      'Search'.tr.toUpperCase(),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 22),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: FTextField(
+                  hint: 'Search for products or categories'.tr,
+                  controller: searchSuggestionController.textController,
+                  textInputAction: TextInputAction.done,
+                  maxLines: 1,
+                  onSubmit: (value) {
+                    // currentQuery = value;
+
+                    if (value.trim().isEmpty) return;
+                    // Clear previous results
+                    searchResultController.results.clear();
+
+                    // Save current query
+                    searchResultController.currentQuery.value = value;
+
+                    searchSuggestionController.suggestions.clear();
+
+                    final matchedCategory =
+                        categoriesController.categories.firstWhereOrNull(
+                      (c) => c.title.toLowerCase() == value.toLowerCase(),
+                    );
+
+                    if (matchedCategory != null) {
+                      onCategorySelected(matchedCategory.id);
+                    } else {
+                      searchResultController.fetchResult(query: value);
+                    }
+                    //     searchSuggestionController.textController.text = "";
+
+                    //    searchSuggestionController.textController.clear();
+                  },
+                  //   searchResultController.results.clear();
+                  //   //   searchSuggestionController.suggestions.clear();
+                  //   final matchedCategory =
+                  //       categoriesController.categories.firstWhereOrNull(
+                  //     (c) => c.title.toLowerCase() == value.toLowerCase(),
+                  //   );
+
+                  //   if (matchedCategory != null) {
+                  //     onCategorySelected(matchedCategory.id);
+                  //   } else {
+                  //     searchResultController.fetchResult(query: value);
+                  //   }
+                  //   searchSuggestionController.textController.clear();
+                  // },
+                  onChange: (value) =>
+                      searchSuggestionController.getSuggestions(value),
+                  prefixBuilder: (context, value, child) => Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: FIcon(FAssets.icons.search)),
+                ),
+              ),
+              Obx(() {
+                if (searchSuggestionController.suggestions.isNotEmpty) {
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: searchSuggestionController.suggestions.length,
+                    itemBuilder: (context, index) {
+                      final item =
+                          searchSuggestionController.suggestions[index];
+                      return GestureDetector(
+                        onTap: () {
+                          searchSuggestionController.textController.text = item;
+
+                          final matchedCategory =
+                              categoriesController.categories.firstWhereOrNull(
+                            (c) => c.title.toLowerCase() == item.toLowerCase(),
+                          );
+
+                          if (matchedCategory != null) {
+                            onCategorySelected(matchedCategory.id);
+                          } else {
+                            searchResultController.fetchResult(query: item);
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Text(item),
+                        ),
+                      );
+                    },
+                  );
+                }
+                return const SizedBox.shrink();
+              }),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
+                  child: SearchResultView(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
