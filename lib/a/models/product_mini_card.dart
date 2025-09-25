@@ -1,4 +1,5 @@
 import 'package:theme_desiree/a/models/caregories.dart';
+import 'package:theme_desiree/showcase/product_model.dart';
 
 class ProductMiniCardModel {
   final String id;
@@ -11,6 +12,7 @@ class ProductMiniCardModel {
   final CategoryModel? category;
   final String? categoryId;
   final String? categoryName;
+  final List<VariantModel> variants;
 
   ProductMiniCardModel({
     required this.id,
@@ -23,6 +25,7 @@ class ProductMiniCardModel {
     required this.category,
     this.categoryId,
     this.categoryName,
+    required this.variants,
   });
 
   factory ProductMiniCardModel.fromJson(Map<String, dynamic> json) {
@@ -61,6 +64,11 @@ class ProductMiniCardModel {
           : null,
       categoryId: category != null ? category['_id'] ?? "" : "",
       categoryName: category != null ? category['title'] ?? "" : "",
+      variants: json['variants'] != null
+          ? (json['variants'] as List)
+              .map((v) => VariantModel.fromJson(v))
+              .toList()
+          : [],
     );
   }
 }

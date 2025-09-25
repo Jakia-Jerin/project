@@ -527,7 +527,7 @@ class CartController extends GetxController {
     }
 
     isLoading.value = true;
-    final url = Uri.parse('$baseUrl/api/v1/cart');
+    final url = Uri.parse('$baseUrl/cart');
 
     try {
       final response = await http.get(
@@ -621,8 +621,7 @@ class CartController extends GetxController {
       return;
     }
 
-    final url =
-        Uri.parse("https://app2.apidoxy.com/api/v1/cart/item/$productId");
+    final url = Uri.parse("$baseUrl/cart/item/$productId");
 
     final body = {
       "cartItemId": cartItemId,
@@ -674,7 +673,7 @@ class CartController extends GetxController {
         return;
       }
 
-      final url = Uri.parse('$baseUrl/api/v1/cart/item/$productId');
+      final url = Uri.parse('$baseUrl/cart/item/$productId');
 
       final body = {
         "cartItemId": cartItemId,

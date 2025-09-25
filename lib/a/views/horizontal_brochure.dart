@@ -93,13 +93,13 @@ class HorizontalBrochure extends StatelessWidget {
                                 Text(
                                   brochure.title,
                                   style: contextTheme.typography.base,
-                                  maxLines: 1,
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
                                   brochure.subtitle,
                                   style: contextTheme.typography.sm,
-                                  maxLines: 1,
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ],
@@ -160,7 +160,7 @@ class HorizontalBrochure extends StatelessWidget {
                     // ),
                     if (brochure.products.isNotEmpty)
                       SizedBox(
-                        height: 230,
+                        height: 285,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(
@@ -218,63 +218,76 @@ class FullBrochurePage extends StatelessWidget {
         ),
         centerTitle: true,
         title: Text(
-          '${brochure.title}'.tr.toUpperCase(),
+          brochure.title.tr.toUpperCase(),
           style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 22,
               color: contextTheme.typography.lg.color),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Text(
-            //   brochure.subtitle,
-            //   style: contextTheme.typography.base,
-            // ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: GridView.builder(
-                padding: EdgeInsets.all(8),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // row 2 item
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                  childAspectRatio: 0.7, // card  width-height ratio
-                ),
-                itemCount: brochure.products.length,
-                itemBuilder: (context, index) {
-                  final product = brochure.products[index];
-                  return ProductMiniCard(data: product);
-                },
+      body: SizedBox(
+        height: 300,
+        child: GridView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 2, vertical: 12),
+          //  physics: BouncingScrollPhysics(),
+          itemCount: brochure.products.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // 2 products per row
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 0.7, // adjust height/width ratio of each card
+          ),
+          //       itemCount: brochure.products.length,
+          itemBuilder: (context, index) {
+            final product = brochure.products[index];
+            //  final product = brochure.products[index];
+            return Padding(
+              padding: const EdgeInsets.only(right: 10, left: 10),
+              child: SizedBox(
+                width: 172,
+                child: ProductMiniCard(data: product),
               ),
-            )
-            // Expanded(
-            //   child: ListView.builder(
-            //     scrollDirection: Axis.horizontal,
-            //     itemCount: brochure.products.length,
-            //     padding: EdgeInsets.symmetric(horizontal: 8),
-            //     physics: BouncingScrollPhysics(),
-            //     itemBuilder: (context, index) {
-            //       final product = brochure.products[index];
-            //       return Padding(
-            //         padding: const EdgeInsets.only(right: 12),
-            //         child: SizedBox(
-            //           width: 160,
-            //           child: ProductMiniCard(data: product),
-            //         ),
-            //       );
-            //     },
-            //   ),
-            // ),
-          ],
+            );
+          },
         ),
       ),
+      //
+      //
+      // Padding(
+      //   padding: const EdgeInsets.all(8.0),
+      //   child: Column(
+      //     crossAxisAlignment: CrossAxisAlignment.start,
+      //     children: [
+      //       const SizedBox(height: 12),
+      //       // Use Expanded so GridView takes available vertical space
+      //       SizedBox(
+      //         height: 280,
+      //         child: GridView.builder(
+      //           padding: EdgeInsets.all(8),
+      //           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      //             crossAxisCount: 2,
+      //             crossAxisSpacing: 8,
+      //             mainAxisSpacing: 8,
+      //             childAspectRatio: 0.75,
+      //           ),
+      //           itemCount: brochure.products.length,
+      //           itemBuilder: (context, index) {
+      //             final product = brochure.products[index];
+      //             return Padding(
+      //               padding: const EdgeInsets.only(right: 8),
+      //               child: SizedBox(
+      //                   width: 172, child: ProductMiniCard(data: product)),
+      //             );
+      //           },
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      // ),
     );
   }
 }
+
 // class HorizontalBrochure extends StatelessWidget {
 //   final Map<String, dynamic> data;
 //   const HorizontalBrochure({super.key, required this.data});

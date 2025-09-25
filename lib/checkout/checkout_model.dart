@@ -40,7 +40,7 @@ class DeliveryChargeModel {
   factory DeliveryChargeModel.fromJson(Map<String, dynamic> json) {
     // Name = regionName / Default Delivery
     String displayName = json['regionName'] ??
-        (json['isDefault'] == true ? 'Default Delivery' : 'Unnamed');
+        (json['isDefault'] == true ? 'Default Delivery' : ' ');
 
     return DeliveryChargeModel(
       id: json['_id'],

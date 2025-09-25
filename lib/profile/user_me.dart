@@ -1,14 +1,5 @@
-import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
-import 'package:forui/forui.dart';
-import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:theme_desiree/profile/avatar_cropper.dart';
-import 'package:theme_desiree/profile/profile_controller.dart';
-import 'package:theme_desiree/profile/userprofile_model.dart';
 
-import 'package:theme_desiree/signin_opt/authcontroller.dart';
 
 // class UserProfileScreen extends StatelessWidget {
 //   const UserProfileScreen({super.key});

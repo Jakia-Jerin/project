@@ -10,6 +10,7 @@ class OrdersController extends GetConnect implements GetxService {
   var orders = <OrdersModel>[].obs;
   var isLoading = true.obs;
   var hasError = false.obs;
+  @override
   final baseUrl = dotenv.env['BASE_URL'];
 
   // Fetch orders

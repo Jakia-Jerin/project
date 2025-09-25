@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:theme_desiree/a/views/product_mini_card.dart';
 import 'package:theme_desiree/currency/currency_controller.dart';
 import 'package:theme_desiree/a/controllers/search_result.dart';

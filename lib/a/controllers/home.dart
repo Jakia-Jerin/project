@@ -97,7 +97,7 @@ class HomeController extends GetConnect implements GetxService {
           // 🔹 Filter sections: only include sections with products
           final filteredSections = tempData.where((section) {
             // assume section.data is List of products
-            return section.data != null && section.data.isNotEmpty;
+            return section.data.isNotEmpty;
           }).toList();
 
           sections.assignAll(filteredSections);

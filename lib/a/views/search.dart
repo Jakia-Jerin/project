@@ -73,6 +73,7 @@ class Search extends StatelessWidget {
       });
     }
 
+    ////popscope is used for mobile back button function
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) {
@@ -99,7 +100,7 @@ class Search extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     FButton.icon(
                       onPress: () {
@@ -114,15 +115,14 @@ class Search extends StatelessWidget {
                         size: 24,
                       ),
                     ),
-                    Text(
-                      'Search'.tr.toUpperCase(),
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 22),
-                    ),
-                    Text(
-                      'Search'.tr.toUpperCase(),
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 22),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          'Search'.tr.toUpperCase(),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 22),
+                        ),
+                      ),
                     ),
                   ],
                 ),

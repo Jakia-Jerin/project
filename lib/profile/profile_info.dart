@@ -51,22 +51,22 @@ class AccountInfoPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: FTile(
-                  prefixIcon: FIcon(FAssets.icons.squareUser),
-                  suffixIcon: FIcon(FAssets.icons.chevronRight),
-                  title: Text("My Account"
-                      // authController.user.value.name.isNotEmpty
-                      //     ? authController.user.value.name
-                      //     : 'Guest User',
-                      // style: const TextStyle(fontSize: 16),
-                      ),
-                  onPress: () {
-                    Get.toNamed("settings/editprofile");
-                  },
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.all(8.0),
+              //   child: FTile(
+              //     prefixIcon: FIcon(FAssets.icons.squareUser),
+              //     suffixIcon: FIcon(FAssets.icons.chevronRight),
+              //     title: Text("My Account"
+              //         // authController.user.value.name.isNotEmpty
+              //         //     ? authController.user.value.name
+              //         //     : 'Guest User',
+              //         // style: const TextStyle(fontSize: 16),
+              //         ),
+              //     onPress: () {
+              //       Get.toNamed("settings/editprofile");
+              //     },
+              //   ),
+              // ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: FTile(

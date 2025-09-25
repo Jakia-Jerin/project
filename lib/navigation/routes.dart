@@ -19,7 +19,6 @@ import 'package:theme_desiree/a/views/search.dart';
 
 import 'package:theme_desiree/profile/profile_info.dart';
 import 'package:theme_desiree/profile/profile_view.dart';
-import 'package:theme_desiree/profile/user_me.dart';
 import 'package:theme_desiree/showcase/showcase_view.dart';
 import 'package:theme_desiree/a/views/theme.dart';
 import 'package:theme_desiree/signin_opt/otp.dart';

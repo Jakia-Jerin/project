@@ -3,12 +3,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:forui/forui.dart';
 import 'package:get/get.dart';
 import 'package:theme_desiree/showcase/action_view.dart';
-import 'package:theme_desiree/showcase/about_view.dart';
 import 'package:theme_desiree/showcase/image_slider.dart';
 import 'package:theme_desiree/showcase/product_label.dart';
-import 'package:theme_desiree/showcase/review_view.dart';
 import 'package:theme_desiree/showcase/showcase_controller.dart';
-import 'package:theme_desiree/showcase/details_view.dart';
 
 class ShowcaseView extends StatelessWidget {
   const ShowcaseView({super.key});
@@ -17,6 +14,7 @@ class ShowcaseView extends StatelessWidget {
   Widget build(BuildContext context) {
     final ShowcaseController controller = Get.put(ShowcaseController());
     final productId = Get.parameters['productId'] ?? '';
+    final contextTheme = FTheme.of(context);
 
     print("ShowcaseView productId: $productId");
 
@@ -91,6 +89,73 @@ class ShowcaseView extends StatelessWidget {
                         title: product.title,
                         badges: product.tags,
                       ),
+
+                      FDivider(
+                        style: FTheme.of(context)
+                            .dividerStyles
+                            .horizontalStyle
+                            .copyWith(padding: EdgeInsets.zero),
+                      ),
+
+                      // About Section
+                      // About Section
+                      if (product.description != null &&
+                          product.description!.trim().isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(
+                                  12), // 👈 Rounded corner
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black
+                                      .withOpacity(0.05), // subtle shadow
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            padding: EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Description",
+                                  style:
+                                      FTheme.of(context).typography.lg.copyWith(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                          ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  product.description!,
+                                  maxLines: 10,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: FTheme.of(context)
+                                      .typography
+                                      .base
+                                      .copyWith(
+                                        color: Colors.black87,
+                                        height: 1.4,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                      FDivider(
+                        style: FTheme.of(context)
+                            .dividerStyles
+                            .horizontalStyle
+                            .copyWith(padding: EdgeInsets.zero),
+                      ),
+
                       ActionView(
                         available: product.available,
                         variants: product.variants,
@@ -98,30 +163,30 @@ class ShowcaseView extends StatelessWidget {
                         price: price,
                         compareAtPrice: compareAtPrice,
                       ),
-                      FTabs(
-                        initialIndex: 0,
-                        tabs: [
-                          FTabEntry(
-                            label: Text('About'),
-                            content: AboutView(
-                              description: product.description,
-                            ),
-                          ),
-                          FTabEntry(
-                            label: Text('Details'),
-                            content: DetailsView(
-                              specifications: product.details,
-                            ),
-                          ),
-                          FTabEntry(
-                            label: Text('Reviews'),
-                            content: ReviewView(
-                              reviews: product.reviews,
-                            ),
-                          ),
-                        ],
-                        onPress: (index) {},
-                      ),
+                      // FTabs(
+                      //   initialIndex: 0,
+                      //   tabs: [
+                      //     FTabEntry(
+                      //       label: Text('About'),
+                      //       content: AboutView(
+                      //         description: product.description!,
+                      //       ),
+                      //     ),
+                      //     // FTabEntry(
+                      //     //   label: Text('Details'),
+                      //     //   content: DetailsView(
+                      //     //     specifications: product.details,
+                      //     //   ),
+                      //     // ),
+                      //     // FTabEntry(
+                      //     //   label: Text('Reviews'),
+                      //     //   content: ReviewView(
+                      //     //     reviews: product.reviews,
+                      //     //   ),
+                      //     // ),
+                      //   ],
+                      //   onPress: (index) {},
+                      // ),
                     ],
                   ),
                 ),

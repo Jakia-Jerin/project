@@ -6,6 +6,7 @@ import 'package:theme_desiree/address/address_controller.dart';
 import 'package:theme_desiree/checkout/address.dart';
 import 'package:theme_desiree/checkout/checkout_controller.dart';
 import 'package:theme_desiree/checkout/checkout_model.dart';
+import 'package:theme_desiree/checkout/deliverycharge.dart';
 import 'package:theme_desiree/checkout/receipt.dart';
 import 'package:theme_desiree/orders/orders_controller.dart';
 
@@ -129,53 +130,92 @@ class _CheckoutViewState extends State<CheckoutView> {
                 padding: EdgeInsets.zero,
               ),
             ),
-            SizedBox(height: 5),
+            SizedBox(height: 15),
 
             //............Delivery Charge..............
 
-            Text(
-              'Delivery Charge',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: contextTheme.typography.sm.color),
+            FCard(
+              //  title: Text("Select a Delivery Charge Option"),
+              style: FCardStyle(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                contentStyle: FCardContentStyle(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  titleTextStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                  subtitleTextStyle: const TextStyle(
+                    fontSize: 12, // compact subtitle
+                    color: Colors.black54,
+                  ),
+                ),
+              ),
+              child: DeliveryTileDropdown(
+                checkoutController: checkoutController,
+                cartController: cartController,
+              ),
             ),
-            const SizedBox(height: 10),
 
-            Obx(() {
-              if (checkoutController.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
-              }
+            SizedBox(
+              height: 15,
+            ),
+            // Inside your widget
 
-              if (checkoutController.deliveryCharges.isEmpty) {
-                return const Text("No delivery charges found");
-              }
+            // Text(
+            //   'Delivery Charge',
+            //   style: TextStyle(
+            //       fontWeight: FontWeight.bold,
+            //       fontSize: 18,
+            //       color: contextTheme.typography.sm.color),
+            // ),
+            // const SizedBox(height: 10),
 
-              // ListView return kora hocche
-              return ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: checkoutController.deliveryCharges.length,
-                separatorBuilder: (_, __) => const Divider(),
-                itemBuilder: (context, index) {
-                  final charge = checkoutController.deliveryCharges[index];
-                  return RadioListTile<String>(
-                    value: charge.id,
-                    groupValue: checkoutController.selectedDeliveryId.value,
-                    activeColor:
-                        contextTheme.colorScheme.primary, // primary color
-                    title: Text(charge.name ?? "Default Delivery"),
-                    subtitle: Text("Charge: ${charge.charge} BDT"),
-                    onChanged: (val) {
-                      checkoutController.selectDelivery(val!);
+            // Obx(() {
+            //   if (checkoutController.isLoading.value) {
+            //     return const Center(child: CircularProgressIndicator());
+            //   }
 
-                      cartController.updateDeliveryCharge(
-                          checkoutController.selectedCharge?.charge ?? 0);
-                    },
-                  );
-                },
-              );
-            }),
+            //   if (checkoutController.deliveryCharges.isEmpty) {
+            //     return const Text("No delivery charges found");
+            //   }
+
+            //   // ListView return kora hocche
+            //   return ListView.separated(
+            //     shrinkWrap: true,
+            //     physics: const NeverScrollableScrollPhysics(),
+            //     itemCount: checkoutController.deliveryCharges.length,
+            //     separatorBuilder: (_, __) => const Divider(),
+            //     itemBuilder: (context, index) {
+            //       final charge = checkoutController.deliveryCharges[index];
+            //       return RadioListTile<String>(
+            //         value: charge.id,
+            //         groupValue: checkoutController.selectedDeliveryId.value,
+            //         activeColor:
+            //             contextTheme.colorScheme.primary, // primary color
+            //         title: Text(charge.name ?? "Default Delivery"),
+            //         subtitle: Text("Charge: ${charge.charge} BDT"),
+            //         onChanged: (val) {
+            //           checkoutController.selectDelivery(val!);
+
+            //           cartController.updateDeliveryCharge(
+            //               checkoutController.selectedCharge?.charge ?? 0);
+            //         },
+            //       );
+            //     },
+            //   );
+            // }),
+            FDivider(
+              style: FDividerStyle(
+                color: FTheme.of(context).dividerStyles.horizontalStyle.color,
+                padding: EdgeInsets.zero,
+              ),
+            ),
+            //  SizedBox(height: 15),
             SizedBox(height: 30),
 
             /// ---- PAYMENT METHODS ----
@@ -453,6 +493,7 @@ class _CheckoutViewState extends State<CheckoutView> {
     );
   }
 }
+
 
 
 

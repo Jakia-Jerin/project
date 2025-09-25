@@ -4,7 +4,7 @@ class ProductModel {
   final String id;
   final String title;
   final String handle;
-  final String description;
+  final String? description;
   final String? publishedAt;
   final String? createdAt;
   final String? vendor;
@@ -35,7 +35,7 @@ class ProductModel {
     required this.id,
     required this.title,
     required this.handle,
-    required this.description,
+    this.description,
     this.publishedAt,
     this.createdAt,
     this.vendor,

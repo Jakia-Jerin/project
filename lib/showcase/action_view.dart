@@ -32,7 +32,7 @@ class ActionView extends StatelessWidget {
     final showcaseController = Get.find<ShowcaseController>();
     final cartController = Get.find<CartController>();
     final authController = Get.put(AuthController());
-
+    final contextTheme = FTheme.of(context);
     //   final letterSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
 
     // final colorVariants = variants
@@ -56,6 +56,9 @@ class ActionView extends StatelessWidget {
     //     product.variants.where((v) => v.optionsType == 'size').toList();
     // final selectedColor = showcaseController.selectedOptions['color'].obs;
     // final selectedSize = showcaseController.selectedOptions['size'].obs;
+
+    // select 1st varinat
+
     return FCard(
       style: FTheme.of(context).cardStyle.copyWith(
             contentStyle: FTheme.of(context).cardStyle.contentStyle.copyWith(
@@ -82,17 +85,17 @@ class ActionView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  FButton(
-                    onPress: () {},
-                    style: FButtonStyle.outline,
-                    label:
-                        Text(isAvailable ? 'In stock'.tr : 'Limited stock'.tr),
-                  ),
+                  // FButton(
+                  //   onPress: () {},
+                  //   style: FButtonStyle.outline,
+                  //   label:
+                  //       Text(isAvailable ? 'In stock'.tr : 'Limited stock'.tr),
+                  // ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        currencyController.formatCurrency(displayPrice),
+                        "Price: ৳${currencyController.formatCurrency(displayPrice)}",
                         style: FTheme.of(context).typography.xl.copyWith(
                               color: FTheme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.bold,
@@ -114,7 +117,9 @@ class ActionView extends StatelessWidget {
               );
             }),
           ),
-
+          SizedBox(
+            height: 3,
+          ),
           FDivider(
             style: FTheme.of(context)
                 .dividerStyles
@@ -133,7 +138,9 @@ class ActionView extends StatelessWidget {
 
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: Row(
+                  child: Wrap(
+                    spacing: 8, // horizontal gap
+                    runSpacing: 8, // vertical gap if wrapped
                     children: variant.options.map((opt) {
                       final isSelected =
                           showcaseController.selectedOptions[rowIndex]?.value ==
@@ -269,6 +276,7 @@ class ActionView extends StatelessWidget {
 //                             variantsBody.map((v) => v["option"]).join(" > "),
 //                         shop: cartController.vendorId,
 //                       );
+
                       final currentVariant =
                           showcaseController.selectedVariant.value;
                       final product = showcaseController.product.value;
@@ -277,6 +285,22 @@ class ActionView extends StatelessWidget {
                         print("❌ Product is null, cannot add to cart");
                         return;
                       }
+                      // if (showcaseController.selectedVariant.value == null &&
+                      //     showcaseController.product.value != null &&
+                      //     showcaseController
+                      //         .product.value!.variants.isNotEmpty) {
+                      //   final firstVariant =
+                      //       showcaseController.product.value!.variants.first;
+                      //   showcaseController.selectedVariant.value = firstVariant;
+                      //   if (firstVariant.options.isNotEmpty) {
+                      //     for (int i = 0;
+                      //         i < firstVariant.options.length;
+                      //         i++) {
+                      //       showcaseController.setOption(
+                      //           i, firstVariant.options[i]);
+                      //     }
+                      //   }
+                      // }
 
 // Build variantsBody like [{id: v1, option: Red}, {id: v2, option: M}]
                       final variantsBody = <Map<String, dynamic>>[];
@@ -347,8 +371,21 @@ class ActionView extends StatelessWidget {
                         HapticFeedback.vibrate();
                       }
                     },
-                    style: FButtonStyle.outline,
-                    label: Text('Add to cart'.tr),
+                    style: contextTheme.buttonStyles.primary.copyWith(
+                      contentStyle: contextTheme
+                          .buttonStyles.primary.contentStyle
+                          .copyWith(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                      ),
+                    ),
+                    label: Text(
+                      'Add to cart'.tr,
+                      style: contextTheme.typography.sm.copyWith(
+                        fontSize: 15,
+                        color: contextTheme.typography.sm.color,
+                      ),
+                    ),
                   ),
                 ),
 
@@ -397,13 +434,13 @@ class ActionView extends StatelessWidget {
                 //     label: Text('Add to cart'.tr),
                 //   ),
                 // ),
-                Expanded(
-                  child: FButton(
-                    onPress: () {},
-                    style: FButtonStyle.primary,
-                    label: Text('Buy now'.tr),
-                  ),
-                ),
+                // Expanded(
+                //   child: FButton(
+                //     onPress: () {},
+                //     style: FButtonStyle.primary,
+                //     label: Text('Buy now'.tr),
+                //   ),
+                // ),
               ],
             ),
           ),
