@@ -23,25 +23,29 @@ class Settings extends StatelessWidget {
       ),
       child: Obx(() {
         if (!authController.isLoggedIn.value) {
-         
           return Center(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: FButton(
-                onPress: () => Get.toNamed('/settings/profile'),
-                style: contextTheme.buttonStyles.primary,
-                label: Text(
-                  'Sign up or Log in'.tr,
-                  style: contextTheme.typography.sm.copyWith(
-                    fontWeight: FontWeight.bold,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 60),
+              child: Column(
+                children: [
+                  Image.asset(
+                      'assets/ee0edf14-208d-4815-84d7-012ff6bf5189-removebg-preview.png'),
+                  FButton(
+                    onPress: () => Get.toNamed('/settings/profile'),
+                    style: contextTheme.buttonStyles.primary,
+                    label: Text(
+                      'Sign up or Log in'.tr,
+                      style: contextTheme.typography.sm.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           );
         }
 
-       
         final profile = controller.profile.value;
 
         return Column(
@@ -69,13 +73,22 @@ class Settings extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      authController.userEmailOrPhone.value,
-                      style: contextTheme.typography.sm.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
+                    // Text(
+                    //   authController.userEmailOrPhone.value,
+                    //   style: contextTheme.typography.sm.copyWith(
+                    //     fontWeight: FontWeight.bold,
+                    //     fontSize: 20,
+                    //   ),
+                    // ),
+                    Obx(() => Text(
+                          authController.userEmailOrPhone.value.isNotEmpty
+                              ? authController.userEmailOrPhone.value
+                              : "Guest User",
+                          style: contextTheme.typography.sm.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        )),
                     GestureDetector(
                       onTap: () {
                         showModalBottomSheet(

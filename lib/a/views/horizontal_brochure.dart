@@ -233,8 +233,8 @@ class FullBrochurePage extends StatelessWidget {
           itemCount: brochure.products.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2, // 2 products per row
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
+            mainAxisSpacing: 3,
+            crossAxisSpacing: 3,
             childAspectRatio: 0.7, // adjust height/width ratio of each card
           ),
           //       itemCount: brochure.products.length,

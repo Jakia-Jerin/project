@@ -202,14 +202,16 @@ class ProductMiniCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(3.5),
-                          decoration: const BoxDecoration(
+                          padding: EdgeInsets.all(3.5),
+                          decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
                           ),
-                          child: Text(
-                            '+',
-                            style: TextStyle(color: Colors.black),
+                          child: Center(
+                            child: Text(
+                              '+',
+                              style: TextStyle(color: Colors.black),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -342,7 +344,7 @@ class ProductBottomSheet extends StatelessWidget {
                   const SizedBox(height: 8),
                 ],
               );
-            }).toList(),
+            }),
 
             const SizedBox(height: 16),
 
@@ -402,7 +404,7 @@ class ProductBottomSheet extends StatelessWidget {
                   stock: 10,
                   price: product.price,
                   subtotal: (product.price) * 1,
-                  isAvailable: product?.available ?? product.available,
+                  isAvailable: product.available ?? product.available,
                   quantity: 1,
                   options: variantsBody.map((v) => v["option"]).join(" > "),
                   shop: cartController.vendorId,

@@ -71,6 +71,17 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    final box = GetStorage();
+    final savedUser = box.read("user");
+    if (savedUser != null) {
+      userEmailOrPhone.value =
+          savedUser["email"] ?? savedUser["phone"] ?? "Unknown user";
+      isLoggedIn.value = true;
+      print('///////////////////////////////////////////');
+      print("Restored user: ${userEmailOrPhone.value}");
+    } else {
+      print("No saved user found");
+    }
 
     passwordFocusNode.addListener(() {
       if (!passwordFocusNode.hasFocus) {
@@ -418,22 +429,27 @@ class AuthController extends GetxController {
         print("Status Code: ${response.statusCode}");
 
         //    Get.snackbar("Success", "Login Successful");
-        Get.toNamed('/settings');
+        // Get.toNamed('/settings');
         //  ordersController.fetchOrders();
         //  Access & Refresh token save
         final box = GetStorage();
+        final user = data["user"];
+        box.write("user", user);
         box.write("accessToken", data["accessToken"]);
         box.write("refreshToken", data["refreshToken"]);
-        box.write("user", data["user"]);
-        final user = data["user"];
+        //    box.write("user", data["user"]);
+        //   final user = data["user"];
         userEmailOrPhone.value =
             user["email"] ?? user["phone"] ?? "Unknown user";
         isLoggedIn.value = true;
+        print('...................................................');
+        print("Assigned Email/Phone: ${userEmailOrPhone.value}");
         print("User info: $user");
-        box.write("user", user);
+        //  box.write("user", user);
 
         clearInputs();
-        Get.toNamed('/');
+        Get.toNamed('/settings');
+        //   Get.toNamed('/');
 
         // Profile page
         //   Get.offAllNamed("/profile");
@@ -603,8 +619,7 @@ class AuthController extends GetxController {
 
 //.............Forget Password Function............
   Future<void> forgotPassword(String account) async {
-    final url =
-        Uri.parse('$baseUrl/user/forget-password');
+    final url = Uri.parse('$baseUrl/user/forget-password');
 
     Map<String, dynamic> body = {};
 
@@ -647,8 +662,7 @@ class AuthController extends GetxController {
   }
 
   Future<Map<String, dynamic>?> verifyForgotToken(String token) async {
-    final url =
-        Uri.parse('$baseUrl/user/verify-forget-token');
+    final url = Uri.parse('$baseUrl/user/verify-forget-token');
     final headers = {
       "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
       "Content-Type": "application/json",
@@ -688,8 +702,7 @@ class AuthController extends GetxController {
     required String newPassword,
   }) async {
     final isEmail = contact.contains('@');
-    final url =
-        Uri.parse('$baseUrl/user/reset-password');
+    final url = Uri.parse('$baseUrl/user/reset-password');
     final headers = {
       "x-vendor-identifier": dotenv.env['SHOP_ID'] ?? "",
       "Content-Type": "application/json",

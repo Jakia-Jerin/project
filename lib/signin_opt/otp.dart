@@ -31,7 +31,7 @@ class OtpPage extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
           backgroundColor: contextTheme.colorScheme.background,
-          resizeToAvoidBottomInset: true,
+          resizeToAvoidBottomInset: false,
           body: SingleChildScrollView(
             padding: EdgeInsets.only(
               left: 18,
