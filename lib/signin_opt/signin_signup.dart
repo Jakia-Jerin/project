@@ -192,7 +192,7 @@ class SigninPage extends StatelessWidget {
                             Expanded(
                               child: FTextField(
                                 controller: authController.emailController,
-                                hint: 'Enter your email *',
+                                hint: 'Enter your email',
                                 keyboardType: TextInputType.emailAddress,
                                 prefixBuilder: (context, value, child) =>
                                     Padding(
@@ -343,11 +343,11 @@ class SigninPage extends StatelessWidget {
                                   }
                                   await authController.signUp();
 
-                                  final contact =
-                                      email.isNotEmpty ? email : phone;
+                                  // final contact =
+                                  //     email.isNotEmpty ? email : phone;
 
-                                  // Navigate to OTP Page
-                                  Get.to(() => OtpPage(contact: contact));
+                                  // // Navigate to OTP Page
+                                  // Get.to(() => OtpPage(contact: contact));
                                 }
                               },
                               label: Text(

@@ -8,7 +8,6 @@ import 'package:theme_desiree/a/views/horizontal_brochure.dart';
 import 'package:theme_desiree/a/views/product_collage.dart';
 import 'package:theme_desiree/currency/currency_controller.dart';
 import 'package:theme_desiree/a/ui/error_view.dart';
-import 'package:theme_desiree/a/ui/loader_view.dart';
 
 class HomeView extends StatelessWidget {
   HomeView({super.key});
@@ -28,9 +27,9 @@ class HomeView extends StatelessWidget {
           TopBar(),
           Expanded(
             child: GetX<HomeController>(builder: (controller) {
-              if (controller.isLoading.value) {
-                return Center(child: const LoaderView());
-              }
+              // if (controller.isLoading.value) {
+              //   return Center(child: const LoaderView());
+              // }
               if (controller.hasError.value) {
                 return ErrorView(
                   body: "Failed to load store",

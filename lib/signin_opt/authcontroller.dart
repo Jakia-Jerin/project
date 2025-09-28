@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:theme_desiree/orders/orders_controller.dart';
 
 import 'package:theme_desiree/profile/contacts.dart';
+import 'package:theme_desiree/signin_opt/otp.dart';
 import 'package:theme_desiree/signin_opt/profile_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -293,6 +294,8 @@ class AuthController extends GetxController {
         ? genderController.value.first.name
         : '';
 
+    final contact = email.isNotEmpty ? email : phone;
+
     if (name.isEmpty || password.isEmpty || (email.isEmpty && phone.isEmpty)) {
       Get.snackbar('Error', 'Name, Password & (Email or Phone) required');
       return;
@@ -361,7 +364,9 @@ class AuthController extends GetxController {
 
         clearInputs();
         toggleLoginSignUp();
-        Get.toNamed("settings/OtpPage");
+        Get.to(() => OtpPage(contact: contact));
+
+        // Get.toNamed("settings/OtpPage");
         // Save to local storage if needed
         final box = GetStorage();
         box.write('name', name);
@@ -371,8 +376,11 @@ class AuthController extends GetxController {
         box.write('gender', gender);
       } else {
         Get.snackbar('Error', "Failed: ${response.body}");
+        print('Response:  ${response.body}');
       }
     } catch (e) {
+      print('Failed: $e');
+
       Get.snackbar('Error', e.toString());
     } finally {
       isUploading.value = false;
